@@ -1,0 +1,20 @@
+# Portfolio subdirectories (source material, not web deliverables)
+01_BlueVector/
+
+# Scanned document PNGs
+Lake County Library_*.png
+
+# Office documents
+*.docx
+*.pdf
+*.zip
+
+# Unused logo variant
+bvlogo.svg
+
+# Claude internal
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

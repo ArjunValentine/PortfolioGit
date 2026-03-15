@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlueVector | Convergence Engineering</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Hummingbird logo palette */
+      --cyan: #00CED1;
+      --royal: #4169E1;
+      --purple: #9370DB;
+      --magenta: #FF1493;
+      --slate: #2F4F4F;
+      --near-black: #1C1C1C;
+
+      /* 80s/90s aerospace corporate palette */
+      --navy: #0B1A3E;
+      --corp-blue: #1B3A6B;
+      --mid-blue: #2B5EA7;
+      --steel: #4A6FA5;
+      --silver: #B8C6D9;
+      --light-silver: #D8E1EC;
+      --cream: #F4F1EB;
+      --warm-white: #FAFAF7;
+      --off-white: #EDECE8;
+      --gold-accent: #C5985A;
+      --rule-gray: #9EAEC0;
+
+      --stripe-gradient: linear-gradient(90deg, var(--cyan), var(--royal), var(--purple), var(--magenta));
+      --corp-gradient: linear-gradient(135deg, var(--navy) 0%, var(--corp-blue) 40%, var(--mid-blue) 100%);
+
+      --serif: 'EB Garamond', 'Georgia', 'Times New Roman', serif;
+      --sans: 'Inter', 'Helvetica Neue', 'Arial', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--warm-white);
+      color: var(--near-black);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ═══ IRIDESCENT STRIPE ═══ */
+    .iridescent-bar { height: 4px; background: var(--stripe-gradient); }
+    .iridescent-bar.thin { height: 2px; }
+
+    /* ═══ HEADER ═══ */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--light-silver);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-group img { height: 50px; width: auto; max-width: 220px; display: block; }
+
+    .header-meta {
+      font-size: 0.75rem;
+      color: var(--rule-gray);
+      text-align: right;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      background: var(--corp-gradient);
+      color: #fff;
+      padding: 5rem 2.5rem 4.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 320px; height: 100%;
+      background: repeating-linear-gradient(
+        -45deg, transparent, transparent 8px,
+        rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px
+      );
+    }
+
+    .hero-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.5rem;
+      max-width: 700px;
+    }
+
+    .hero-rule {
+      width: 80px; height: 2px;
+      background: var(--stripe-gradient);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.78);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    .hero-disciplines {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .hero-disciplines span {
+      padding: 0.45rem 1.1rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* ═══ TAB NAVIGATION ═══ */
+    .tab-nav-wrap {
+      background: var(--warm-white);
+      border-bottom: 1px solid var(--light-silver);
+      position: sticky;
+      top: 62px;
+      z-index: 90;
+    }
+
+    .tab-nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 2rem;
+    }
+
+    .tab-nav::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 1rem 1.4rem;
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--rule-gray);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--corp-blue); }
+
+    .tab-btn.active { color: var(--navy); }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 1rem; right: 1rem;
+      height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    /* ═══ CONTENT ═══ */
+    .tab-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3.5rem 2.5rem 5rem;
+    }
+
+    .tab-panel { display: none; animation: panelIn 0.3s ease; }
+    .tab-panel.active { display: block; }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section Header */
+    .section-head {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--light-silver);
+    }
+
+    .section-head .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.6rem;
+    }
+
+    .section-head h2 {
+      font-family: var(--serif);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-head p {
+      color: var(--slate);
+      font-size: 1rem;
+      max-width: 640px;
+      font-weight: 300;
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2rem;
+      position: relative;
+      transition: box-shadow 0.3s;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--stripe-gradient);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 20px rgba(11, 26, 62, 0.08);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-number {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rule-gray);
+      margin-bottom: 0.75rem;
+    }
+
+    .card h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.6rem;
+    }
+
+    .card p {
+      color: var(--slate);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .card .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--off-white);
+    }
+
+    .card .tech-tags span {
+      padding: 0.2rem 0.6rem;
+      background: var(--off-white);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--steel);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Stats */
+    .stat-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0;
+      margin-bottom: 3rem;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+    }
+
+    .stat-item {
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      border-right: 1px solid var(--light-silver);
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-item .number {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    .stat-item .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--rule-gray);
+      margin-top: 0.4rem;
+    }
+
+    /* Feature Row */
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-bottom: 3rem;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+    }
+
+    .feature-block { padding: 2rem; }
+
+    .feature-block:first-child {
+      border-right: 1px solid var(--light-silver);
+    }
+
+    .feature-block h3 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--off-white);
+    }
+
+    .feature-block ul { list-style: none; }
+
+    .feature-block ul li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--off-white);
+      color: var(--slate);
+      font-size: 0.88rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    .feature-block ul li:last-child { border-bottom: none; }
+
+    .feature-block ul li::before {
+      content: '\25B8';
+      color: var(--mid-blue);
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    /* Collections */
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 0;
+      margin-bottom: 3rem;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+    }
+
+    .collection-card {
+      padding: 2rem 1.75rem;
+      border-right: 1px solid var(--light-silver);
+      border-bottom: 1px solid var(--light-silver);
+      transition: background 0.25s;
+    }
+
+    .collection-card:hover { background: var(--cream); }
+
+    .collection-card .series-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.75rem;
+    }
+
+    .collection-card h4 {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.25rem;
+    }
+
+    .collection-card .subtitle {
+      font-family: var(--serif);
+      font-size: 0.85rem;
+      font-style: italic;
+      color: var(--steel);
+      margin-bottom: 0.75rem;
+    }
+
+    .collection-card p {
+      font-size: 0.85rem;
+      color: var(--slate);
+      line-height: 1.55;
+    }
+
+    /* Philosophy callout */
+    .philosophy {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .philosophy::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .philosophy h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1rem;
+    }
+
+    .philosophy p {
+      color: var(--slate);
+      font-size: 0.92rem;
+      margin-bottom: 0.75rem;
+      max-width: 720px;
+    }
+
+    .philosophy p:last-child { margin-bottom: 0; }
+
+    .philosophy .quote {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--corp-blue);
+      border-left: 3px solid var(--mid-blue);
+      padding-left: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    /* ═══ CTA / FOOTER ═══ */
+    .cta-section {
+      background: var(--corp-gradient);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 2.5rem;
+      position: relative;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .cta-section > * { position: relative; z-index: 1; }
+
+    .cta-section h2 {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-section p {
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 2rem;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 300;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      padding: 0.85rem 2.5rem;
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .cta-btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.7);
+    }
+
+    footer {
+      background: var(--navy);
+      color: var(--silver);
+      text-align: center;
+      padding: 1.5rem 2rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+      .feature-row { grid-template-columns: 1fr; }
+      .feature-block:first-child { border-right: none; border-bottom: 1px solid var(--light-silver); }
+      .hero { padding: 3.5rem 1.5rem 3rem; }
+      .tab-content { padding: 2.5rem 1.5rem 4rem; }
+      .header-inner { padding: 0.85rem 1.5rem; }
+      .header-meta { display: none; }
+      .stat-item { border-bottom: 1px solid var(--light-silver); }
+      .collection-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .collection-grid { grid-template-columns: 1fr; }
+      .stat-bar { grid-template-columns: 1fr 1fr; }
+      .hero-disciplines span { font-size: 0.7rem; padding: 0.35rem 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Iridescent bar -->
+<div class="iridescent-bar"></div>
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+    <div class="logo-group">
+      <img src="bvlogo.png" alt="BlueVector" />
+    </div>
+    <div class="header-meta">Bartow, FL</div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Engineering Solutions Across Converging Disciplines</h1>
+    <div class="hero-rule"></div>
+    <p>A multi-venture studio where grief becomes garment, firmware becomes ceremony, and precision engineering meets open-source conviction. Protective systems that don&rsquo;t look like protection. Healing technologies that feel like fashion.</p>
+    <div class="hero-disciplines">
+      <span>NFC &amp; Hardware</span>
+      <span>AI &amp; Robotics</span>
+      <span>Education</span>
+      <span>Precision Engineering</span>
+      <span>Platform Development</span>
+    </div>
+  </div>
+</section>
+
+<div class="iridescent-bar thin"></div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav-wrap">
+  <nav class="tab-nav" role="tablist">
+    <button class="tab-btn active" data-tab="overview" role="tab">Overview</button>
+    <button class="tab-btn" data-tab="platforms" role="tab">Platforms</button>
+    <button class="tab-btn" data-tab="hardware" role="tab">NFC &amp; Hardware</button>
+    <button class="tab-btn" data-tab="ai" role="tab">AI &amp; Robotics</button>
+    <button class="tab-btn" data-tab="education" role="tab">Education</button>
+    <button class="tab-btn" data-tab="innovation" role="tab">R&amp;D</button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB PANELS                                  -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-content">
+
+  <!-- ────── OVERVIEW ────── -->
+  <div class="tab-panel active" id="overview">
+    <div class="section-head">
+      <div class="label">BlueVector.iT.com Corp</div>
+      <h2>Syncretic Engineering Across Disciplines</h2>
+      <p>Problems don&rsquo;t respect discipline boundaries. We work at the convergence of ecology and engineering, aesthetic and function, digital and biological, grief and release.</p>
+    </div>
+
+    <div class="stat-bar">
+      <div class="stat-item">
+        <div class="number">14</div>
+        <div class="label">Active Projects</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">7</div>
+        <div class="label">Technology Domains</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">15yr</div>
+        <div class="label">Technical Sales</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">FL</div>
+        <div class="label">Bartow &amp; Martin Co.</div>
+      </div>
+    </div>
+
+    <div class="philosophy">
+      <h3>Operating Philosophy</h3>
+      <p class="quote">&ldquo;Living dresses for the dying. Healing technologies that feel like fashion.&rdquo;</p>
+      <p>No discipline silos. Every project is designed for convergence&mdash;where textile meets firmware, where memorial technology meets NFC authentication, where community education meets physical-digital integration.</p>
+      <p>We operate on 6-day sprint cycles with 1-week integration periods, using an H-O-X architecture for AI-triangulated decision making and radical transparency. Git as version-control backbone. Multi-AI coordination across Claude, GPT, Grok, and Gemini.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">Division 01</div>
+        <h3>TheWidow&rsquo;sWalk</h3>
+        <p>Therapeutic fashion with kevlar reinforcement, hydrogel cooling, and NFC-authenticated garments. Collections follow migration patterns, not fashion calendars. FDA pathway active.</p>
+        <div class="tech-tags"><span>Kevlar</span><span>Hydrogel</span><span>NFC</span><span>FDA</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Division 02</div>
+        <h3>Durandal Memorial Services</h3>
+        <p>Digital legacy platform: cyberscrubbing, NFC memorial tokens, simulant resurrection. Memory embeddings, ceremony orchestration, and voxel accessibility interfaces.</p>
+        <div class="tech-tags"><span>FastAPI</span><span>ChromaDB</span><span>Ollama</span><span>Firebase</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Division 03</div>
+        <h3>SaintCyber Sanitation</h3>
+        <p>NFC infrastructure end-to-end: ACR122U readers with signed Windows drivers, NTAG chip programming, cryptographic token binding, and physical-digital authentication.</p>
+        <div class="tech-tags"><span>ACR122U</span><span>NTAG</span><span>PBKDF2</span><span>Drivers</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Division 04</div>
+        <h3>DONN AI &mdash; The Canary System</h3>
+        <p>Behavioral auditing AI for home safety. Baseline learning, kinetic signature analysis, isolation/neglect pattern detection, and agentic intervention protocols with evidence chains.</p>
+        <div class="tech-tags"><span>Computer Vision</span><span>ML</span><span>Python</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Division 05</div>
+        <h3>BlueVector Command Center</h3>
+        <p>Multi-venture CRM and operations hub: contacts, organizations, grants, media, events, and streaming. Real-time Supabase backbone with OBS overlay integration.</p>
+        <div class="tech-tags"><span>Supabase</span><span>React</span><span>PostgreSQL</span><span>OBS</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Division 06</div>
+        <h3>Phygital Engineering</h3>
+        <p>Teen makerspace program at Hobe Sound Public Library. 4-session STEAM curriculum teaching NFC programming and textile craftsmanship to ages 10+.</p>
+        <div class="tech-tags"><span>NFC</span><span>Textiles</span><span>Git</span><span>STEAM</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Division 07</div>
+        <h3>CEOP Drill</h3>
+        <p>Open-source Continuous Extraction Offset Precision drill. Hollow-bore bit evacuates 100% of debris via vacuum-assisted reverse circulation. Swiss-turned to &plusmn;0.0005&rdquo; tolerance.</p>
+        <div class="tech-tags"><span>Open Source</span><span>DFM</span><span>Kickstarter</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Division 08</div>
+        <h3>Isaac GR00T Robotics</h3>
+        <p>NVIDIA Isaac GR00T framework in Unity for humanoid robotics simulation. ROS data pipelines and sensor capture for embodied AI research.</p>
+        <div class="tech-tags"><span>Unity</span><span>Isaac SDK</span><span>ROS</span><span>C#</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────── PLATFORMS ────── -->
+  <div class="tab-panel" id="platforms">
+    <div class="section-head">
+      <div class="label">Software Engineering</div>
+      <h2>Platforms &amp; Backend Infrastructure</h2>
+      <p>Full-stack systems powering multi-venture operations&mdash;from real-time CRM to streaming radio and design token delivery.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">System 01</div>
+        <h3>BlueVector Command Center</h3>
+        <p>Operations hub managing contacts, organizations, grants, media, streams, and events. Trigram-based fuzzy search, Ghost Factory transparency scoring, and real-time OBS overlay integration for live broadcasts.</p>
+        <div class="tech-tags"><span>Supabase</span><span>PostgreSQL</span><span>React</span><span>Realtime</span><span>OBS</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">System 02</div>
+        <h3>Durandal Backend</h3>
+        <p>Memorial technology microservices: simulant creation and activation, NFC token management, ceremony orchestration, cyberscrubbing workflows, and memory embedding retrieval.</p>
+        <div class="tech-tags"><span>FastAPI</span><span>Firebase</span><span>ChromaDB</span><span>Ollama</span><span>Docker</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">System 03</div>
+        <h3>Hummingbird Radio</h3>
+        <p>Streaming radio infrastructure with state management, OBS browser source integration, and real-time overlays for live broadcasts and community events.</p>
+        <div class="tech-tags"><span>WebSocket</span><span>Supabase Realtime</span><span>OBS</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">System 04</div>
+        <h3>Colibri</h3>
+        <p>Containerized deployment-ready service. Git-tracked with active development for production deployment across the BlueVector ecosystem.</p>
+        <div class="tech-tags"><span>Docker</span><span>Git</span><span>CI/CD</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">System 05</div>
+        <h3>Slack NFC Bridge</h3>
+        <p>Physical NFC taps trigger Slack workspace messages. Physical-to-digital interaction layer connecting hardware tokens to real-time team communication channels.</p>
+        <div class="tech-tags"><span>Node.js</span><span>Slack API</span><span>NFC</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">System 06</div>
+        <h3>Design Token API</h3>
+        <p>CSS variable delivery system serving brand-consistent design tokens across all ventures. Centralised style governance for the entire BlueVector ecosystem.</p>
+        <div class="tech-tags"><span>CSS Variables</span><span>API</span><span>Brand System</span></div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-block">
+        <h3>API Capabilities</h3>
+        <ul>
+          <li>Contact management with fuzzy trigram search</li>
+          <li>Organization lookup with transparency scoring</li>
+          <li>Ghost Factory audit scanning across entities</li>
+          <li>Real-time stream state for broadcast overlays</li>
+          <li>Media asset management and event scheduling</li>
+          <li>Grant tracking and reporting</li>
+        </ul>
+      </div>
+      <div class="feature-block">
+        <h3>Multi-AI Coordination Workflow</h3>
+        <ul>
+          <li>Git as version-control backbone for AI context</li>
+          <li>Multi-AI dev sprints (Claude, GPT, Grok, Gemini)</li>
+          <li>STATUS / HANDOFFS / DECISIONS tracking protocol</li>
+          <li>H-O-X architecture for triangulated decisions</li>
+          <li>Akiflow task auto-generation from Git state</li>
+          <li>NotebookLM context synchronization</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────── NFC & HARDWARE ────── -->
+  <div class="tab-panel" id="hardware">
+    <div class="section-head">
+      <div class="label">SaintCyber Sanitation</div>
+      <h2>NFC &amp; Hardware Integration</h2>
+      <p>End-to-end NFC hardware infrastructure&mdash;from signed device drivers to chip programming, reader deployment, and cryptographic physical-digital authentication.</p>
+    </div>
+
+    <div class="stat-bar">
+      <div class="stat-item">
+        <div class="number">3</div>
+        <div class="label">NTAG Chip Types</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">ACR122U</div>
+        <div class="label">Primary Reader</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">SHA-256</div>
+        <div class="label">Token Security</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">Signed</div>
+        <div class="label">Windows Drivers</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">Hardware 01</div>
+        <h3>ACR122U Reader Systems</h3>
+        <p>Deployment and integration of ACR122U NFC readers with ACS Unified Driver v4.2.8.0 (Windows-signed). Complete PCSC-based reader infrastructure for authentication and interactive applications.</p>
+        <div class="tech-tags"><span>ACR122U</span><span>ACR30</span><span>PCSC</span><span>ACS Driver</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Hardware 02</div>
+        <h3>NTAG Chip Programming</h3>
+        <p>Provisioning NTAG213, 215, and 216 chips in sticker, coin, and card form factors. URL writing, contact card encoding, custom data payloads, and authentication binding across all ventures.</p>
+        <div class="tech-tags"><span>NTAG213</span><span>NTAG215</span><span>NTAG216</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Hardware 03</div>
+        <h3>Cryptographic Token Security</h3>
+        <p>PBKDF2-SHA256 hashed NFC token binding for secure physical-to-digital authentication. Cryptographic verification connecting physical tokens to Durandal memorial records and garment provenance.</p>
+        <div class="tech-tags"><span>PBKDF2</span><span>SHA-256</span><span>Token Binding</span></div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-block">
+        <h3>Hardware Stack</h3>
+        <ul>
+          <li>ACR122U USB NFC readers (primary)</li>
+          <li>ACR30 legacy reader support</li>
+          <li>ACS Unified Windows-signed driver package</li>
+          <li>NTAG chip family: 213 / 215 / 216</li>
+          <li>Form factors: stickers, coins, cards, embedded</li>
+          <li>Firmware tools and diagnostics suite</li>
+        </ul>
+      </div>
+      <div class="feature-block">
+        <h3>Integration Points</h3>
+        <ul>
+          <li>Garment authentication (TheWidow&rsquo;sWalk)</li>
+          <li>Memorial token binding (Durandal)</li>
+          <li>Slack workspace message triggers</li>
+          <li>CSI-Jr location-based ARG gameplay</li>
+          <li>Healing ceremony token activation</li>
+          <li>Phygital Engineering student kits ($38/reader &times; 12)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────── AI & ROBOTICS ────── -->
+  <div class="tab-panel" id="ai">
+    <div class="section-head">
+      <div class="label">Intelligent Systems</div>
+      <h2>AI &amp; Robotics</h2>
+      <p>Applied artificial intelligence from behavioral safety monitoring to humanoid robotics&mdash;always trauma-informed, always in service of real-world outcomes.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">Program 01</div>
+        <h3>DONN AI &mdash; The Canary System</h3>
+        <p>Behavioral auditing AI for home safety. Learns baseline behaviour, then continuously audits for isolation patterns, escalating aggression, self-harm markers, and environmental degradation. Agentic intervention with evidence chains.</p>
+        <div class="tech-tags"><span>Computer Vision</span><span>Spatial Mapping</span><span>Kinetic Analysis</span><span>Python</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Program 02</div>
+        <h3>Isaac GR00T Robotics</h3>
+        <p>NVIDIA Isaac GR00T framework integration in Unity for humanoid robotics simulation, training, and deployment. 1.7GB ROS bag sensor capture for embodied AI training pipelines.</p>
+        <div class="tech-tags"><span>Unity</span><span>Isaac SDK</span><span>ROS</span><span>C#</span><span>Sensor Data</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Program 03</div>
+        <h3>Villa Cognitive Assist</h3>
+        <p>Python-based cognitive assistance system providing structured support for executive function, task management, and decision-making. Full ML stack: NumPy, PyTorch, TensorFlow, Matplotlib.</p>
+        <div class="tech-tags"><span>Python</span><span>PyTorch</span><span>TensorFlow</span><span>Cognitive Support</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Program 04</div>
+        <h3>H-O-X Multi-AI Orchestration</h3>
+        <p>Architecture coordinating Claude, GPT, Grok, Gemini, and Copilot for triangulated decision-making. Git-backed context with NotebookLM synchronization and Akiflow task generation.</p>
+        <div class="tech-tags"><span>Claude</span><span>GPT</span><span>Grok</span><span>Gemini</span><span>Git</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Program 05</div>
+        <h3>Simulant Resurrection Engine</h3>
+        <p>Local-first LLM inference via Ollama powering conversational simulants of deceased persons. ChromaDB vector retrieval for memory-accurate personality reconstruction.</p>
+        <div class="tech-tags"><span>Ollama</span><span>ChromaDB</span><span>Embeddings</span><span>Local LLM</span></div>
+      </div>
+    </div>
+
+    <div class="philosophy">
+      <h3>Approach to AI</h3>
+      <p>AI is a coordination tool, not a replacement. Every system serves a specific human need&mdash;whether monitoring a child&rsquo;s safety, assisting cognitive function, preserving the dead&rsquo;s memory, or triangulating complex decisions across multiple model perspectives.</p>
+      <p>Local-first where possible (Ollama, ChromaDB). Cloud-augmented where necessary. Physics-layer verification before execution. Trauma-informed design as default.</p>
+      <p>DONN was built to be the &ldquo;eyes&rdquo; for those without human empathy or oversight&mdash;the canary that never stops watching.</p>
+    </div>
+  </div>
+
+  <!-- ────── EDUCATION ────── -->
+  <div class="tab-panel" id="education">
+    <div class="section-head">
+      <div class="label">Phygital Engineering</div>
+      <h2>Education &amp; Community Programs</h2>
+      <p>Hands-on makerspace programs where textile craftsmanship meets NFC technology&mdash;teaching the next generation to build at the physical-digital intersection.</p>
+    </div>
+
+    <div class="stat-bar">
+      <div class="stat-item">
+        <div class="number">24</div>
+        <div class="label">Participants / Cohort</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">4</div>
+        <div class="label">Session Series</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">10+</div>
+        <div class="label">Ages Welcome</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">$875</div>
+        <div class="label">Budget Request</div>
+      </div>
+    </div>
+
+    <div class="collection-grid">
+      <div class="collection-card">
+        <div class="series-num">Session 1</div>
+        <h4>NFC Fundamentals</h4>
+        <div class="subtitle">Introduction &amp; First Tap</div>
+        <p>NFC technology overview. ACR122U reader setup. First NTAG programming: URLs, contact cards, custom data payloads. Understanding physical-digital bridges.</p>
+      </div>
+      <div class="collection-card">
+        <div class="series-num">Session 2</div>
+        <h4>Soft Circuits</h4>
+        <div class="subtitle">Needle Felting &amp; Embedding</div>
+        <p>Textile construction through needle felting techniques. Embedding NFC tags into textile substrates. Supervised sharp-tool safety protocols.</p>
+      </div>
+      <div class="collection-card">
+        <div class="series-num">Session 3</div>
+        <h4>Embroidery &amp; Linking</h4>
+        <div class="subtitle">Craft Meets Code</div>
+        <p>Decorative embroidery techniques combined with NFC chip linking. Git version control introduction. GitHub collaboration basics for project tracking.</p>
+      </div>
+      <div class="collection-card">
+        <div class="series-num">Session 4</div>
+        <h4>Showcase</h4>
+        <div class="subtitle">Community Presentation</div>
+        <p>Final project assembly and public showcase. Students present NFC-embedded textile creations to community. Peer review and celebration of convergence skills.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-block">
+        <h3>Program Infrastructure</h3>
+        <ul>
+          <li>Hobe Sound Public Library partnership</li>
+          <li>BlueVector.iT.com Corp technology sponsor</li>
+          <li>TheWidow&rsquo;sWalk materials supply</li>
+          <li>Community Chest funding model</li>
+          <li>12&times; ACR122U readers ($38 each)</li>
+          <li>USB hubs and powered extension infrastructure</li>
+          <li>$1,800+ in-kind technology value</li>
+        </ul>
+      </div>
+      <div class="feature-block">
+        <h3>Learning Outcomes</h3>
+        <ul>
+          <li>Physical making + digital technology fluency</li>
+          <li>NFC programming: URLs, contacts, custom data</li>
+          <li>Material science and textile engineering basics</li>
+          <li>Git version control and GitHub collaboration</li>
+          <li>Wearable technology design principles</li>
+          <li>Project-based STEAM integration</li>
+          <li>Community presentation and peer collaboration</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">Program Extension</div>
+        <h3>CSI-Jr</h3>
+        <p>NFC-enabled alternate reality game in downtown Bartow, FL. Location-based gameplay combining Pok&eacute;mon GO-style exploration with detective mechanics and STEM education. Hidden NFC tags trigger clues, puzzles, and narrative progression.</p>
+        <div class="tech-tags"><span>NFC ARG</span><span>Location-Based</span><span>STEM</span><span>Flask</span><span>HTML5</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────── R&D ────── -->
+  <div class="tab-panel" id="innovation">
+    <div class="section-head">
+      <div class="label">Research &amp; Development</div>
+      <h2>Innovation &amp; Frontier Projects</h2>
+      <p>Open-source precision instruments, bio-computation research, healing center infrastructure, and organizational transparency systems.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">Project 01</div>
+        <h3>CEOP Drill</h3>
+        <p>Continuous Extraction Offset Precision drill. 1/4&rdquo; hollow-bore bit evacuates 100% of drilling debris through its center via reverse circulation. Stainless clamshell handpiece in saxophone-profile offset geometry. Micro-chain drive system. Autoclavable fluid-path components.</p>
+        <div class="tech-tags"><span>Open Source</span><span>Swiss Turning</span><span>Gundrilling</span><span>Gear Hobbing</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Project 02</div>
+        <h3>Hummingbird-42 Healing Center</h3>
+        <p>Physical anchor for therapeutic work. Trinaural photoresonance therapy combined with an FDA-compliant cosmetics laboratory and NFC token-activated healing ceremony systems.</p>
+        <div class="tech-tags"><span>Photoresonance</span><span>FDA Cosmetics</span><span>NFC Healing</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Project 03</div>
+        <h3>Ghost Factory Audit System</h3>
+        <p>Transparency scoring engine for organizations. Scans entities for operational legitimacy, financial transparency, and public accountability across grant ecosystems and nonprofit sectors.</p>
+        <div class="tech-tags"><span>Audit</span><span>Transparency</span><span>Grant Tracking</span></div>
+      </div>
+      <div class="card">
+        <div class="card-number">Project 04</div>
+        <h3>Micro Poverty Patent</h3>
+        <p>Provisional patent exploring systemic approaches to poverty reduction through technology access, community infrastructure, and convergence engineering methodologies.</p>
+        <div class="tech-tags"><span>Provisional Patent</span><span>R&amp;D</span></div>
+      </div>
+    </div>
+
+    <div class="philosophy">
+      <h3>CEOP: Open Source Commitment</h3>
+      <p class="quote">&ldquo;The hole is not the problem. What you leave behind is.&rdquo;</p>
+      <p>The CEOP drill is engineered for open-source release through Kickstarter&mdash;available as both kit and assembled unit. Swiss-turned hollow-bore bit machined to &plusmn;0.0005&rdquo; tolerance with gundrilling, gear hobbing, and heat treatment. Production cost under $100 at scale.</p>
+      <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-block">
+        <h3>CEOP Specifications</h3>
+        <ul>
+          <li>1/4&rdquo; hollow-bore geared bit</li>
+          <li>Swiss turning to &plusmn;0.0005&rdquo; tolerance</li>
+          <li>Stainless clamshell handpiece, saxophone profile</li>
+          <li>Micro-chain drive (quieter than gears, field-replaceable)</li>
+          <li>Vacuum-assisted peristaltic base unit</li>
+          <li>Autoclavable fluid-path components</li>
+          <li>Complete DFM specification and sourced BOM</li>
+        </ul>
+      </div>
+      <div class="feature-block">
+        <h3>Frontier Research</h3>
+        <ul>
+          <li>Trinaural photoresonance therapy protocols</li>
+          <li>FDA cosmetics lab integration pathway</li>
+          <li>Organizational transparency algorithms</li>
+          <li>NFC-activated healing ceremony systems</li>
+          <li>Drone tracking and monitoring systems</li>
+          <li>Community resilience infrastructure</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Let&rsquo;s Build Something at the Intersection</h2>
+  <p>Whether it&rsquo;s therapeutic wearables, memorial technology, NFC systems, or community programs&mdash;the best work happens where disciplines converge.</p>
+  <a href="mailto:contact@bluevector.com" class="cta-btn">Request a Briefing</a>
+</section>
+
+<div class="iridescent-bar"></div>
+
+<footer>
+  BlueVector.iT.com Corp &bull; Convergence Engineering &bull; Bartow, FL
+</footer>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(target).classList.add('active');
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    });
+  });
+</script>
+
+</body>
+</html>
