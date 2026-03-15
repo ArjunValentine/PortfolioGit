@@ -593,6 +593,525 @@
       .collection-grid { grid-template-columns: 1fr; }
       .stat-bar { grid-template-columns: 1fr 1fr; }
       .hero-disciplines span { font-size: 0.7rem; padding: 0.35rem 0.8rem; }
+      .logo-cloud { grid-template-columns: repeat(2, 1fr); }
+      .mcp-diagram { flex-direction: column; }
+      .colibri-flow { overflow-x: auto; }
+    }
+
+    /* ═══ LOGO CLOUD ═══ */
+    .logo-cloud-section {
+      margin-bottom: 3rem;
+    }
+
+    .logo-cloud-section .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rule-gray);
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    .logo-cloud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+    }
+
+    .logo-cloud-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.75rem 1.5rem;
+      border-right: 1px solid var(--light-silver);
+      border-bottom: 1px solid var(--light-silver);
+      transition: background 0.25s;
+      min-height: 90px;
+    }
+
+    .logo-cloud-item:hover { background: var(--cream); }
+
+    .logo-cloud-item .client-name {
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-align: center;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+
+    .logo-cloud-item .client-name.serif-logo {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* ═══ MCP DIAGRAM ═══ */
+    .mcp-section {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .mcp-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .mcp-section h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.75rem;
+    }
+
+    .mcp-section > p {
+      color: var(--slate);
+      font-size: 0.92rem;
+      max-width: 720px;
+      margin-bottom: 1.5rem;
+    }
+
+    .mcp-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 2rem 0;
+    }
+
+    .mcp-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 140px;
+      height: 90px;
+      border: 2px solid var(--mid-blue);
+      background: linear-gradient(135deg, #f0f4fa 0%, #fff 100%);
+      position: relative;
+      text-align: center;
+      padding: 0.5rem;
+    }
+
+    .mcp-node .node-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .mcp-node .node-sub {
+      font-size: 0.6rem;
+      color: var(--steel);
+      margin-top: 0.15rem;
+    }
+
+    .mcp-hub {
+      width: 160px;
+      height: 100px;
+      border: 3px solid var(--royal);
+      background: var(--corp-gradient);
+      color: #fff;
+    }
+
+    .mcp-hub .node-label {
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    .mcp-hub .node-sub {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .mcp-connector {
+      width: 40px;
+      height: 2px;
+      background: var(--stripe-gradient);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .mcp-connector::after {
+      content: '\25B6';
+      position: absolute;
+      right: -4px;
+      top: -8px;
+      font-size: 0.6rem;
+      color: var(--royal);
+    }
+
+    .mcp-connector.bidi::before {
+      content: '\25C0';
+      position: absolute;
+      left: -4px;
+      top: -8px;
+      font-size: 0.6rem;
+      color: var(--purple);
+    }
+
+    .mcp-tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .mcp-tool-card {
+      padding: 1.25rem;
+      background: var(--cream);
+      border-left: 3px solid var(--mid-blue);
+    }
+
+    .mcp-tool-card h4 {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.35rem;
+    }
+
+    .mcp-tool-card p {
+      font-size: 0.8rem;
+      color: var(--slate);
+      line-height: 1.5;
+    }
+
+    /* ═══ COLIBRI FLOWCHART ═══ */
+    .colibri-flow {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .colibri-flow::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .colibri-flow h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .colibri-flow > p {
+      color: var(--slate);
+      font-size: 0.92rem;
+      max-width: 720px;
+      margin-bottom: 2rem;
+    }
+
+    .flow-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .flow-tier {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .flow-box {
+      padding: 1rem 1.5rem;
+      border: 2px solid var(--mid-blue);
+      background: linear-gradient(135deg, #f0f4fa 0%, #fff 100%);
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .flow-box .fb-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .flow-box .fb-sub {
+      font-size: 0.65rem;
+      color: var(--steel);
+      margin-top: 0.15rem;
+    }
+
+    .flow-box.primary {
+      border-color: var(--royal);
+      background: var(--corp-gradient);
+    }
+
+    .flow-box.primary .fb-label { color: #fff; }
+    .flow-box.primary .fb-sub { color: rgba(255,255,255,0.7); }
+
+    .flow-box.accent {
+      border-color: var(--cyan);
+      background: linear-gradient(135deg, #e8fafa 0%, #fff 100%);
+    }
+
+    .flow-box.output {
+      border-color: var(--purple);
+      background: linear-gradient(135deg, #f3eef9 0%, #fff 100%);
+    }
+
+    .flow-arrow {
+      font-size: 1.2rem;
+      color: var(--mid-blue);
+      text-align: center;
+      width: 100%;
+    }
+
+    .flow-arrow span {
+      display: inline-block;
+      background: var(--stripe-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══ SPEAKING OFFERING ═══ */
+    .speaking-offering {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .speaking-offering::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .speaking-header {
+      padding: 2.5rem 2.5rem 1.5rem;
+    }
+
+    .speaking-header .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.6rem;
+    }
+
+    .speaking-header h3 {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.75rem;
+    }
+
+    .speaking-header p {
+      color: var(--slate);
+      font-size: 0.95rem;
+      max-width: 640px;
+    }
+
+    .speaking-tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0;
+    }
+
+    .speaking-tier {
+      padding: 2rem 2.5rem;
+      border-top: 1px solid var(--light-silver);
+      border-right: 1px solid var(--light-silver);
+    }
+
+    .speaking-tier h4 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .speaking-tier .duration {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.75rem;
+    }
+
+    .speaking-tier p {
+      font-size: 0.88rem;
+      color: var(--slate);
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+
+    .speaking-tier ul {
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .speaking-tier ul li {
+      padding: 0.35rem 0;
+      color: var(--slate);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+    }
+
+    .speaking-tier ul li::before {
+      content: '\25B8';
+      color: var(--mid-blue);
+      font-size: 0.65rem;
+      flex-shrink: 0;
+    }
+
+    .speaking-cta {
+      padding: 1.75rem 2.5rem;
+      border-top: 1px solid var(--light-silver);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .speaking-cta a {
+      display: inline-block;
+      padding: 0.7rem 2rem;
+      background: var(--corp-gradient);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity 0.25s;
+    }
+
+    .speaking-cta a:hover { opacity: 0.85; }
+
+    .speaking-cta span {
+      font-size: 0.82rem;
+      color: var(--rule-gray);
+      font-style: italic;
+    }
+
+    /* ═══ PATENT DOWNLOADS ═══ */
+    .patent-download {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      transition: box-shadow 0.3s;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 1rem;
+    }
+
+    .patent-download:hover {
+      box-shadow: 0 4px 20px rgba(11, 26, 62, 0.08);
+    }
+
+    .patent-download::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--stripe-gradient);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .patent-download:hover::before { opacity: 1; }
+
+    .patent-icon {
+      width: 48px;
+      height: 56px;
+      background: var(--corp-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .patent-info h4 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.25rem;
+    }
+
+    .patent-info .patent-meta {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .patent-info p {
+      font-size: 0.85rem;
+      color: var(--slate);
+      line-height: 1.55;
+      max-width: 600px;
+    }
+
+    .patent-info .dl-badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.3rem 0.9rem;
+      border: 1px solid var(--mid-blue);
+      color: var(--mid-blue);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .patent-download:hover .dl-badge {
+      background: var(--mid-blue);
+      color: #fff;
     }
   </style>
 </head>
@@ -623,6 +1142,18 @@
       <span>Education</span>
       <span>Precision Engineering</span>
       <span>Platform Development</span>
+    </div>
+
+    <!-- Client Logo Cloud -->
+    <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <div style="font-size: 0.68rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.25rem;">Trusted By Industry Leaders</div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 2.5rem;">
+        <div style="font-family: var(--serif); font-size: 1.2rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.02em;">Est&eacute;e Lauder</div>
+        <div style="font-family: var(--sans); font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.08em; text-transform: uppercase;">Dura-Cast Products, Inc</div>
+        <div style="font-family: var(--sans); font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2;">MCX Core Brands<br><span style="font-size: 0.65rem; color: rgba(255,255,255,0.45);">Corps Value</span></div>
+        <div style="font-family: var(--sans); font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.06em; text-transform: uppercase;">UniFirst</div>
+        <div style="font-family: var(--sans); font-size: 1.3rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.12em; text-transform: uppercase;">NIKE</div>
+      </div>
     </div>
   </div>
 </section>
@@ -738,6 +1269,79 @@
       <div class="label">Software Engineering</div>
       <h2>Platforms &amp; Backend Infrastructure</h2>
       <p>Full-stack systems powering multi-venture operations&mdash;from real-time CRM to streaming radio and design token delivery.</p>
+    </div>
+
+    <!-- AI Platform Logo Cloud -->
+    <div class="logo-cloud-section">
+      <div class="label">AI Development Ecosystem</div>
+      <div class="logo-cloud" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="logo-cloud-item">
+          <div class="client-name">Claude Code</div>
+        </div>
+        <div class="logo-cloud-item">
+          <div class="client-name">GitHub<br>Copilot</div>
+        </div>
+        <div class="logo-cloud-item">
+          <div class="client-name">OpenAI<br>Codex</div>
+        </div>
+        <div class="logo-cloud-item">
+          <div class="client-name serif-logo">Notion</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MCP Architecture Explanation -->
+    <div class="mcp-section">
+      <h3>Model Context Protocol (MCP) &mdash; The Connective Layer</h3>
+      <p>MCP is the open standard that lets AI tools share context bidirectionally. Instead of each platform operating in isolation, MCP creates a unified protocol layer where Claude Code, GitHub Copilot, Codex, and Notion can all read from and write to shared project context&mdash;turning siloed AI assistants into a coordinated engineering team.</p>
+
+      <div class="mcp-diagram">
+        <div class="mcp-node">
+          <div class="node-label">Claude Code</div>
+          <div class="node-sub">Architecture &amp; Reasoning</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node mcp-hub">
+          <div class="node-label">MCP Server</div>
+          <div class="node-sub">Context &amp; Tool Routing</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node">
+          <div class="node-label">GitHub Copilot</div>
+          <div class="node-sub">Inline Completion</div>
+        </div>
+      </div>
+      <div class="mcp-diagram" style="margin-top: 0;">
+        <div class="mcp-node">
+          <div class="node-label">OpenAI Codex</div>
+          <div class="node-sub">Autonomous Tasks</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node mcp-hub">
+          <div class="node-label">Shared Context</div>
+          <div class="node-sub">Git &bull; Files &bull; DB &bull; APIs</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node">
+          <div class="node-label">Notion</div>
+          <div class="node-sub">Docs &amp; Knowledge Base</div>
+        </div>
+      </div>
+
+      <div class="mcp-tools-grid">
+        <div class="mcp-tool-card">
+          <h4>Tools &amp; Resources</h4>
+          <p>MCP servers expose tools (functions the AI can call) and resources (data the AI can read). A single server can give Claude Code access to your database, Copilot access to your API schemas, and Notion access to your codebase docs&mdash;all through one protocol.</p>
+        </div>
+        <div class="mcp-tool-card">
+          <h4>Context Sharing</h4>
+          <p>When Claude Code architects a solution, that context flows through MCP to Copilot for inline implementation. Codex picks up autonomous refactoring tasks. Notion auto-updates project documentation. No copy-paste. No context loss.</p>
+        </div>
+        <div class="mcp-tool-card">
+          <h4>BlueVector Implementation</h4>
+          <p>Our H-O-X multi-AI workflow runs on MCP. Custom servers expose Supabase tables, Git state, NFC hardware APIs, and design tokens as MCP resources&mdash;letting any AI assistant in the stack operate with full project awareness.</p>
+        </div>
+      </div>
     </div>
 
     <div class="card-grid">
@@ -920,6 +1524,86 @@
       </div>
     </div>
 
+    <!-- Colibri Vision System Flowchart -->
+    <div class="colibri-flow">
+      <h3>Colibri &mdash; ML Vision Pipeline Architecture</h3>
+      <p>Real-time cognitive assistance system using Intel RealSense D415 depth camera and OpenCV for multimodal object and action recognition. Three JSON serialization layers feed HybridRAG for contextual generalization of new stimuli.</p>
+
+      <div class="flow-container">
+        <!-- Tier 1: Hardware Input -->
+        <div class="flow-tier">
+          <div class="flow-box primary">
+            <div class="fb-label">RealSense D415</div>
+            <div class="fb-sub">Depth + RGB Capture</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; Aligned Depth &amp; Color Frames &#9660;</span></div>
+
+        <!-- Tier 2: OpenCV Processing -->
+        <div class="flow-tier">
+          <div class="flow-box accent">
+            <div class="fb-label">OpenCV</div>
+            <div class="fb-sub">BGR&rarr;RGB &bull; Frame Buffer</div>
+          </div>
+          <div class="flow-box">
+            <div class="fb-label">MediaPipe Holistic</div>
+            <div class="fb-sub">468 Face + 33 Pose Landmarks</div>
+          </div>
+          <div class="flow-box">
+            <div class="fb-label">YOLOv8</div>
+            <div class="fb-sub">Real-Time Object Detection</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; 2D&rarr;3D Deprojection via Intrinsics &#9660;</span></div>
+
+        <!-- Tier 3: Three JSON Libraries -->
+        <div class="flow-tier">
+          <div class="flow-box accent" style="border-color: var(--gold-accent);">
+            <div class="fb-label">JSON &mdash; Objects</div>
+            <div class="fb-sub">DetectedObject Serialization<br>class, confidence, bbox, 3D pos</div>
+          </div>
+          <div class="flow-box accent" style="border-color: var(--gold-accent);">
+            <div class="fb-label">JSON &mdash; Gaze</div>
+            <div class="fb-sub">Gaze Vector &amp; Intersection<br>eye landmarks, object focus</div>
+          </div>
+          <div class="flow-box accent" style="border-color: var(--gold-accent);">
+            <div class="fb-label">JSON &mdash; Audio</div>
+            <div class="fb-sub">60-Dim Feature Vectors<br>MFCCs, prosody, VAD state</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; SQLite Persistence + Temporal Buffering (5s Window) &#9660;</span></div>
+
+        <!-- Tier 4: HybridRAG -->
+        <div class="flow-tier">
+          <div class="flow-box output" style="min-width: 300px;">
+            <div class="fb-label">HybridRAG Engine</div>
+            <div class="fb-sub">Generalize &amp; Contextualize New Stimuli</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; MCP Context Layer &#9660;</span></div>
+
+        <!-- Tier 5: Outputs -->
+        <div class="flow-tier">
+          <div class="flow-box output">
+            <div class="fb-label">Object Recognition</div>
+            <div class="fb-sub">3D-Positioned Class IDs</div>
+          </div>
+          <div class="flow-box output">
+            <div class="fb-label">Action Recognition</div>
+            <div class="fb-sub">Gaze &bull; Posture &bull; Attention</div>
+          </div>
+          <div class="flow-box output">
+            <div class="fb-label">Cognitive Assist</div>
+            <div class="fb-sub">AI Companion Context</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="philosophy">
       <h3>Approach to AI</h3>
       <p>AI is a coordination tool, not a replacement. Every system serves a specific human need&mdash;whether monitoring a child&rsquo;s safety, assisting cognitive function, preserving the dead&rsquo;s memory, or triangulating complex decisions across multiple model perspectives.</p>
@@ -1017,6 +1701,59 @@
         <div class="tech-tags"><span>NFC ARG</span><span>Location-Based</span><span>STEM</span><span>Flask</span><span>HTML5</span></div>
       </div>
     </div>
+
+    <!-- Speaking & Corporate AI Training Offering -->
+    <div class="speaking-offering">
+      <div class="speaking-header">
+        <div class="label">Corporate Speaking &amp; Training</div>
+        <h3>AI Adoption Without the Fear: Hands-On Workshops for Your Team</h3>
+        <p>Your staff isn&rsquo;t afraid of AI because they don&rsquo;t understand it&mdash;they&rsquo;re afraid because nobody showed them how to use it for <em>their</em> actual work. We fix that. On-site, hands-on, no slides about &ldquo;the future of work.&rdquo; Just real productivity gains they walk out with on day one.</p>
+      </div>
+
+      <div class="speaking-tiers">
+        <div class="speaking-tier">
+          <h4>The 90-Minute Breakthrough</h4>
+          <div class="duration">Keynote &bull; 60&ndash;90 min</div>
+          <p>High-energy session designed to dismantle AI anxiety and replace it with practical confidence. Live demos using your team&rsquo;s actual workflows.</p>
+          <ul>
+            <li>Demystifying AI: what it actually is (and isn&rsquo;t)</li>
+            <li>Live prompt engineering with real business scenarios</li>
+            <li>5 things your team can automate by tomorrow</li>
+            <li>Q&amp;A with zero judgment for &ldquo;dumb questions&rdquo;</li>
+          </ul>
+        </div>
+        <div class="speaking-tier">
+          <h4>The Full-Day Intensive</h4>
+          <div class="duration">Workshop &bull; 6&ndash;8 hours</div>
+          <p>Hands-on workshop where every participant leaves with AI tools configured and working for their specific role. We bring the laptops, you bring the problems.</p>
+          <ul>
+            <li>Role-specific AI tool setup (sales, ops, HR, creative)</li>
+            <li>Building custom prompts for repeatable workflows</li>
+            <li>AI + existing software: integration without IT headaches</li>
+            <li>Data privacy &amp; security: what&rsquo;s safe, what&rsquo;s not</li>
+            <li>Personal AI playbook each attendee takes home</li>
+          </ul>
+        </div>
+        <div class="speaking-tier">
+          <h4>The 30-Day Transformation</h4>
+          <div class="duration">Coaching Program &bull; 4 weeks</div>
+          <p>Embedded coaching program with weekly sessions. We measure before-and-after productivity and build AI competency that sticks.</p>
+          <ul>
+            <li>Week 1: Foundation &amp; fear demolition</li>
+            <li>Week 2: Workflow automation deep-dive</li>
+            <li>Week 3: Advanced use cases &amp; prompt libraries</li>
+            <li>Week 4: Independence &amp; measurement</li>
+            <li>Slack/Teams support channel between sessions</li>
+            <li>ROI report for leadership</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaking-cta">
+        <a href="mailto:contact@bluevector.com?subject=AI%20Training%20Inquiry">Book a Session</a>
+        <span>Available nationwide &bull; In-person or virtual &bull; Teams of 5&ndash;500</span>
+      </div>
+    </div>
   </div>
 
   <!-- ────── R&D ────── -->
@@ -1061,7 +1798,34 @@
       <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
     </div>
 
-    <div class="feature-row">
+    <!-- Patent Downloads -->
+    <div class="section-head" style="margin-top: 1rem;">
+      <div class="label">Open Access</div>
+      <h2>Patent Downloads</h2>
+      <p>Free downloads of our patent filings. We believe in transparent innovation&mdash;review the full specifications behind our R&amp;D.</p>
+    </div>
+
+    <a href="TheThirdElement_USPTO_Patent_Application.docx" class="patent-download" download>
+      <div class="patent-icon">DOCX</div>
+      <div class="patent-info">
+        <h4>TheThirdElement&trade; &mdash; Blockchain-Enabled Spatiotemporal Consciousness Preservation</h4>
+        <div class="patent-meta">USPTO Patent Application &bull; Inventor: Peter James Villa</div>
+        <p>An NFC-enabled griefTech system combining blockchain verification, AI-generated decedent simulants, spatiotemporal presence validation, augmented reality &ldquo;vapor video fields,&rdquo; and olfactory response control for gamified memorial rituals. Features three-generation information decoherence protocols and collective token-based grief management ceremonies.</p>
+        <span class="dl-badge">Download Patent Application</span>
+      </div>
+    </a>
+
+    <a href="ProvisionalMicroPovertyPatent.pdf" class="patent-download" download>
+      <div class="patent-icon">PDF</div>
+      <div class="patent-info">
+        <h4>Micro Poverty Reduction Through Convergence Engineering</h4>
+        <div class="patent-meta">Provisional Patent &bull; BlueVector.iT.com Corp</div>
+        <p>Systemic approaches to poverty reduction through technology access, community infrastructure, and convergence engineering methodologies. Explores how physical-digital integration and open-source tooling can address structural barriers at the community level.</p>
+        <span class="dl-badge">Download Provisional Patent</span>
+      </div>
+    </a>
+
+    <div class="feature-row" style="margin-top: 3rem;">
       <div class="feature-block">
         <h3>CEOP Specifications</h3>
         <ul>
