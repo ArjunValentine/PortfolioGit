@@ -576,6 +576,89 @@
       text-transform: uppercase;
     }
 
+    /* ═══ HERO LOGO ROWS ═══ */
+    .hero-logo-section {
+      margin-top: 1.75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .hero-logo-section .hero-logo-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-logo-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .hero-logo-row img {
+      height: 42px;
+      width: auto;
+      opacity: 0.7;
+      filter: brightness(0) invert(1);
+      transition: opacity 0.25s;
+    }
+
+    .hero-logo-row img:hover { opacity: 1; }
+
+    .hero-logo-row img.no-invert {
+      filter: none;
+      opacity: 0.8;
+    }
+
+    .hero-logo-row img.no-invert:hover { opacity: 1; }
+
+    /* Overview tab image logo clouds */
+    .img-logo-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+      margin-bottom: 3rem;
+    }
+
+    .img-logo-cloud .img-logo-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 2rem;
+      border-right: 1px solid var(--light-silver);
+      border-bottom: 1px solid var(--light-silver);
+      min-height: 80px;
+      min-width: 140px;
+      flex: 1 1 140px;
+      transition: background 0.25s;
+    }
+
+    .img-logo-cloud .img-logo-item:hover { background: var(--cream); }
+
+    .img-logo-cloud .img-logo-item img {
+      max-height: 50px;
+      max-width: 120px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      filter: grayscale(100%);
+      opacity: 0.6;
+      transition: filter 0.3s, opacity 0.3s;
+    }
+
+    .img-logo-cloud .img-logo-item:hover img {
+      filter: grayscale(0%);
+      opacity: 1;
+    }
+
     /* ═══ RESPONSIVE ═══ */
     @media (max-width: 768px) {
       .feature-row { grid-template-columns: 1fr; }
@@ -1126,7 +1209,7 @@
     <div class="logo-group">
       <img src="bvlogo.png" alt="BlueVector" />
     </div>
-    <div class="header-meta">Bartow, FL</div>
+    <div class="header-meta">Orlando, Florida</div>
   </div>
 </header>
 
@@ -1153,6 +1236,41 @@
         <div style="font-family: var(--sans); font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2;">MCX Core Brands<br><span style="font-size: 0.65rem; color: rgba(255,255,255,0.45);">Corps Value</span></div>
         <div style="font-family: var(--sans); font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.06em; text-transform: uppercase;">UniFirst</div>
         <div style="font-family: var(--sans); font-size: 1.3rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.12em; text-transform: uppercase;">NIKE</div>
+      </div>
+    </div>
+
+    <!-- Regulatory Partners -->
+    <div class="hero-logo-section">
+      <div class="hero-logo-label">Regulatory Partners &amp; Certifications</div>
+      <div class="hero-logo-row">
+        <img src="logos/image2.png" alt="ISO 9001" title="ISO 9001">
+        <img src="logos/image3.jpeg" alt="NSF" title="NSF">
+        <img src="logos/image4.jpeg" alt="FDA" title="FDA">
+        <img src="logos/image5.jpeg" alt="FAA Certified Remote Pilot" title="FAA Certified Remote Pilot" style="height: 48px;">
+        <img src="logos/image6.jpeg" alt="ASQ Certified Quality Auditor" title="ASQ Certified Quality Auditor">
+        <img src="logos/image7.png" alt="OSHA 30-Hour Trained" title="OSHA 30-Hour Trained">
+        <img src="logos/image8.jpeg" alt="cGMP" title="Current Good Manufacturing Practice">
+        <img src="logos/image9.jpeg" alt="UL 508A" title="UL 508A">
+      </div>
+    </div>
+
+    <!-- Toolchain -->
+    <div class="hero-logo-section">
+      <div class="hero-logo-label">Our Toolchain</div>
+      <div class="hero-logo-row">
+        <img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="height: 28px;">
+        <img src="logos/image12.png" alt="Notion" title="Notion" style="height: 36px;">
+        <img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="height: 48px;">
+      </div>
+    </div>
+
+    <!-- Material Suppliers -->
+    <div class="hero-logo-section">
+      <div class="hero-logo-label">Preferred Material Suppliers</div>
+      <div class="hero-logo-row">
+        <img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="height: 28px;">
+        <img src="logos/image14.png" alt="Vention" title="Vention" style="height: 26px;">
+        <img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="height: 28px;">
       </div>
     </div>
   </div>
@@ -1209,6 +1327,41 @@
       <p class="quote">&ldquo;Living dresses for the dying. Healing technologies that feel like fashion.&rdquo;</p>
       <p>No discipline silos. Every project is designed for convergence&mdash;where textile meets firmware, where memorial technology meets NFC authentication, where community education meets physical-digital integration.</p>
       <p>We operate on 6-day sprint cycles with 1-week integration periods, using an H-O-X architecture for AI-triangulated decision making and radical transparency. Git as version-control backbone. Multi-AI coordination across Claude, GPT, Grok, and Gemini.</p>
+    </div>
+
+    <!-- Regulatory Partners Logo Cloud -->
+    <div style="margin-bottom: 0.75rem;">
+      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Regulatory Partners &amp; Certifications</div>
+    </div>
+    <div class="img-logo-cloud">
+      <div class="img-logo-item"><img src="logos/image2.png" alt="ISO 9001" title="ISO 9001"></div>
+      <div class="img-logo-item"><img src="logos/image3.jpeg" alt="NSF" title="NSF"></div>
+      <div class="img-logo-item"><img src="logos/image4.jpeg" alt="FDA" title="FDA"></div>
+      <div class="img-logo-item"><img src="logos/image5.jpeg" alt="FAA Remote Pilot" title="FAA Certified Remote Pilot" style="max-height: 60px;"></div>
+      <div class="img-logo-item"><img src="logos/image6.jpeg" alt="ASQ Quality Auditor" title="ASQ Certified Quality Auditor"></div>
+      <div class="img-logo-item"><img src="logos/image7.png" alt="OSHA 30-Hour" title="OSHA 30-Hour Trained"></div>
+      <div class="img-logo-item"><img src="logos/image8.jpeg" alt="cGMP" title="cGMP"></div>
+      <div class="img-logo-item"><img src="logos/image9.jpeg" alt="UL 508A" title="UL 508A"></div>
+    </div>
+
+    <!-- Toolchain Logo Cloud -->
+    <div style="margin-bottom: 0.75rem;">
+      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Our Toolchain</div>
+    </div>
+    <div class="img-logo-cloud" style="margin-bottom: 1.5rem;">
+      <div class="img-logo-item"><img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="max-height: 30px; max-width: 180px;"></div>
+      <div class="img-logo-item"><img src="logos/image12.png" alt="Notion" title="Notion" style="max-height: 40px; max-width: 140px;"></div>
+      <div class="img-logo-item"><img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="max-height: 55px;"></div>
+    </div>
+
+    <!-- Material Suppliers Logo Cloud -->
+    <div style="margin-bottom: 0.75rem;">
+      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Preferred Material Suppliers</div>
+    </div>
+    <div class="img-logo-cloud">
+      <div class="img-logo-item"><img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="max-height: 30px; max-width: 180px;"></div>
+      <div class="img-logo-item"><img src="logos/image14.png" alt="Vention" title="Vention" style="max-height: 30px; max-width: 160px;"></div>
+      <div class="img-logo-item"><img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="max-height: 30px; max-width: 180px;"></div>
     </div>
 
     <div class="card-grid">
@@ -1785,9 +1938,9 @@
       </div>
       <div class="card">
         <div class="card-number">Project 04</div>
-        <h3>Micro Poverty Patent</h3>
-        <p>Provisional patent exploring systemic approaches to poverty reduction through technology access, community infrastructure, and convergence engineering methodologies.</p>
-        <div class="tech-tags"><span>Provisional Patent</span><span>R&amp;D</span></div>
+        <h3>Stompbox PSU</h3>
+        <p>Professional-grade 12V 5A isolated power supply in a Hammond 1590BB enclosure. High-current hub for digital modelers (Quad Cortex, Line 6 HX Stomp) and analog pedals. Vicor DCM module, &lt;30mV ripple, LC Pi-Filter, 96%+ efficiency. 90-day production rollout targeting NAMM 2027.</p>
+        <div class="tech-tags"><span>Power Engineering</span><span>Audio Infrastructure</span><span>Hammond 1590BB</span></div>
       </div>
     </div>
 
@@ -1815,13 +1968,13 @@
       </div>
     </a>
 
-    <a href="ProvisionalMicroPovertyPatent.pdf" class="patent-download" download>
-      <div class="patent-icon">PDF</div>
+    <a href="CEOP_Provisional_Patent.docx" class="patent-download" download>
+      <div class="patent-icon">DOCX</div>
       <div class="patent-info">
-        <h4>Micro Poverty Reduction Through Convergence Engineering</h4>
-        <div class="patent-meta">Provisional Patent &bull; BlueVector.iT.com Corp</div>
-        <p>Systemic approaches to poverty reduction through technology access, community infrastructure, and convergence engineering methodologies. Explores how physical-digital integration and open-source tooling can address structural barriers at the community level.</p>
-        <span class="dl-badge">Download Provisional Patent</span>
+        <h4>Continuous Extraction Offset Precision Drill (CEOP)</h4>
+        <div class="patent-meta">USPTO Provisional Patent &bull; Inventor: Peter James Villa (BlueVector)</div>
+        <p>A decentralized, offset rotary tool combining a hollow-bore cutting bit, micro-chain drive, and remote peristaltic pump for continuous reverse-path extraction of thermal byproducts and debris. 7-degree saxophone-profile offset geometry clears the operator&rsquo;s line of sight. Stainless steel autoclavable construction. Applications in bone surgery, composites, and soft metals.</p>
+        <span class="dl-badge">Download Patent Application</span>
       </div>
     </a>
 
@@ -1864,7 +2017,7 @@
 <div class="iridescent-bar"></div>
 
 <footer>
-  BlueVector.iT.com Corp &bull; Convergence Engineering &bull; Bartow, FL
+  BlueVector.iT.com Corp &bull; Convergence Engineering &bull; Orlando, Florida
 </footer>
 
 <script>

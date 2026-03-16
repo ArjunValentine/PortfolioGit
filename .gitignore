@@ -9,6 +9,10 @@ Lake County Library_*.png
 *.pdf
 *.zip
 
+# Allow patent files in deploy
+!deploy/*.docx
+!deploy/*.pdf
+
 # Unused logo variant
 bvlogo.svg
 
@@ -18,3 +22,6 @@ bvlogo.svg
 # OS
 .DS_Store
 Thumbs.db
+
+# Local Netlify folder
+.netlify
