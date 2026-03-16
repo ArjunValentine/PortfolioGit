@@ -75,6 +75,14 @@
 
     .logo-group img { height: 50px; width: auto; max-width: 220px; display: block; }
 
+    .header-suppliers {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
     .header-meta {
       font-size: 0.75rem;
       color: var(--rule-gray);
@@ -1325,6 +1333,14 @@
         <img src="bvlogo.png" alt="BlueVector" />
       </a>
     </div>
+    <div class="header-suppliers">
+      <div style="font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 0.5rem; text-align: center;">Preferred Material Suppliers</div>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem;">
+        <img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="height: 28px; width: auto;">
+        <img src="logos/image14.png" alt="Vention" title="Vention" style="height: 24px; width: auto;">
+        <img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="height: 28px; width: auto;">
+      </div>
+    </div>
     <div class="header-meta">Orlando, Florida</div>
   </div>
 </header>
@@ -1341,6 +1357,12 @@
       <span>Education</span>
       <span>Precision Engineering</span>
       <span>Platform Development</span>
+    </div>
+
+    <!-- Consultation Buttons -->
+    <div style="margin-top: 2.5rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='On-Site Visit Request'; return false;" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">📍 On-Site Visit</a>
+      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Free Virtual Consultation'; return false;" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">🎥 Free Virtual Consultation</a>
     </div>
 
     <!-- Client Logo Cloud -->
@@ -1380,15 +1402,6 @@
       </div>
     </div>
 
-    <!-- Material Suppliers -->
-    <div class="hero-logo-section">
-      <div class="hero-logo-label">Preferred Material Suppliers</div>
-      <div class="hero-logo-row">
-        <img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="height: 44px;">
-        <img src="logos/image14.png" alt="Vention" title="Vention" style="height: 40px;">
-        <img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="height: 44px;">
-      </div>
-    </div>
   </div>
 </section>
 
@@ -1402,7 +1415,7 @@
     <button class="tab-btn" data-tab="hardware" role="tab">NFC &amp; Hardware</button>
     <button class="tab-btn" data-tab="ai" role="tab">AI &amp; Robotics</button>
     <button class="tab-btn" data-tab="education" role="tab">Education</button>
-    <button class="tab-btn" data-tab="innovation" role="tab">R&amp;D</button>
+    <button class="tab-btn" data-tab="innovation" role="tab">Downloads</button>
   </nav>
 </div>
 
@@ -2028,13 +2041,30 @@
     </div>
   </div>
 
-  <!-- ────── R&D ────── -->
+  <!-- ────── DOWNLOADS ────── -->
   <div class="tab-panel" id="innovation">
     <div class="section-head">
-      <div class="label">Research &amp; Development</div>
-      <h2>Innovation &amp; Frontier Projects</h2>
-      <p>Open-source precision instruments, bio-computation research, healing center infrastructure, and organizational transparency systems.</p>
+      <div class="label">Downloads</div>
+      <h2>Free Patent Downloads &amp; Resources</h2>
+      <p>Access our full patent filings and technical specifications. We believe in transparent innovation.</p>
     </div>
+
+    <!-- Quick Downloads Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+      <a href="TheThirdElement_USPTO_Patent_Application.docx" download style="padding: 1.5rem; border: 1px solid var(--light-silver); border-radius: 3px; text-align: center; text-decoration: none; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
+        <h4 style="margin: 0 0 0.35rem 0; font-family: var(--sans); font-size: 0.95rem; color: var(--navy);">TheThirdElement</h4>
+        <p style="margin: 0; font-size: 0.75rem; color: var(--rule-gray);">USPTO Patent Application</p>
+      </a>
+      <a href="CEOP_Provisional_Patent.docx" download style="padding: 1.5rem; border: 1px solid var(--light-silver); border-radius: 3px; text-align: center; text-decoration: none; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
+        <h4 style="margin: 0 0 0.35rem 0; font-family: var(--sans); font-size: 0.95rem; color: var(--navy);">CEOP Drill</h4>
+        <p style="margin: 0; font-size: 0.75rem; color: var(--rule-gray);">Provisional Patent</p>
+      </a>
+    </div>
+
+    <div style="border-top: 1px solid var(--light-silver); padding-top: 2rem; margin-bottom: 3rem;">
+      <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.5rem;">Innovation &amp; Frontier Projects</h3>
 
     <div class="card-grid">
       <div class="card">
@@ -2063,39 +2093,41 @@
       </div>
     </div>
 
-    <div class="philosophy">
-      <h3>CEOP: Open Source Commitment</h3>
-      <p class="quote">&ldquo;The hole is not the problem. What you leave behind is.&rdquo;</p>
-      <p>The CEOP drill is engineered for open-source release through Kickstarter&mdash;available as both kit and assembled unit. Swiss-turned hollow-bore bit machined to &plusmn;0.0005&rdquo; tolerance with gundrilling, gear hobbing, and heat treatment. Production cost under $100 at scale.</p>
-      <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
-    </div>
-
-    <!-- Patent Downloads -->
-    <div class="section-head" style="margin-top: 1rem;">
-      <div class="label">Open Access</div>
-      <h2>Patent Downloads</h2>
-      <p>Free downloads of our patent filings. We believe in transparent innovation&mdash;review the full specifications behind our R&amp;D.</p>
-    </div>
-
-    <a href="TheThirdElement_USPTO_Patent_Application.docx" class="patent-download" download>
-      <div class="patent-icon">DOCX</div>
-      <div class="patent-info">
-        <h4>TheThirdElement&trade; &mdash; Blockchain-Enabled Spatiotemporal Consciousness Preservation</h4>
-        <div class="patent-meta">USPTO Patent Application &bull; Inventor: Peter James Villa</div>
-        <p>An NFC-enabled griefTech system combining blockchain verification, AI-generated decedent simulants, spatiotemporal presence validation, augmented reality &ldquo;vapor video fields,&rdquo; and olfactory response control for gamified memorial rituals. Features three-generation information decoherence protocols and collective token-based grief management ceremonies.</p>
-        <span class="dl-badge">Download Patent Application</span>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-number">Project 01</div>
+          <h3>CEOP Drill</h3>
+          <p>Continuous Extraction Offset Precision drill. 1/4&rdquo; hollow-bore bit evacuates 100% of drilling debris through its center via reverse circulation. Stainless clamshell handpiece in saxophone-profile offset geometry. Micro-chain drive system. Autoclavable fluid-path components.</p>
+          <div class="tech-tags"><span>Open Source</span><span>Swiss Turning</span><span>Gundrilling</span><span>Gear Hobbing</span></div>
+        </div>
+        <div class="card">
+          <div class="card-number">Project 02</div>
+          <h3>Hummingbird-42 Healing Center</h3>
+          <p>Physical anchor for therapeutic work. Trinaural photoresonance therapy combined with an FDA-compliant cosmetics laboratory and NFC token-activated healing ceremony systems.</p>
+          <div class="tech-tags"><span>Photoresonance</span><span>FDA Cosmetics</span><span>NFC Healing</span></div>
+        </div>
+        <div class="card">
+          <div class="card-number">Project 03</div>
+          <h3>Ghost Factory Audit System</h3>
+          <p>Transparency scoring engine for organizations. Scans entities for operational legitimacy, financial transparency, and public accountability across grant ecosystems and nonprofit sectors.</p>
+          <div class="tech-tags"><span>Audit</span><span>Transparency</span><span>Grant Tracking</span></div>
+        </div>
+        <div class="card">
+          <div class="card-number">Project 04</div>
+          <h3>Stompbox PSU</h3>
+          <p>Professional-grade 12V 5A isolated power supply in a Hammond 1590BB enclosure. High-current hub for digital modelers (Quad Cortex, Line 6 HX Stomp) and analog pedals. Vicor DCM module, &lt;30mV ripple, LC Pi-Filter, 96%+ efficiency. 90-day production rollout targeting NAMM 2027.</p>
+          <div class="tech-tags"><span>Power Engineering</span><span>Audio Infrastructure</span><span>Hammond 1590BB</span></div>
+        </div>
       </div>
-    </a>
 
-    <a href="CEOP_Provisional_Patent.docx" class="patent-download" download>
-      <div class="patent-icon">DOCX</div>
-      <div class="patent-info">
-        <h4>Continuous Extraction Offset Precision Drill (CEOP)</h4>
-        <div class="patent-meta">USPTO Provisional Patent &bull; Inventor: Peter James Villa (BlueVector)</div>
-        <p>A decentralized, offset rotary tool combining a hollow-bore cutting bit, micro-chain drive, and remote peristaltic pump for continuous reverse-path extraction of thermal byproducts and debris. 7-degree saxophone-profile offset geometry clears the operator&rsquo;s line of sight. Stainless steel autoclavable construction. Applications in bone surgery, composites, and soft metals.</p>
-        <span class="dl-badge">Download Patent Application</span>
+      <div class="philosophy">
+        <h3>CEOP: Open Source Commitment</h3>
+        <p class="quote">&ldquo;The hole is not the problem. What you leave behind is.&rdquo;</p>
+        <p>The CEOP drill is engineered for open-source release through Kickstarter&mdash;available as both kit and assembled unit. Swiss-turned hollow-bore bit machined to &plusmn;0.0005&rdquo; tolerance with gundrilling, gear hobbing, and heat treatment. Production cost under $100 at scale.</p>
+        <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
       </div>
-    </a>
+    </div>
+    </div>
 
     <div class="feature-row" style="margin-top: 3rem;">
       <div class="feature-block">
