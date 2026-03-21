@@ -75,14 +75,6 @@
 
     .logo-group img { height: 50px; width: auto; max-width: 220px; display: block; }
 
-    .header-suppliers {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-    }
-
     .header-meta {
       font-size: 0.75rem;
       color: var(--rule-gray);
@@ -574,130 +566,6 @@
       border-color: rgba(255,255,255,0.7);
     }
 
-    /* Contact Modal */
-    .contact-modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    .contact-modal {
-      background: #fff;
-      border-radius: 3px;
-      max-width: 520px;
-      width: 100%;
-      padding: 2.5rem;
-      position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-
-    .contact-modal h3 {
-      font-family: var(--serif);
-      font-size: 1.4rem;
-      color: var(--navy);
-      margin-bottom: 0.35rem;
-    }
-
-    .contact-modal .modal-sub {
-      font-size: 0.78rem;
-      color: var(--rule-gray);
-      margin-bottom: 1.5rem;
-    }
-
-    .contact-modal label {
-      display: block;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--navy);
-      margin-bottom: 0.35rem;
-    }
-
-    .contact-modal input,
-    .contact-modal textarea {
-      width: 100%;
-      padding: 0.65rem 0.8rem;
-      border: 1px solid var(--light-silver);
-      border-radius: 2px;
-      font-family: var(--sans);
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-    }
-
-    .contact-modal input:focus,
-    .contact-modal textarea:focus {
-      outline: none;
-      border-color: var(--navy);
-    }
-
-    .contact-modal textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-
-    .contact-modal .modal-send-btn {
-      display: inline-block;
-      background: var(--navy);
-      color: #fff;
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: 2px;
-      font-family: var(--sans);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.25s;
-    }
-
-    .contact-modal .modal-send-btn:hover {
-      background: #1a2a40;
-    }
-
-    .contact-modal .modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1.25rem;
-      background: none;
-      border: none;
-      font-size: 1.4rem;
-      color: var(--rule-gray);
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    .contact-modal .modal-close:hover {
-      color: var(--navy);
-    }
-
-    .contact-modal .modal-success {
-      display: none;
-      text-align: center;
-      padding: 2rem 0;
-    }
-
-    .contact-modal .modal-success h4 {
-      font-family: var(--serif);
-      font-size: 1.2rem;
-      color: var(--navy);
-      margin-bottom: 0.5rem;
-    }
-
-    .contact-modal .modal-success p {
-      font-size: 0.85rem;
-      color: var(--rule-gray);
-    }
-
     footer {
       background: var(--navy);
       color: var(--silver);
@@ -732,13 +600,21 @@
     }
 
     .hero-logo-row img {
-      height: 60px;
+      height: 42px;
       width: auto;
-      opacity: 1;
-      transition: transform 0.25s;
+      opacity: 0.7;
+      filter: brightness(0) invert(1);
+      transition: opacity 0.25s;
     }
 
-    .hero-logo-row img:hover { transform: scale(1.08); }
+    .hero-logo-row img:hover { opacity: 1; }
+
+    .hero-logo-row img.no-invert {
+      filter: none;
+      opacity: 0.8;
+    }
+
+    .hero-logo-row img.no-invert:hover { opacity: 1; }
 
     /* Overview tab image logo clouds */
     .img-logo-cloud {
@@ -768,17 +644,19 @@
     .img-logo-cloud .img-logo-item:hover { background: var(--cream); }
 
     .img-logo-cloud .img-logo-item img {
-      max-height: 70px;
-      max-width: 160px;
+      max-height: 50px;
+      max-width: 120px;
       width: auto;
       height: auto;
       object-fit: contain;
-      opacity: 1;
-      transition: transform 0.3s;
+      filter: grayscale(100%);
+      opacity: 0.6;
+      transition: filter 0.3s, opacity 0.3s;
     }
 
     .img-logo-cloud .img-logo-item:hover img {
-      transform: scale(1.08);
+      filter: grayscale(0%);
+      opacity: 1;
     }
 
     /* ═══ RESPONSIVE ═══ */
@@ -1329,17 +1207,7 @@
 <header>
   <div class="header-inner">
     <div class="logo-group">
-      <a href="#" onclick="document.getElementById('overview').scrollIntoView({behavior:'smooth'}); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active')); document.querySelector('[data-tab=overview]').classList.add('active'); document.getElementById('overview').classList.add('active'); return false;" style="display:flex; align-items:center;">
-        <img src="bvlogo.png" alt="BlueVector" />
-      </a>
-    </div>
-    <div class="header-suppliers">
-      <div style="font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 0.5rem; text-align: center;">Preferred Material Suppliers</div>
-      <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem;">
-        <img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="height: 28px; width: auto;">
-        <img src="logos/image14.png" alt="Vention" title="Vention" style="height: 24px; width: auto;">
-        <img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="height: 28px; width: auto;">
-      </div>
+      <img src="bvlogo.png" alt="BlueVector" />
     </div>
     <div class="header-meta">Orlando, Florida</div>
   </div>
@@ -1348,9 +1216,9 @@
 <!-- Hero -->
 <section class="hero">
   <div class="hero-content">
-    <h1>AI Integration, Crisis Resolution &amp; Continuous Improvement Solutions</h1>
+    <h1>Engineering Solutions Across Converging Disciplines</h1>
     <div class="hero-rule"></div>
-    <p>We bring AI, robotics, and precision engineering to operational crisis points. Through hands-on consulting, custom integrations, and team enablement, we transform how organizations automate, scale, and compete. From emergency response systems to continuous improvement workflows&mdash;we solve the problems that matter.</p>
+    <p>A multi-venture studio where grief becomes garment, firmware becomes ceremony, and precision engineering meets open-source conviction. Protective systems that don&rsquo;t look like protection. Healing technologies that feel like fashion.</p>
     <div class="hero-disciplines">
       <span>NFC &amp; Hardware</span>
       <span>AI &amp; Robotics</span>
@@ -1359,21 +1227,15 @@
       <span>Platform Development</span>
     </div>
 
-    <!-- Consultation Buttons -->
-    <div style="margin-top: 2.5rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
-      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='On-Site Visit Request'; return false;" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">📍 On-Site Visit</a>
-      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Free Virtual Consultation'; return false;" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">🎥 Free Virtual Consultation</a>
-    </div>
-
     <!-- Client Logo Cloud -->
     <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
       <div style="font-size: 0.68rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.25rem;">Trusted By Industry Leaders</div>
-      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 3rem;">
-        <div style="font-family: var(--serif); font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.02em;">Est&eacute;e Lauder</div>
-        <div style="font-family: var(--sans); font-size: 1.1rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.08em; text-transform: uppercase;">Dura-Cast Products, Inc</div>
-        <div style="font-family: var(--sans); font-size: 1.05rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2;">MCX Core Brands<br><span style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Corps Value</span></div>
-        <div style="font-family: var(--sans); font-size: 1.25rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.06em; text-transform: uppercase;">UniFirst</div>
-        <div style="font-family: var(--sans); font-size: 1.7rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.12em; text-transform: uppercase;">NIKE</div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 2.5rem;">
+        <div style="font-family: var(--serif); font-size: 1.2rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.02em;">Est&eacute;e Lauder</div>
+        <div style="font-family: var(--sans); font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.08em; text-transform: uppercase;">Dura-Cast Products, Inc</div>
+        <div style="font-family: var(--sans); font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2;">MCX Core Brands<br><span style="font-size: 0.65rem; color: rgba(255,255,255,0.45);">Corps Value</span></div>
+        <div style="font-family: var(--sans); font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.06em; text-transform: uppercase;">UniFirst</div>
+        <div style="font-family: var(--sans); font-size: 1.3rem; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.12em; text-transform: uppercase;">NIKE</div>
       </div>
     </div>
 
@@ -1384,7 +1246,7 @@
         <img src="logos/image2.png" alt="ISO 9001" title="ISO 9001">
         <img src="logos/image3.jpeg" alt="NSF" title="NSF">
         <img src="logos/image4.jpeg" alt="FDA" title="FDA">
-        <img src="logos/image5.jpeg" alt="FAA Certified Remote Pilot" title="FAA Certified Remote Pilot" style="height: 68px;">
+        <img src="logos/image5.jpeg" alt="FAA Certified Remote Pilot" title="FAA Certified Remote Pilot" style="height: 48px;">
         <img src="logos/image6.jpeg" alt="ASQ Certified Quality Auditor" title="ASQ Certified Quality Auditor">
         <img src="logos/image7.png" alt="OSHA 30-Hour Trained" title="OSHA 30-Hour Trained">
         <img src="logos/image8.jpeg" alt="cGMP" title="Current Good Manufacturing Practice">
@@ -1396,12 +1258,21 @@
     <div class="hero-logo-section">
       <div class="hero-logo-label">Our Toolchain</div>
       <div class="hero-logo-row">
-        <img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="height: 44px;">
-        <img src="logos/image12.png" alt="Notion" title="Notion" style="height: 50px;">
-        <img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="height: 64px;">
+        <img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="height: 28px;">
+        <img src="logos/image12.png" alt="Notion" title="Notion" style="height: 36px;">
+        <img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="height: 48px;">
       </div>
     </div>
 
+    <!-- Material Suppliers -->
+    <div class="hero-logo-section">
+      <div class="hero-logo-label">Preferred Material Suppliers</div>
+      <div class="hero-logo-row">
+        <img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="height: 28px;">
+        <img src="logos/image14.png" alt="Vention" title="Vention" style="height: 26px;">
+        <img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="height: 28px;">
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1415,7 +1286,7 @@
     <button class="tab-btn" data-tab="hardware" role="tab">NFC &amp; Hardware</button>
     <button class="tab-btn" data-tab="ai" role="tab">AI &amp; Robotics</button>
     <button class="tab-btn" data-tab="education" role="tab">Education</button>
-    <button class="tab-btn" data-tab="innovation" role="tab">Downloads</button>
+    <button class="tab-btn" data-tab="innovation" role="tab">R&amp;D</button>
   </nav>
 </div>
 
@@ -1466,7 +1337,7 @@
       <div class="img-logo-item"><img src="logos/image2.png" alt="ISO 9001" title="ISO 9001"></div>
       <div class="img-logo-item"><img src="logos/image3.jpeg" alt="NSF" title="NSF"></div>
       <div class="img-logo-item"><img src="logos/image4.jpeg" alt="FDA" title="FDA"></div>
-      <div class="img-logo-item"><img src="logos/image5.jpeg" alt="FAA Remote Pilot" title="FAA Certified Remote Pilot" style="max-height: 80px;"></div>
+      <div class="img-logo-item"><img src="logos/image5.jpeg" alt="FAA Remote Pilot" title="FAA Certified Remote Pilot" style="max-height: 60px;"></div>
       <div class="img-logo-item"><img src="logos/image6.jpeg" alt="ASQ Quality Auditor" title="ASQ Certified Quality Auditor"></div>
       <div class="img-logo-item"><img src="logos/image7.png" alt="OSHA 30-Hour" title="OSHA 30-Hour Trained"></div>
       <div class="img-logo-item"><img src="logos/image8.jpeg" alt="cGMP" title="cGMP"></div>
@@ -1478,9 +1349,9 @@
       <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Our Toolchain</div>
     </div>
     <div class="img-logo-cloud" style="margin-bottom: 1.5rem;">
-      <div class="img-logo-item"><img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="max-height: 50px; max-width: 220px;"></div>
-      <div class="img-logo-item"><img src="logos/image12.png" alt="Notion" title="Notion" style="max-height: 55px; max-width: 180px;"></div>
-      <div class="img-logo-item"><img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="max-height: 70px;"></div>
+      <div class="img-logo-item"><img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="max-height: 30px; max-width: 180px;"></div>
+      <div class="img-logo-item"><img src="logos/image12.png" alt="Notion" title="Notion" style="max-height: 40px; max-width: 140px;"></div>
+      <div class="img-logo-item"><img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="max-height: 55px;"></div>
     </div>
 
     <!-- Material Suppliers Logo Cloud -->
@@ -1488,9 +1359,9 @@
       <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Preferred Material Suppliers</div>
     </div>
     <div class="img-logo-cloud">
-      <div class="img-logo-item"><img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="max-height: 50px; max-width: 220px;"></div>
-      <div class="img-logo-item"><img src="logos/image14.png" alt="Vention" title="Vention" style="max-height: 45px; max-width: 200px;"></div>
-      <div class="img-logo-item"><img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="max-height: 50px; max-width: 220px;"></div>
+      <div class="img-logo-item"><img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="max-height: 30px; max-width: 180px;"></div>
+      <div class="img-logo-item"><img src="logos/image14.png" alt="Vention" title="Vention" style="max-height: 30px; max-width: 160px;"></div>
+      <div class="img-logo-item"><img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="max-height: 30px; max-width: 180px;"></div>
     </div>
 
     <div class="card-grid">
@@ -2032,39 +1903,19 @@
       </div>
 
       <div class="speaking-cta">
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-          <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='AI Training Inquiry'; return false;">Book a Session</a>
-          <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:0.75rem 1.5rem; background:#4169E1; color:#fff; border:1px solid #4169E1; border-radius:2px; font-family:var(--sans); font-size:0.78rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:background 0.25s; text-decoration:none;">Quick Payment</a>
-        </div>
+        <a href="mailto:contact@bluevector.com?subject=AI%20Training%20Inquiry">Book a Session</a>
         <span>Available nationwide &bull; In-person or virtual &bull; Teams of 5&ndash;500</span>
       </div>
     </div>
   </div>
 
-  <!-- ────── DOWNLOADS ────── -->
+  <!-- ────── R&D ────── -->
   <div class="tab-panel" id="innovation">
     <div class="section-head">
-      <div class="label">Downloads</div>
-      <h2>Free Patent Downloads &amp; Resources</h2>
-      <p>Access our full patent filings and technical specifications. We believe in transparent innovation.</p>
+      <div class="label">Research &amp; Development</div>
+      <h2>Innovation &amp; Frontier Projects</h2>
+      <p>Open-source precision instruments, bio-computation research, healing center infrastructure, and organizational transparency systems.</p>
     </div>
-
-    <!-- Quick Downloads Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-      <a href="TheThirdElement_USPTO_Patent_Application.docx" download style="padding: 1.5rem; border: 1px solid var(--light-silver); border-radius: 3px; text-align: center; text-decoration: none; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
-        <h4 style="margin: 0 0 0.35rem 0; font-family: var(--sans); font-size: 0.95rem; color: var(--navy);">TheThirdElement</h4>
-        <p style="margin: 0; font-size: 0.75rem; color: var(--rule-gray);">USPTO Patent Application</p>
-      </a>
-      <a href="CEOP_Provisional_Patent.docx" download style="padding: 1.5rem; border: 1px solid var(--light-silver); border-radius: 3px; text-align: center; text-decoration: none; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
-        <h4 style="margin: 0 0 0.35rem 0; font-family: var(--sans); font-size: 0.95rem; color: var(--navy);">CEOP Drill</h4>
-        <p style="margin: 0; font-size: 0.75rem; color: var(--rule-gray);">Provisional Patent</p>
-      </a>
-    </div>
-
-    <div style="border-top: 1px solid var(--light-silver); padding-top: 2rem; margin-bottom: 3rem;">
-      <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.5rem;">Innovation &amp; Frontier Projects</h3>
 
     <div class="card-grid">
       <div class="card">
@@ -2093,41 +1944,39 @@
       </div>
     </div>
 
-      <div class="card-grid">
-        <div class="card">
-          <div class="card-number">Project 01</div>
-          <h3>CEOP Drill</h3>
-          <p>Continuous Extraction Offset Precision drill. 1/4&rdquo; hollow-bore bit evacuates 100% of drilling debris through its center via reverse circulation. Stainless clamshell handpiece in saxophone-profile offset geometry. Micro-chain drive system. Autoclavable fluid-path components.</p>
-          <div class="tech-tags"><span>Open Source</span><span>Swiss Turning</span><span>Gundrilling</span><span>Gear Hobbing</span></div>
-        </div>
-        <div class="card">
-          <div class="card-number">Project 02</div>
-          <h3>Hummingbird-42 Healing Center</h3>
-          <p>Physical anchor for therapeutic work. Trinaural photoresonance therapy combined with an FDA-compliant cosmetics laboratory and NFC token-activated healing ceremony systems.</p>
-          <div class="tech-tags"><span>Photoresonance</span><span>FDA Cosmetics</span><span>NFC Healing</span></div>
-        </div>
-        <div class="card">
-          <div class="card-number">Project 03</div>
-          <h3>Ghost Factory Audit System</h3>
-          <p>Transparency scoring engine for organizations. Scans entities for operational legitimacy, financial transparency, and public accountability across grant ecosystems and nonprofit sectors.</p>
-          <div class="tech-tags"><span>Audit</span><span>Transparency</span><span>Grant Tracking</span></div>
-        </div>
-        <div class="card">
-          <div class="card-number">Project 04</div>
-          <h3>Stompbox PSU</h3>
-          <p>Professional-grade 12V 5A isolated power supply in a Hammond 1590BB enclosure. High-current hub for digital modelers (Quad Cortex, Line 6 HX Stomp) and analog pedals. Vicor DCM module, &lt;30mV ripple, LC Pi-Filter, 96%+ efficiency. 90-day production rollout targeting NAMM 2027.</p>
-          <div class="tech-tags"><span>Power Engineering</span><span>Audio Infrastructure</span><span>Hammond 1590BB</span></div>
-        </div>
-      </div>
+    <div class="philosophy">
+      <h3>CEOP: Open Source Commitment</h3>
+      <p class="quote">&ldquo;The hole is not the problem. What you leave behind is.&rdquo;</p>
+      <p>The CEOP drill is engineered for open-source release through Kickstarter&mdash;available as both kit and assembled unit. Swiss-turned hollow-bore bit machined to &plusmn;0.0005&rdquo; tolerance with gundrilling, gear hobbing, and heat treatment. Production cost under $100 at scale.</p>
+      <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
+    </div>
 
-      <div class="philosophy">
-        <h3>CEOP: Open Source Commitment</h3>
-        <p class="quote">&ldquo;The hole is not the problem. What you leave behind is.&rdquo;</p>
-        <p>The CEOP drill is engineered for open-source release through Kickstarter&mdash;available as both kit and assembled unit. Swiss-turned hollow-bore bit machined to &plusmn;0.0005&rdquo; tolerance with gundrilling, gear hobbing, and heat treatment. Production cost under $100 at scale.</p>
-        <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
+    <!-- Patent Downloads -->
+    <div class="section-head" style="margin-top: 1rem;">
+      <div class="label">Open Access</div>
+      <h2>Patent Downloads</h2>
+      <p>Free downloads of our patent filings. We believe in transparent innovation&mdash;review the full specifications behind our R&amp;D.</p>
+    </div>
+
+    <a href="TheThirdElement_USPTO_Patent_Application.docx" class="patent-download" download>
+      <div class="patent-icon">DOCX</div>
+      <div class="patent-info">
+        <h4>TheThirdElement&trade; &mdash; Blockchain-Enabled Spatiotemporal Consciousness Preservation</h4>
+        <div class="patent-meta">USPTO Patent Application &bull; Inventor: Peter James Villa</div>
+        <p>An NFC-enabled griefTech system combining blockchain verification, AI-generated decedent simulants, spatiotemporal presence validation, augmented reality &ldquo;vapor video fields,&rdquo; and olfactory response control for gamified memorial rituals. Features three-generation information decoherence protocols and collective token-based grief management ceremonies.</p>
+        <span class="dl-badge">Download Patent Application</span>
       </div>
-    </div>
-    </div>
+    </a>
+
+    <a href="CEOP_Provisional_Patent.docx" class="patent-download" download>
+      <div class="patent-icon">DOCX</div>
+      <div class="patent-info">
+        <h4>Continuous Extraction Offset Precision Drill (CEOP)</h4>
+        <div class="patent-meta">USPTO Provisional Patent &bull; Inventor: Peter James Villa (BlueVector)</div>
+        <p>A decentralized, offset rotary tool combining a hollow-bore cutting bit, micro-chain drive, and remote peristaltic pump for continuous reverse-path extraction of thermal byproducts and debris. 7-degree saxophone-profile offset geometry clears the operator&rsquo;s line of sight. Stainless steel autoclavable construction. Applications in bone surgery, composites, and soft metals.</p>
+        <span class="dl-badge">Download Patent Application</span>
+      </div>
+    </a>
 
     <div class="feature-row" style="margin-top: 3rem;">
       <div class="feature-block">
@@ -2162,35 +2011,8 @@
 <section class="cta-section">
   <h2>Let&rsquo;s Build Something at the Intersection</h2>
   <p>Whether it&rsquo;s therapeutic wearables, memorial technology, NFC systems, or community programs&mdash;the best work happens where disciplines converge.</p>
-  <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
-    <a href="#" class="cta-btn" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Briefing Request'; return false;">Request a Briefing</a>
-    <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" class="cta-btn" target="_blank" rel="noopener noreferrer">Book Consulting</a>
-  </div>
+  <a href="mailto:contact@bluevector.com" class="cta-btn">Request a Briefing</a>
 </section>
-
-<!-- Contact Modal -->
-<div class="contact-modal-overlay" id="contactModal" onclick="if(event.target===this)this.style.display='none'">
-  <div class="contact-modal">
-    <button class="modal-close" onclick="document.getElementById('contactModal').style.display='none'">&times;</button>
-    <div id="contactForm">
-      <h3>Get in Touch</h3>
-      <p class="modal-sub">Send a message to the BlueVector team. We&rsquo;ll respond within 24 hours.</p>
-      <label for="contactName">Your Name</label>
-      <input type="text" id="contactName" placeholder="Full name" required>
-      <label for="contactEmail">Your Email</label>
-      <input type="email" id="contactEmail" placeholder="you@company.com" required>
-      <label for="contactSubject">Subject</label>
-      <input type="text" id="contactSubject" placeholder="What can we help with?">
-      <label for="contactMessage">Message</label>
-      <textarea id="contactMessage" placeholder="Tell us about your project, team size, or goals..."></textarea>
-      <button class="modal-send-btn" onclick="sendContactEmail()">Send Message</button>
-    </div>
-    <div class="modal-success" id="contactSuccess">
-      <h4>Message Sent</h4>
-      <p>Thank you for reaching out. We&rsquo;ll get back to you shortly.</p>
-    </div>
-  </div>
-</div>
 
 <div class="iridescent-bar"></div>
 
@@ -2199,38 +2021,6 @@
 </footer>
 
 <script>
-  function sendContactEmail() {
-    const name = document.getElementById('contactName').value.trim();
-    const email = document.getElementById('contactEmail').value.trim();
-    const subject = document.getElementById('contactSubject').value.trim() || 'BlueVector Inquiry';
-    const message = document.getElementById('contactMessage').value.trim();
-
-    if (!name || !email) {
-      alert('Please fill in your name and email.');
-      return;
-    }
-
-    const body = 'Name: ' + name + '\nEmail: ' + email + '\n\n' + message;
-    const mailtoLink = 'mailto:hummingbirdvalentine@gmail.com'
-      + '?subject=' + encodeURIComponent(subject)
-      + '&body=' + encodeURIComponent(body);
-
-    window.location.href = mailtoLink;
-
-    document.getElementById('contactForm').style.display = 'none';
-    document.getElementById('contactSuccess').style.display = 'block';
-
-    setTimeout(function() {
-      document.getElementById('contactModal').style.display = 'none';
-      document.getElementById('contactForm').style.display = 'block';
-      document.getElementById('contactSuccess').style.display = 'none';
-      document.getElementById('contactName').value = '';
-      document.getElementById('contactEmail').value = '';
-      document.getElementById('contactSubject').value = '';
-      document.getElementById('contactMessage').value = '';
-    }, 3000);
-  }
-
   const tabs = document.querySelectorAll('.tab-btn');
   const panels = document.querySelectorAll('.tab-panel');
 
