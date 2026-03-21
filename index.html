@@ -75,6 +75,14 @@
 
     .logo-group img { height: 50px; width: auto; max-width: 220px; display: block; }
 
+    .header-suppliers {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
     .header-meta {
       font-size: 0.75rem;
       color: var(--rule-gray);
@@ -566,6 +574,130 @@
       border-color: rgba(255,255,255,0.7);
     }
 
+    /* Contact Modal */
+    .contact-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .contact-modal {
+      background: #fff;
+      border-radius: 3px;
+      max-width: 520px;
+      width: 100%;
+      padding: 2.5rem;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .contact-modal h3 {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      color: var(--navy);
+      margin-bottom: 0.35rem;
+    }
+
+    .contact-modal .modal-sub {
+      font-size: 0.78rem;
+      color: var(--rule-gray);
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-modal label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 0.35rem;
+    }
+
+    .contact-modal input,
+    .contact-modal textarea {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid var(--light-silver);
+      border-radius: 2px;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .contact-modal input:focus,
+    .contact-modal textarea:focus {
+      outline: none;
+      border-color: var(--navy);
+    }
+
+    .contact-modal textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .contact-modal .modal-send-btn {
+      display: inline-block;
+      background: var(--navy);
+      color: #fff;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 2px;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+
+    .contact-modal .modal-send-btn:hover {
+      background: #1a2a40;
+    }
+
+    .contact-modal .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--rule-gray);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .contact-modal .modal-close:hover {
+      color: var(--navy);
+    }
+
+    .contact-modal .modal-success {
+      display: none;
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .contact-modal .modal-success h4 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-modal .modal-success p {
+      font-size: 0.85rem;
+      color: var(--rule-gray);
+    }
+
     footer {
       background: var(--navy);
       color: var(--silver);
@@ -574,6 +706,79 @@
       font-size: 0.72rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
+    }
+
+    /* ═══ HERO LOGO ROWS ═══ */
+    .hero-logo-section {
+      margin-top: 1.75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .hero-logo-section .hero-logo-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-logo-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .hero-logo-row img {
+      height: 60px;
+      width: auto;
+      opacity: 1;
+      transition: transform 0.25s;
+    }
+
+    .hero-logo-row img:hover { transform: scale(1.08); }
+
+    /* Overview tab image logo clouds */
+    .img-logo-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+      margin-bottom: 3rem;
+    }
+
+    .img-logo-cloud .img-logo-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 2rem;
+      border-right: 1px solid var(--light-silver);
+      border-bottom: 1px solid var(--light-silver);
+      min-height: 80px;
+      min-width: 140px;
+      flex: 1 1 140px;
+      transition: background 0.25s;
+    }
+
+    .img-logo-cloud .img-logo-item:hover { background: var(--cream); }
+
+    .img-logo-cloud .img-logo-item img {
+      max-height: 70px;
+      max-width: 160px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      opacity: 1;
+      transition: transform 0.3s;
+    }
+
+    .img-logo-cloud .img-logo-item:hover img {
+      transform: scale(1.08);
     }
 
     /* ═══ RESPONSIVE ═══ */
@@ -593,6 +798,525 @@
       .collection-grid { grid-template-columns: 1fr; }
       .stat-bar { grid-template-columns: 1fr 1fr; }
       .hero-disciplines span { font-size: 0.7rem; padding: 0.35rem 0.8rem; }
+      .logo-cloud { grid-template-columns: repeat(2, 1fr); }
+      .mcp-diagram { flex-direction: column; }
+      .colibri-flow { overflow-x: auto; }
+    }
+
+    /* ═══ LOGO CLOUD ═══ */
+    .logo-cloud-section {
+      margin-bottom: 3rem;
+    }
+
+    .logo-cloud-section .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rule-gray);
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    .logo-cloud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+    }
+
+    .logo-cloud-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.75rem 1.5rem;
+      border-right: 1px solid var(--light-silver);
+      border-bottom: 1px solid var(--light-silver);
+      transition: background 0.25s;
+      min-height: 90px;
+    }
+
+    .logo-cloud-item:hover { background: var(--cream); }
+
+    .logo-cloud-item .client-name {
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-align: center;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+
+    .logo-cloud-item .client-name.serif-logo {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* ═══ MCP DIAGRAM ═══ */
+    .mcp-section {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .mcp-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .mcp-section h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.75rem;
+    }
+
+    .mcp-section > p {
+      color: var(--slate);
+      font-size: 0.92rem;
+      max-width: 720px;
+      margin-bottom: 1.5rem;
+    }
+
+    .mcp-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 2rem 0;
+    }
+
+    .mcp-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 140px;
+      height: 90px;
+      border: 2px solid var(--mid-blue);
+      background: linear-gradient(135deg, #f0f4fa 0%, #fff 100%);
+      position: relative;
+      text-align: center;
+      padding: 0.5rem;
+    }
+
+    .mcp-node .node-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .mcp-node .node-sub {
+      font-size: 0.6rem;
+      color: var(--steel);
+      margin-top: 0.15rem;
+    }
+
+    .mcp-hub {
+      width: 160px;
+      height: 100px;
+      border: 3px solid var(--royal);
+      background: var(--corp-gradient);
+      color: #fff;
+    }
+
+    .mcp-hub .node-label {
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    .mcp-hub .node-sub {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .mcp-connector {
+      width: 40px;
+      height: 2px;
+      background: var(--stripe-gradient);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .mcp-connector::after {
+      content: '\25B6';
+      position: absolute;
+      right: -4px;
+      top: -8px;
+      font-size: 0.6rem;
+      color: var(--royal);
+    }
+
+    .mcp-connector.bidi::before {
+      content: '\25C0';
+      position: absolute;
+      left: -4px;
+      top: -8px;
+      font-size: 0.6rem;
+      color: var(--purple);
+    }
+
+    .mcp-tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .mcp-tool-card {
+      padding: 1.25rem;
+      background: var(--cream);
+      border-left: 3px solid var(--mid-blue);
+    }
+
+    .mcp-tool-card h4 {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.35rem;
+    }
+
+    .mcp-tool-card p {
+      font-size: 0.8rem;
+      color: var(--slate);
+      line-height: 1.5;
+    }
+
+    /* ═══ COLIBRI FLOWCHART ═══ */
+    .colibri-flow {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .colibri-flow::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .colibri-flow h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .colibri-flow > p {
+      color: var(--slate);
+      font-size: 0.92rem;
+      max-width: 720px;
+      margin-bottom: 2rem;
+    }
+
+    .flow-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .flow-tier {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .flow-box {
+      padding: 1rem 1.5rem;
+      border: 2px solid var(--mid-blue);
+      background: linear-gradient(135deg, #f0f4fa 0%, #fff 100%);
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .flow-box .fb-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .flow-box .fb-sub {
+      font-size: 0.65rem;
+      color: var(--steel);
+      margin-top: 0.15rem;
+    }
+
+    .flow-box.primary {
+      border-color: var(--royal);
+      background: var(--corp-gradient);
+    }
+
+    .flow-box.primary .fb-label { color: #fff; }
+    .flow-box.primary .fb-sub { color: rgba(255,255,255,0.7); }
+
+    .flow-box.accent {
+      border-color: var(--cyan);
+      background: linear-gradient(135deg, #e8fafa 0%, #fff 100%);
+    }
+
+    .flow-box.output {
+      border-color: var(--purple);
+      background: linear-gradient(135deg, #f3eef9 0%, #fff 100%);
+    }
+
+    .flow-arrow {
+      font-size: 1.2rem;
+      color: var(--mid-blue);
+      text-align: center;
+      width: 100%;
+    }
+
+    .flow-arrow span {
+      display: inline-block;
+      background: var(--stripe-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══ SPEAKING OFFERING ═══ */
+    .speaking-offering {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .speaking-offering::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .speaking-header {
+      padding: 2.5rem 2.5rem 1.5rem;
+    }
+
+    .speaking-header .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.6rem;
+    }
+
+    .speaking-header h3 {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.75rem;
+    }
+
+    .speaking-header p {
+      color: var(--slate);
+      font-size: 0.95rem;
+      max-width: 640px;
+    }
+
+    .speaking-tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0;
+    }
+
+    .speaking-tier {
+      padding: 2rem 2.5rem;
+      border-top: 1px solid var(--light-silver);
+      border-right: 1px solid var(--light-silver);
+    }
+
+    .speaking-tier h4 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .speaking-tier .duration {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.75rem;
+    }
+
+    .speaking-tier p {
+      font-size: 0.88rem;
+      color: var(--slate);
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+
+    .speaking-tier ul {
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .speaking-tier ul li {
+      padding: 0.35rem 0;
+      color: var(--slate);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+    }
+
+    .speaking-tier ul li::before {
+      content: '\25B8';
+      color: var(--mid-blue);
+      font-size: 0.65rem;
+      flex-shrink: 0;
+    }
+
+    .speaking-cta {
+      padding: 1.75rem 2.5rem;
+      border-top: 1px solid var(--light-silver);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .speaking-cta a {
+      display: inline-block;
+      padding: 0.7rem 2rem;
+      background: var(--corp-gradient);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity 0.25s;
+    }
+
+    .speaking-cta a:hover { opacity: 0.85; }
+
+    .speaking-cta span {
+      font-size: 0.82rem;
+      color: var(--rule-gray);
+      font-style: italic;
+    }
+
+    /* ═══ PATENT DOWNLOADS ═══ */
+    .patent-download {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      transition: box-shadow 0.3s;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 1rem;
+    }
+
+    .patent-download:hover {
+      box-shadow: 0 4px 20px rgba(11, 26, 62, 0.08);
+    }
+
+    .patent-download::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--stripe-gradient);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .patent-download:hover::before { opacity: 1; }
+
+    .patent-icon {
+      width: 48px;
+      height: 56px;
+      background: var(--corp-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .patent-info h4 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.25rem;
+    }
+
+    .patent-info .patent-meta {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .patent-info p {
+      font-size: 0.85rem;
+      color: var(--slate);
+      line-height: 1.55;
+      max-width: 600px;
+    }
+
+    .patent-info .dl-badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.3rem 0.9rem;
+      border: 1px solid var(--mid-blue);
+      color: var(--mid-blue);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .patent-download:hover .dl-badge {
+      background: var(--mid-blue);
+      color: #fff;
     }
   </style>
 </head>
@@ -605,41 +1329,91 @@
 <header>
   <div class="header-inner">
     <div class="logo-group">
-      <img src="bvlogo.png" alt="BlueVector" />
+      <a href="#" onclick="document.getElementById('overview').scrollIntoView({behavior:'smooth'}); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active')); document.querySelector('[data-tab=overview]').classList.add('active'); document.getElementById('overview').classList.add('active'); return false;" style="display:flex; align-items:center;">
+        <img src="bvlogo.png" alt="BlueVector" />
+      </a>
     </div>
-    <div class="header-meta">Bartow, FL</div>
+    <div class="header-meta">Orlando, Florida</div>
   </div>
 </header>
 
 <!-- Hero -->
 <section class="hero">
   <div class="hero-content">
-    <h1>Engineering Solutions Across Converging Disciplines</h1>
+    <h1>AI Integration, Crisis Resolution &amp; Continuous Improvement Solutions</h1>
     <div class="hero-rule"></div>
-    <p>A multi-venture studio where grief becomes garment, firmware becomes ceremony, and precision engineering meets open-source conviction. Protective systems that don&rsquo;t look like protection. Healing technologies that feel like fashion.</p>
-    <div class="hero-disciplines">
-      <span>NFC &amp; Hardware</span>
-      <span>AI &amp; Robotics</span>
-      <span>Education</span>
-      <span>Precision Engineering</span>
-      <span>Platform Development</span>
+    <p>We bring AI, robotics, and precision engineering to operational crisis points. Through hands-on consulting, custom integrations, and team enablement, we transform how organizations automate, scale, and compete. From emergency response systems to continuous improvement workflows&mdash;we solve the problems that matter.</p>
+
+    <!-- Tab Navigation (in hero) -->
+    <div class="hero-tab-nav" role="tablist" style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem;">
+      <button class="tab-btn active" data-tab="overview" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Overview</button>
+      <button class="tab-btn" data-tab="platforms" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Platforms</button>
+      <button class="tab-btn" data-tab="hardware" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">NFC &amp; Hardware</button>
+      <button class="tab-btn" data-tab="ai" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">AI &amp; Robotics</button>
+      <button class="tab-btn" data-tab="education" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Education</button>
+      <button class="tab-btn" data-tab="innovation" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Downloads</button>
     </div>
+
+    <!-- Consultation Buttons -->
+    <div style="margin-top: 2.5rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='On-Site Visit Request'; return false;" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">📍 On-Site Visit</a>
+      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Free Virtual Consultation'; return false;" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">🎥 Free Virtual Consultation</a>
+    </div>
+
+    <!-- Client Logo Cloud -->
+    <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <div style="font-size: 0.68rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.25rem;">Trusted By Industry Leaders</div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 3rem;">
+        <div style="font-family: var(--serif); font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.02em;">Est&eacute;e Lauder</div>
+        <div style="font-family: var(--sans); font-size: 1.1rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.08em; text-transform: uppercase;">Dura-Cast Products, Inc</div>
+        <div style="font-family: var(--sans); font-size: 1.05rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2;">MCX Core Brands<br><span style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Corps Value</span></div>
+        <div style="font-family: var(--sans); font-size: 1.25rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.06em; text-transform: uppercase;">UniFirst</div>
+        <div style="font-family: var(--sans); font-size: 1.7rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.12em; text-transform: uppercase;">NIKE</div>
+      </div>
+    </div>
+
+    <!-- Regulatory Partners -->
+    <div class="hero-logo-section">
+      <div class="hero-logo-label">Regulatory Partners &amp; Certifications</div>
+      <div class="hero-logo-row">
+        <img src="logos/image2.png" alt="ISO 9001" title="ISO 9001">
+        <img src="logos/image3.jpeg" alt="NSF" title="NSF">
+        <img src="logos/image4.jpeg" alt="FDA" title="FDA">
+        <img src="logos/image5.jpeg" alt="FAA Certified Remote Pilot" title="FAA Certified Remote Pilot" style="height: 68px;">
+        <img src="logos/image6.jpeg" alt="ASQ Certified Quality Auditor" title="ASQ Certified Quality Auditor">
+        <img src="logos/image7.png" alt="OSHA 30-Hour Trained" title="OSHA 30-Hour Trained">
+        <img src="logos/image8.jpeg" alt="cGMP" title="Current Good Manufacturing Practice">
+        <img src="logos/image9.jpeg" alt="UL 508A" title="UL 508A">
+      </div>
+    </div>
+
+    <!-- Toolchain -->
+    <div class="hero-logo-section">
+      <div class="hero-logo-label">Our Toolchain</div>
+      <div class="hero-logo-row">
+        <img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="height: 44px;">
+        <img src="logos/image12.png" alt="Notion" title="Notion" style="height: 50px;">
+        <img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="height: 64px;">
+      </div>
+    </div>
+
   </div>
 </section>
 
 <div class="iridescent-bar thin"></div>
 
-<!-- Tab Navigation -->
-<div class="tab-nav-wrap">
-  <nav class="tab-nav" role="tablist">
-    <button class="tab-btn active" data-tab="overview" role="tab">Overview</button>
-    <button class="tab-btn" data-tab="platforms" role="tab">Platforms</button>
-    <button class="tab-btn" data-tab="hardware" role="tab">NFC &amp; Hardware</button>
-    <button class="tab-btn" data-tab="ai" role="tab">AI &amp; Robotics</button>
-    <button class="tab-btn" data-tab="education" role="tab">Education</button>
-    <button class="tab-btn" data-tab="innovation" role="tab">R&amp;D</button>
-  </nav>
+<!-- Preferred Material Suppliers -->
+<div style="background: var(--warm-white); padding: 1.25rem 2.5rem; border-bottom: 1px solid var(--light-silver);">
+  <div style="max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+    <div style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rule-gray);">Preferred Material Suppliers</div>
+    <div style="display: flex; align-items: center; gap: 2rem;">
+      <img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="height: 28px; width: auto;">
+      <img src="logos/image14.png" alt="Vention" title="Vention" style="height: 24px; width: auto;">
+      <img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="height: 28px; width: auto;">
+    </div>
+  </div>
 </div>
+
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- TAB PANELS                                  -->
@@ -678,6 +1452,41 @@
       <p class="quote">&ldquo;Living dresses for the dying. Healing technologies that feel like fashion.&rdquo;</p>
       <p>No discipline silos. Every project is designed for convergence&mdash;where textile meets firmware, where memorial technology meets NFC authentication, where community education meets physical-digital integration.</p>
       <p>We operate on 6-day sprint cycles with 1-week integration periods, using an H-O-X architecture for AI-triangulated decision making and radical transparency. Git as version-control backbone. Multi-AI coordination across Claude, GPT, Grok, and Gemini.</p>
+    </div>
+
+    <!-- Regulatory Partners Logo Cloud -->
+    <div style="margin-bottom: 0.75rem;">
+      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Regulatory Partners &amp; Certifications</div>
+    </div>
+    <div class="img-logo-cloud">
+      <div class="img-logo-item"><img src="logos/image2.png" alt="ISO 9001" title="ISO 9001"></div>
+      <div class="img-logo-item"><img src="logos/image3.jpeg" alt="NSF" title="NSF"></div>
+      <div class="img-logo-item"><img src="logos/image4.jpeg" alt="FDA" title="FDA"></div>
+      <div class="img-logo-item"><img src="logos/image5.jpeg" alt="FAA Remote Pilot" title="FAA Certified Remote Pilot" style="max-height: 80px;"></div>
+      <div class="img-logo-item"><img src="logos/image6.jpeg" alt="ASQ Quality Auditor" title="ASQ Certified Quality Auditor"></div>
+      <div class="img-logo-item"><img src="logos/image7.png" alt="OSHA 30-Hour" title="OSHA 30-Hour Trained"></div>
+      <div class="img-logo-item"><img src="logos/image8.jpeg" alt="cGMP" title="cGMP"></div>
+      <div class="img-logo-item"><img src="logos/image9.jpeg" alt="UL 508A" title="UL 508A"></div>
+    </div>
+
+    <!-- Toolchain Logo Cloud -->
+    <div style="margin-bottom: 0.75rem;">
+      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Our Toolchain</div>
+    </div>
+    <div class="img-logo-cloud" style="margin-bottom: 1.5rem;">
+      <div class="img-logo-item"><img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="max-height: 50px; max-width: 220px;"></div>
+      <div class="img-logo-item"><img src="logos/image12.png" alt="Notion" title="Notion" style="max-height: 55px; max-width: 180px;"></div>
+      <div class="img-logo-item"><img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="max-height: 70px;"></div>
+    </div>
+
+    <!-- Material Suppliers Logo Cloud -->
+    <div style="margin-bottom: 0.75rem;">
+      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Preferred Material Suppliers</div>
+    </div>
+    <div class="img-logo-cloud">
+      <div class="img-logo-item"><img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="max-height: 50px; max-width: 220px;"></div>
+      <div class="img-logo-item"><img src="logos/image14.png" alt="Vention" title="Vention" style="max-height: 45px; max-width: 200px;"></div>
+      <div class="img-logo-item"><img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="max-height: 50px; max-width: 220px;"></div>
     </div>
 
     <div class="card-grid">
@@ -738,6 +1547,79 @@
       <div class="label">Software Engineering</div>
       <h2>Platforms &amp; Backend Infrastructure</h2>
       <p>Full-stack systems powering multi-venture operations&mdash;from real-time CRM to streaming radio and design token delivery.</p>
+    </div>
+
+    <!-- AI Platform Logo Cloud -->
+    <div class="logo-cloud-section">
+      <div class="label">AI Development Ecosystem</div>
+      <div class="logo-cloud" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="logo-cloud-item">
+          <div class="client-name">Claude Code</div>
+        </div>
+        <div class="logo-cloud-item">
+          <div class="client-name">GitHub<br>Copilot</div>
+        </div>
+        <div class="logo-cloud-item">
+          <div class="client-name">OpenAI<br>Codex</div>
+        </div>
+        <div class="logo-cloud-item">
+          <div class="client-name serif-logo">Notion</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MCP Architecture Explanation -->
+    <div class="mcp-section">
+      <h3>Model Context Protocol (MCP) &mdash; The Connective Layer</h3>
+      <p>MCP is the open standard that lets AI tools share context bidirectionally. Instead of each platform operating in isolation, MCP creates a unified protocol layer where Claude Code, GitHub Copilot, Codex, and Notion can all read from and write to shared project context&mdash;turning siloed AI assistants into a coordinated engineering team.</p>
+
+      <div class="mcp-diagram">
+        <div class="mcp-node">
+          <div class="node-label">Claude Code</div>
+          <div class="node-sub">Architecture &amp; Reasoning</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node mcp-hub">
+          <div class="node-label">MCP Server</div>
+          <div class="node-sub">Context &amp; Tool Routing</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node">
+          <div class="node-label">GitHub Copilot</div>
+          <div class="node-sub">Inline Completion</div>
+        </div>
+      </div>
+      <div class="mcp-diagram" style="margin-top: 0;">
+        <div class="mcp-node">
+          <div class="node-label">OpenAI Codex</div>
+          <div class="node-sub">Autonomous Tasks</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node mcp-hub">
+          <div class="node-label">Shared Context</div>
+          <div class="node-sub">Git &bull; Files &bull; DB &bull; APIs</div>
+        </div>
+        <div class="mcp-connector bidi"></div>
+        <div class="mcp-node">
+          <div class="node-label">Notion</div>
+          <div class="node-sub">Docs &amp; Knowledge Base</div>
+        </div>
+      </div>
+
+      <div class="mcp-tools-grid">
+        <div class="mcp-tool-card">
+          <h4>Tools &amp; Resources</h4>
+          <p>MCP servers expose tools (functions the AI can call) and resources (data the AI can read). A single server can give Claude Code access to your database, Copilot access to your API schemas, and Notion access to your codebase docs&mdash;all through one protocol.</p>
+        </div>
+        <div class="mcp-tool-card">
+          <h4>Context Sharing</h4>
+          <p>When Claude Code architects a solution, that context flows through MCP to Copilot for inline implementation. Codex picks up autonomous refactoring tasks. Notion auto-updates project documentation. No copy-paste. No context loss.</p>
+        </div>
+        <div class="mcp-tool-card">
+          <h4>BlueVector Implementation</h4>
+          <p>Our H-O-X multi-AI workflow runs on MCP. Custom servers expose Supabase tables, Git state, NFC hardware APIs, and design tokens as MCP resources&mdash;letting any AI assistant in the stack operate with full project awareness.</p>
+        </div>
+      </div>
     </div>
 
     <div class="card-grid">
@@ -920,6 +1802,86 @@
       </div>
     </div>
 
+    <!-- Colibri Vision System Flowchart -->
+    <div class="colibri-flow">
+      <h3>Colibri &mdash; ML Vision Pipeline Architecture</h3>
+      <p>Real-time cognitive assistance system using Intel RealSense D415 depth camera and OpenCV for multimodal object and action recognition. Three JSON serialization layers feed HybridRAG for contextual generalization of new stimuli.</p>
+
+      <div class="flow-container">
+        <!-- Tier 1: Hardware Input -->
+        <div class="flow-tier">
+          <div class="flow-box primary">
+            <div class="fb-label">RealSense D415</div>
+            <div class="fb-sub">Depth + RGB Capture</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; Aligned Depth &amp; Color Frames &#9660;</span></div>
+
+        <!-- Tier 2: OpenCV Processing -->
+        <div class="flow-tier">
+          <div class="flow-box accent">
+            <div class="fb-label">OpenCV</div>
+            <div class="fb-sub">BGR&rarr;RGB &bull; Frame Buffer</div>
+          </div>
+          <div class="flow-box">
+            <div class="fb-label">MediaPipe Holistic</div>
+            <div class="fb-sub">468 Face + 33 Pose Landmarks</div>
+          </div>
+          <div class="flow-box">
+            <div class="fb-label">YOLOv8</div>
+            <div class="fb-sub">Real-Time Object Detection</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; 2D&rarr;3D Deprojection via Intrinsics &#9660;</span></div>
+
+        <!-- Tier 3: Three JSON Libraries -->
+        <div class="flow-tier">
+          <div class="flow-box accent" style="border-color: var(--gold-accent);">
+            <div class="fb-label">JSON &mdash; Objects</div>
+            <div class="fb-sub">DetectedObject Serialization<br>class, confidence, bbox, 3D pos</div>
+          </div>
+          <div class="flow-box accent" style="border-color: var(--gold-accent);">
+            <div class="fb-label">JSON &mdash; Gaze</div>
+            <div class="fb-sub">Gaze Vector &amp; Intersection<br>eye landmarks, object focus</div>
+          </div>
+          <div class="flow-box accent" style="border-color: var(--gold-accent);">
+            <div class="fb-label">JSON &mdash; Audio</div>
+            <div class="fb-sub">60-Dim Feature Vectors<br>MFCCs, prosody, VAD state</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; SQLite Persistence + Temporal Buffering (5s Window) &#9660;</span></div>
+
+        <!-- Tier 4: HybridRAG -->
+        <div class="flow-tier">
+          <div class="flow-box output" style="min-width: 300px;">
+            <div class="fb-label">HybridRAG Engine</div>
+            <div class="fb-sub">Generalize &amp; Contextualize New Stimuli</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><span>&#9660; MCP Context Layer &#9660;</span></div>
+
+        <!-- Tier 5: Outputs -->
+        <div class="flow-tier">
+          <div class="flow-box output">
+            <div class="fb-label">Object Recognition</div>
+            <div class="fb-sub">3D-Positioned Class IDs</div>
+          </div>
+          <div class="flow-box output">
+            <div class="fb-label">Action Recognition</div>
+            <div class="fb-sub">Gaze &bull; Posture &bull; Attention</div>
+          </div>
+          <div class="flow-box output">
+            <div class="fb-label">Cognitive Assist</div>
+            <div class="fb-sub">AI Companion Context</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="philosophy">
       <h3>Approach to AI</h3>
       <p>AI is a coordination tool, not a replacement. Every system serves a specific human need&mdash;whether monitoring a child&rsquo;s safety, assisting cognitive function, preserving the dead&rsquo;s memory, or triangulating complex decisions across multiple model perspectives.</p>
@@ -1017,15 +1979,88 @@
         <div class="tech-tags"><span>NFC ARG</span><span>Location-Based</span><span>STEM</span><span>Flask</span><span>HTML5</span></div>
       </div>
     </div>
+
+    <!-- Speaking & Corporate AI Training Offering -->
+    <div class="speaking-offering">
+      <div class="speaking-header">
+        <div class="label">Corporate Speaking &amp; Training</div>
+        <h3>AI Adoption Without the Fear: Hands-On Workshops for Your Team</h3>
+        <p>Your staff isn&rsquo;t afraid of AI because they don&rsquo;t understand it&mdash;they&rsquo;re afraid because nobody showed them how to use it for <em>their</em> actual work. We fix that. On-site, hands-on, no slides about &ldquo;the future of work.&rdquo; Just real productivity gains they walk out with on day one.</p>
+      </div>
+
+      <div class="speaking-tiers">
+        <div class="speaking-tier">
+          <h4>The 90-Minute Breakthrough</h4>
+          <div class="duration">Keynote &bull; 60&ndash;90 min</div>
+          <p>High-energy session designed to dismantle AI anxiety and replace it with practical confidence. Live demos using your team&rsquo;s actual workflows.</p>
+          <ul>
+            <li>Demystifying AI: what it actually is (and isn&rsquo;t)</li>
+            <li>Live prompt engineering with real business scenarios</li>
+            <li>5 things your team can automate by tomorrow</li>
+            <li>Q&amp;A with zero judgment for &ldquo;dumb questions&rdquo;</li>
+          </ul>
+        </div>
+        <div class="speaking-tier">
+          <h4>The Full-Day Intensive</h4>
+          <div class="duration">Workshop &bull; 6&ndash;8 hours</div>
+          <p>Hands-on workshop where every participant leaves with AI tools configured and working for their specific role. We bring the laptops, you bring the problems.</p>
+          <ul>
+            <li>Role-specific AI tool setup (sales, ops, HR, creative)</li>
+            <li>Building custom prompts for repeatable workflows</li>
+            <li>AI + existing software: integration without IT headaches</li>
+            <li>Data privacy &amp; security: what&rsquo;s safe, what&rsquo;s not</li>
+            <li>Personal AI playbook each attendee takes home</li>
+          </ul>
+        </div>
+        <div class="speaking-tier">
+          <h4>The 30-Day Transformation</h4>
+          <div class="duration">Coaching Program &bull; 4 weeks</div>
+          <p>Embedded coaching program with weekly sessions. We measure before-and-after productivity and build AI competency that sticks.</p>
+          <ul>
+            <li>Week 1: Foundation &amp; fear demolition</li>
+            <li>Week 2: Workflow automation deep-dive</li>
+            <li>Week 3: Advanced use cases &amp; prompt libraries</li>
+            <li>Week 4: Independence &amp; measurement</li>
+            <li>Slack/Teams support channel between sessions</li>
+            <li>ROI report for leadership</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="speaking-cta">
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='AI Training Inquiry'; return false;">Book a Session</a>
+          <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:0.75rem 1.5rem; background:#4169E1; color:#fff; border:1px solid #4169E1; border-radius:2px; font-family:var(--sans); font-size:0.78rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:background 0.25s; text-decoration:none;">Quick Payment</a>
+        </div>
+        <span>Available nationwide &bull; In-person or virtual &bull; Teams of 5&ndash;500</span>
+      </div>
+    </div>
   </div>
 
-  <!-- ────── R&D ────── -->
+  <!-- ────── DOWNLOADS ────── -->
   <div class="tab-panel" id="innovation">
     <div class="section-head">
-      <div class="label">Research &amp; Development</div>
-      <h2>Innovation &amp; Frontier Projects</h2>
-      <p>Open-source precision instruments, bio-computation research, healing center infrastructure, and organizational transparency systems.</p>
+      <div class="label">Downloads</div>
+      <h2>Free Patent Downloads &amp; Resources</h2>
+      <p>Access our full patent filings and technical specifications. We believe in transparent innovation.</p>
     </div>
+
+    <!-- Quick Downloads Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+      <a href="TheThirdElement_USPTO_Patent_Application.docx" download style="padding: 1.5rem; border: 1px solid var(--light-silver); border-radius: 3px; text-align: center; text-decoration: none; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
+        <h4 style="margin: 0 0 0.35rem 0; font-family: var(--sans); font-size: 0.95rem; color: var(--navy);">TheThirdElement</h4>
+        <p style="margin: 0; font-size: 0.75rem; color: var(--rule-gray);">USPTO Patent Application</p>
+      </a>
+      <a href="CEOP_Provisional_Patent.docx" download style="padding: 1.5rem; border: 1px solid var(--light-silver); border-radius: 3px; text-align: center; text-decoration: none; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
+        <h4 style="margin: 0 0 0.35rem 0; font-family: var(--sans); font-size: 0.95rem; color: var(--navy);">CEOP Drill</h4>
+        <p style="margin: 0; font-size: 0.75rem; color: var(--rule-gray);">Provisional Patent</p>
+      </a>
+    </div>
+
+    <div style="border-top: 1px solid var(--light-silver); padding-top: 2rem; margin-bottom: 3rem;">
+      <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.5rem;">Innovation &amp; Frontier Projects</h3>
 
     <div class="card-grid">
       <div class="card">
@@ -1048,20 +2083,49 @@
       </div>
       <div class="card">
         <div class="card-number">Project 04</div>
-        <h3>Micro Poverty Patent</h3>
-        <p>Provisional patent exploring systemic approaches to poverty reduction through technology access, community infrastructure, and convergence engineering methodologies.</p>
-        <div class="tech-tags"><span>Provisional Patent</span><span>R&amp;D</span></div>
+        <h3>Stompbox PSU</h3>
+        <p>Professional-grade 12V 5A isolated power supply in a Hammond 1590BB enclosure. High-current hub for digital modelers (Quad Cortex, Line 6 HX Stomp) and analog pedals. Vicor DCM module, &lt;30mV ripple, LC Pi-Filter, 96%+ efficiency. 90-day production rollout targeting NAMM 2027.</p>
+        <div class="tech-tags"><span>Power Engineering</span><span>Audio Infrastructure</span><span>Hammond 1590BB</span></div>
       </div>
     </div>
 
-    <div class="philosophy">
-      <h3>CEOP: Open Source Commitment</h3>
-      <p class="quote">&ldquo;The hole is not the problem. What you leave behind is.&rdquo;</p>
-      <p>The CEOP drill is engineered for open-source release through Kickstarter&mdash;available as both kit and assembled unit. Swiss-turned hollow-bore bit machined to &plusmn;0.0005&rdquo; tolerance with gundrilling, gear hobbing, and heat treatment. Production cost under $100 at scale.</p>
-      <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-number">Project 01</div>
+          <h3>CEOP Drill</h3>
+          <p>Continuous Extraction Offset Precision drill. 1/4&rdquo; hollow-bore bit evacuates 100% of drilling debris through its center via reverse circulation. Stainless clamshell handpiece in saxophone-profile offset geometry. Micro-chain drive system. Autoclavable fluid-path components.</p>
+          <div class="tech-tags"><span>Open Source</span><span>Swiss Turning</span><span>Gundrilling</span><span>Gear Hobbing</span></div>
+        </div>
+        <div class="card">
+          <div class="card-number">Project 02</div>
+          <h3>Hummingbird-42 Healing Center</h3>
+          <p>Physical anchor for therapeutic work. Trinaural photoresonance therapy combined with an FDA-compliant cosmetics laboratory and NFC token-activated healing ceremony systems.</p>
+          <div class="tech-tags"><span>Photoresonance</span><span>FDA Cosmetics</span><span>NFC Healing</span></div>
+        </div>
+        <div class="card">
+          <div class="card-number">Project 03</div>
+          <h3>Ghost Factory Audit System</h3>
+          <p>Transparency scoring engine for organizations. Scans entities for operational legitimacy, financial transparency, and public accountability across grant ecosystems and nonprofit sectors.</p>
+          <div class="tech-tags"><span>Audit</span><span>Transparency</span><span>Grant Tracking</span></div>
+        </div>
+        <div class="card">
+          <div class="card-number">Project 04</div>
+          <h3>Stompbox PSU</h3>
+          <p>Professional-grade 12V 5A isolated power supply in a Hammond 1590BB enclosure. High-current hub for digital modelers (Quad Cortex, Line 6 HX Stomp) and analog pedals. Vicor DCM module, &lt;30mV ripple, LC Pi-Filter, 96%+ efficiency. 90-day production rollout targeting NAMM 2027.</p>
+          <div class="tech-tags"><span>Power Engineering</span><span>Audio Infrastructure</span><span>Hammond 1590BB</span></div>
+        </div>
+      </div>
+
+      <div class="philosophy">
+        <h3>CEOP: Open Source Commitment</h3>
+        <p class="quote">&ldquo;The hole is not the problem. What you leave behind is.&rdquo;</p>
+        <p>The CEOP drill is engineered for open-source release through Kickstarter&mdash;available as both kit and assembled unit. Swiss-turned hollow-bore bit machined to &plusmn;0.0005&rdquo; tolerance with gundrilling, gear hobbing, and heat treatment. Production cost under $100 at scale.</p>
+        <p>Target applications: surgery, precision manufacturing, aerospace debris control. No debris contacts the pump. Precision engineering shouldn&rsquo;t be locked behind proprietary walls when lives are at stake.</p>
+      </div>
+    </div>
     </div>
 
-    <div class="feature-row">
+    <div class="feature-row" style="margin-top: 3rem;">
       <div class="feature-block">
         <h3>CEOP Specifications</h3>
         <ul>
@@ -1094,16 +2158,75 @@
 <section class="cta-section">
   <h2>Let&rsquo;s Build Something at the Intersection</h2>
   <p>Whether it&rsquo;s therapeutic wearables, memorial technology, NFC systems, or community programs&mdash;the best work happens where disciplines converge.</p>
-  <a href="mailto:contact@bluevector.com" class="cta-btn">Request a Briefing</a>
+  <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+    <a href="#" class="cta-btn" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Briefing Request'; return false;">Request a Briefing</a>
+    <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" class="cta-btn" target="_blank" rel="noopener noreferrer">Book Consulting</a>
+  </div>
 </section>
+
+<!-- Contact Modal -->
+<div class="contact-modal-overlay" id="contactModal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="contact-modal">
+    <button class="modal-close" onclick="document.getElementById('contactModal').style.display='none'">&times;</button>
+    <div id="contactForm">
+      <h3>Get in Touch</h3>
+      <p class="modal-sub">Send a message to the BlueVector team. We&rsquo;ll respond within 24 hours.</p>
+      <label for="contactName">Your Name</label>
+      <input type="text" id="contactName" placeholder="Full name" required>
+      <label for="contactEmail">Your Email</label>
+      <input type="email" id="contactEmail" placeholder="you@company.com" required>
+      <label for="contactSubject">Subject</label>
+      <input type="text" id="contactSubject" placeholder="What can we help with?">
+      <label for="contactMessage">Message</label>
+      <textarea id="contactMessage" placeholder="Tell us about your project, team size, or goals..."></textarea>
+      <button class="modal-send-btn" onclick="sendContactEmail()">Send Message</button>
+    </div>
+    <div class="modal-success" id="contactSuccess">
+      <h4>Message Sent</h4>
+      <p>Thank you for reaching out. We&rsquo;ll get back to you shortly.</p>
+    </div>
+  </div>
+</div>
 
 <div class="iridescent-bar"></div>
 
 <footer>
-  BlueVector.iT.com Corp &bull; Convergence Engineering &bull; Bartow, FL
+  BlueVector.iT.com Corp &bull; Convergence Engineering &bull; Orlando, Florida
 </footer>
 
 <script>
+  function sendContactEmail() {
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const subject = document.getElementById('contactSubject').value.trim() || 'BlueVector Inquiry';
+    const message = document.getElementById('contactMessage').value.trim();
+
+    if (!name || !email) {
+      alert('Please fill in your name and email.');
+      return;
+    }
+
+    const body = 'Name: ' + name + '\nEmail: ' + email + '\n\n' + message;
+    const mailtoLink = 'mailto:hummingbirdvalentine@gmail.com'
+      + '?subject=' + encodeURIComponent(subject)
+      + '&body=' + encodeURIComponent(body);
+
+    window.location.href = mailtoLink;
+
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'block';
+
+    setTimeout(function() {
+      document.getElementById('contactModal').style.display = 'none';
+      document.getElementById('contactForm').style.display = 'block';
+      document.getElementById('contactSuccess').style.display = 'none';
+      document.getElementById('contactName').value = '';
+      document.getElementById('contactEmail').value = '';
+      document.getElementById('contactSubject').value = '';
+      document.getElementById('contactMessage').value = '';
+    }, 3000);
+  }
+
   const tabs = document.querySelectorAll('.tab-btn');
   const panels = document.querySelectorAll('.tab-panel');
 
