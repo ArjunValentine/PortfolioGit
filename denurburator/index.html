@@ -24,7 +24,7 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { background: var(--bog); }
+  html { background: var(--bog); overflow-x: hidden; width: 100%; }
 
   body {
     font-family: var(--mono);
@@ -37,6 +37,7 @@
     line-height: 1.45;
     text-shadow: 0 0 6px rgba(60, 255, 110, 0.35);
     overflow-x: hidden;
+    width: 100%;
   }
 
   /* CRT scanlines over everything */
@@ -92,7 +93,11 @@
   }
   .masthead pre.logo {
     display: inline-block;
-    font-size: clamp(14px, 3.4vw, 34px);
+    max-width: 100%;
+    overflow-x: auto;
+    /* 48 monospace chars/line; this keeps the block-letter logo inside
+       the viewport at any width instead of clipping off the right edge */
+    font-size: clamp(7px, calc((min(100vw, 960px) - 40px) / 30), 34px);
     line-height: 1.08;
     color: var(--moss);
     text-shadow:
@@ -355,6 +360,20 @@
     body { font-size: 17px; }
     h2 { font-size: 22px; }
     .cta-box .shout { font-size: 24px; }
+
+    /* two cramped columns of dense prose don't work at phone width --
+       stack each row into a labeled block instead */
+    table, tbody, tr, th, td { display: block; width: 100%; }
+    table { border-spacing: 0; padding: 3px; }
+    tr { margin-bottom: 3px; }
+    tr:last-child { margin-bottom: 0; }
+    th { border-bottom: none; }
+    td.k {
+      border-bottom: none;
+      padding-bottom: 0.2rem;
+      font-size: 17px;
+    }
+    td:not(.k) { padding-top: 0.3rem; }
   }
 </style>
 </head>
