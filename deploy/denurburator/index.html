@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>the deNURBurator™ — NURBS go in. Triangles come out. Nobody apologizes.</title>
+<meta name="description" content="A Python terminal tool that violently rips NURBS out of STEP files and renders them as rotating 3D ASCII meshes. Free. Feral. Peer-reviewed by the swamp.">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bog: #07020d;
+    --murk: #14061f;
+    --murk2: #1e0a2e;
+    --moss: #3cff6e;
+    --moss-dim: #1d8f3f;
+    --moss-dark: #0d4a20;
+    --toxin: #b5ff2f;
+    --hex: #ff2fb3;
+    --rot: #8a5cff;
+    --bone: #e8dfc8;
+    --mono: 'VT323', 'Courier New', monospace;
+    --type: 'Special Elite', 'Courier New', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { background: var(--bog); }
+
+  body {
+    font-family: var(--mono);
+    font-size: 20px;
+    color: var(--moss);
+    background:
+      radial-gradient(ellipse 120% 60% at 50% -10%, var(--murk2) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 80% at 80% 110%, #240a1e 0%, transparent 55%),
+      var(--bog);
+    line-height: 1.45;
+    text-shadow: 0 0 6px rgba(60, 255, 110, 0.35);
+    overflow-x: hidden;
+  }
+
+  /* CRT scanlines over everything */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  a { color: var(--toxin); }
+  a:hover { color: var(--hex); background: var(--moss-dark); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 1.25rem; }
+
+  /* ═══ MARQUEE ═══ */
+  .marquee {
+    background: var(--hex);
+    color: var(--bog);
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    border-bottom: 4px double var(--bog);
+    text-shadow: none;
+  }
+  .marquee span {
+    display: inline-block;
+    padding: 0.25rem 0;
+    animation: crawl 22s linear infinite;
+  }
+  @keyframes crawl {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ═══ MASTHEAD ═══ */
+  .masthead {
+    border-bottom: 6px ridge var(--rot);
+    padding: 2.5rem 0 2rem;
+    text-align: center;
+    background:
+      linear-gradient(rgba(60,255,110,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(60,255,110,0.04) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  .masthead pre.logo {
+    display: inline-block;
+    font-size: clamp(14px, 3.4vw, 34px);
+    line-height: 1.08;
+    color: var(--moss);
+    text-shadow:
+      0 0 10px rgba(60,255,110,0.7),
+      3px 3px 0 var(--murk2),
+      6px 6px 0 rgba(255,47,179,0.35);
+    text-align: left;
+  }
+  .masthead .tm { color: var(--hex); font-size: 0.5em; vertical-align: super; }
+  .tagline {
+    margin-top: 1rem;
+    font-size: 24px;
+    color: var(--bone);
+    font-family: var(--type);
+  }
+  .tagline .cursor {
+    display: inline-block;
+    width: 0.55em; height: 1.05em;
+    background: var(--moss);
+    vertical-align: text-bottom;
+    animation: blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .badge-row {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 15px;
+  }
+  .badge {
+    border: 2px outset var(--moss-dim);
+    background: var(--murk);
+    color: var(--toxin);
+    padding: 0.15rem 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .badge.hot { color: var(--hex); border-color: var(--hex); animation: blink 2.1s steps(1) infinite; }
+
+  /* ═══ SECTIONS ═══ */
+  section { padding: 3rem 0 1rem; }
+  h2 {
+    font-size: 30px;
+    color: var(--bone);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    border: 4px double var(--moss-dim);
+    border-left: 14px solid var(--hex);
+    background: var(--murk);
+    padding: 0.5rem 1rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 0 var(--bog);
+  }
+  h2::before { content: '»» '; color: var(--hex); }
+  h2::after  { content: ' ««'; color: var(--hex); }
+
+  p { margin-bottom: 1rem; max-width: 72ch; }
+  strong { color: var(--toxin); }
+  em { color: var(--hex); font-style: normal; }
+
+  blockquote {
+    font-family: var(--type);
+    font-size: 21px;
+    color: var(--bone);
+    border-left: 6px groove var(--rot);
+    border-right: 6px groove var(--rot);
+    background: linear-gradient(90deg, rgba(138,92,255,0.12), transparent 70%);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    max-width: 66ch;
+  }
+
+  /* ═══ INSTALL BLOCK ═══ */
+  .install-frame {
+    border: 6px ridge var(--moss-dim);
+    background: #01130a;
+    box-shadow: 0 0 30px rgba(60,255,110,0.25), inset 0 0 40px rgba(0,0,0,0.7);
+    position: relative;
+    margin: 1.5rem 0 2rem;
+  }
+  .install-frame .frame-title {
+    background: var(--moss-dark);
+    color: var(--toxin);
+    padding: 0.3rem 1rem;
+    font-size: 17px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-bottom: 3px double var(--moss-dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .install-frame pre {
+    padding: 1.25rem 1.5rem;
+    font-size: 19px;
+    overflow-x: auto;
+    color: var(--moss);
+  }
+  .install-frame pre .cm { color: var(--moss-dim); }
+  .install-frame pre .hl { color: var(--toxin); }
+  button.copy-btn {
+    font-family: var(--mono);
+    font-size: 16px;
+    background: var(--murk2);
+    color: var(--hex);
+    border: 3px outset var(--rot);
+    padding: 0.2rem 0.9rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  button.copy-btn:active { border-style: inset; }
+
+  /* ═══ FAUX TERMINAL ═══ */
+  .term {
+    border: 5px ridge var(--rot);
+    background: #030109;
+    box-shadow: 0 0 40px rgba(138,92,255,0.3), inset 0 0 60px rgba(0,0,0,0.8);
+    margin: 1.5rem 0 2rem;
+  }
+  .term-bar {
+    background: linear-gradient(180deg, var(--murk2), var(--murk));
+    border-bottom: 3px double var(--rot);
+    padding: 0.35rem 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 16px;
+    color: var(--bone);
+    letter-spacing: 0.08em;
+  }
+  .term-bar .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--bog); }
+  .term-bar .d1 { background: var(--hex); }
+  .term-bar .d2 { background: var(--toxin); }
+  .term-bar .d3 { background: var(--moss); }
+  .term pre {
+    padding: 1rem 1.25rem 0.5rem;
+    font-size: clamp(9px, 1.7vw, 17px);
+    line-height: 1.12;
+    color: var(--moss);
+    overflow-x: auto;
+    text-shadow: 0 0 8px rgba(60,255,110,0.55);
+  }
+  .term .term-status {
+    font-size: 15px;
+    background: var(--hex);
+    color: var(--bog);
+    text-shadow: none;
+    padding: 0.2rem 0.9rem;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* ═══ FEATURE TABLE ═══ */
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 3px;
+    background: var(--rot);
+    border: 5px outset var(--rot);
+    margin: 1.5rem 0 2rem;
+    font-size: 18px;
+  }
+  th {
+    background: var(--murk2);
+    color: var(--hex);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.5rem 0.9rem;
+    border: 2px inset var(--rot);
+    text-align: left;
+  }
+  td {
+    background: var(--murk);
+    color: var(--moss);
+    padding: 0.5rem 0.9rem;
+    border: 2px inset var(--murk2);
+    vertical-align: top;
+  }
+  td.k { color: var(--toxin); white-space: nowrap; }
+
+  /* ═══ CTA ═══ */
+  .cta-box {
+    border: 8px double var(--hex);
+    background:
+      repeating-linear-gradient(-45deg,
+        rgba(255,47,179,0.07) 0 12px, transparent 12px 24px),
+      var(--murk);
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    margin: 2rem 0;
+  }
+  .cta-box .shout {
+    font-size: 34px;
+    color: var(--bone);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    text-shadow: 3px 3px 0 var(--hex);
+    margin-bottom: 1.25rem;
+  }
+  .btn-row { display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap; }
+  a.big-btn {
+    display: inline-block;
+    font-size: 22px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.7rem 1.8rem;
+    border: 5px outset var(--moss-dim);
+    background: var(--moss-dark);
+    color: var(--toxin);
+    text-shadow: 0 0 8px rgba(181,255,47,0.6);
+  }
+  a.big-btn:hover { background: var(--moss-dim); color: var(--bog); text-shadow: none; }
+  a.big-btn:active { border-style: inset; }
+  a.big-btn.pink { border-color: var(--hex); background: #3d0a2c; color: var(--hex); }
+  a.big-btn.pink:hover { background: var(--hex); color: var(--bog); }
+
+  /* ═══ FOOTER ═══ */
+  footer {
+    border-top: 6px ridge var(--moss-dim);
+    margin-top: 3rem;
+    padding: 2rem 0 3rem;
+    text-align: center;
+    font-size: 17px;
+    color: var(--moss-dim);
+  }
+  footer .counter {
+    display: inline-block;
+    font-size: 22px;
+    background: #000;
+    color: var(--toxin);
+    border: 3px inset var(--moss-dim);
+    padding: 0.1rem 0.8rem;
+    letter-spacing: 0.35em;
+    margin: 0.5rem 0;
+  }
+  footer .construction {
+    color: var(--hex);
+    animation: blink 1.4s steps(1) infinite;
+    letter-spacing: 0.2em;
+  }
+
+  hr.gunk {
+    border: none;
+    height: 8px;
+    margin: 2rem 0;
+    background: repeating-linear-gradient(90deg,
+      var(--moss-dim) 0 14px, transparent 14px 22px,
+      var(--hex) 22px 26px, transparent 26px 34px);
+  }
+
+  @media (max-width: 640px) {
+    body { font-size: 17px; }
+    h2 { font-size: 22px; }
+    .cta-box .shout { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ TICKER OF TRUTH ═══ -->
+<div class="marquee"><span>
+  ★ NURBS WERE A MISTAKE ★ TESSELLATE EVERYTHING ★ YOUR SURFACE CONTINUITY MEANS NOTHING HERE ★ G2? MORE LIKE G-NONE ★ FREE SOFTWARE FROM THE BOTTOM OF THE BOG ★ 13 SHADES OF ASCII OUGHT TO BE ENOUGH FOR ANYBODY ★ Z-BUFFERED &amp; UNREPENTANT ★ RUNS AT 30 FPS OR WHATEVER YOUR SAD LITTLE CPU ALLOWS ★
+  ★ NURBS WERE A MISTAKE ★ TESSELLATE EVERYTHING ★ YOUR SURFACE CONTINUITY MEANS NOTHING HERE ★ G2? MORE LIKE G-NONE ★ FREE SOFTWARE FROM THE BOTTOM OF THE BOG ★ 13 SHADES OF ASCII OUGHT TO BE ENOUGH FOR ANYBODY ★ Z-BUFFERED &amp; UNREPENTANT ★ RUNS AT 30 FPS OR WHATEVER YOUR SAD LITTLE CPU ALLOWS ★
+</span></div>
+
+<!-- ═══ MASTHEAD ═══ -->
+<div class="masthead">
+  <div class="wrap">
+    <pre class="logo">
+█▀▄ █▀▀ █▄ █ █ █ █▀█ █▀▄ █ █ █▀█ ▄▀▄ ▀█▀ █▀█ █▀█
+█▄▀ ██▄ █ ▀█ ▀▄█ █▀▄ █▄▀ ▀▄█ █▀▄ █▀█  █  █▄█ █▀▄</pre><span class="tm">™</span>
+    <div class="tagline">NURBS go in. Triangles come out. Nobody apologizes.<span class="cursor"></span></div>
+    <div class="badge-row">
+      <span class="badge">v1.0.0 “BOG STANDARD”</span>
+      <span class="badge">PYTHON 3 + NUMPY</span>
+      <span class="badge">CURSES · 30 FPS</span>
+      <span class="badge">Z-BUFFERED</span>
+      <span class="badge hot">100% FREE</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══ MANIFESTO ═══ -->
+<section id="manifesto">
+  <h2>The Manifesto</h2>
+
+  <p>Somewhere in a climate-controlled office park, a surfacing specialist is
+  massaging a Class-A body panel to <strong>G2 curvature continuity</strong>,
+  zooming to 4000% to chase a highlight across a fender that will never be
+  looked at that closely by anyone, ever, including God.</p>
+
+  <p>Meanwhile, down here in the swamp, we know the truth: <em>every NURBS
+  surface is a liar.</em> An infinitely smooth parametric fantasy propped up by
+  control points, knot vectors, and the collective denial of the CAD-industrial
+  complex. Your GPU never rendered a NURBS in its life. The moment anything
+  real happens — a render, a toolpath, a 3D print, a finite element daring to
+  be analyzed — that pristine mathematics gets <strong>tessellated into
+  triangles anyway</strong>, quietly, behind your back, like a shameful family
+  secret.</p>
+
+  <blockquote>The deNURBurator simply does in public what your kernel does in
+  private. It drags the B-rep out of the STEP file, beats it flat into honest
+  polygons, and displays the remains — rotating, lit, and z-buffered — in the
+  only rendering target that never lied to anyone: <strong>the
+  terminal.</strong></blockquote>
+
+  <p>Thirteen ASCII characters. That is the entire shading gamut you get:
+  <strong>&nbsp;.,-~:;=!*#$@</strong> — from the void to full specular ecstasy.
+  A fixed light vector glares down from the upper left like a porch lamp in
+  the fog. Face normals are dot-producted against it without anesthesia. There
+  is a real perspective camera, a real depth buffer, and real rotation
+  matrices, all hand-rolled in numpy, because a rendering pipeline you can
+  read in one sitting is worth ten black-box engines.</p>
+
+  <p>Is this useful? <em>Aggressively.</em> You can sanity-check a vendor's
+  STEP file over SSH, on a headless box, in the sixty seconds before a
+  meeting, without launching a CAD package that needs eleven gigabytes and a
+  license server's blessing. And when the part appears — chunky, glowing,
+  spinning in green phosphor like it's 1994 and the swamp modem just
+  handshook — you will feel something no fillet dialog ever gave you.</p>
+
+  <p><strong>Mathematical perfection is a rental. Triangles are forever.</strong></p>
+</section>
+
+<hr class="gunk">
+
+<!-- ═══ GET IT ═══ -->
+<section id="install">
+  <h2>Seize the Machine</h2>
+  <p>One script. No framework. No telemetry. No account. Copy, paste,
+  desecrate:</p>
+
+  <div class="install-frame">
+    <div class="frame-title">
+      <span>░ INSTALLATION RITUAL ░</span>
+      <button class="copy-btn" onclick="copyInstall(this)">COPY IT ALL</button>
+    </div>
+    <pre id="installBlock"><span class="cm"># summon dependencies (the swamp provides)</span>
+python -m pip install numpy trimesh cascadio
+
+<span class="cm"># windows folk also require the ritual bindings</span>
+python -m pip install windows-curses
+
+<span class="cm"># seize the machine</span>
+curl -fsSLO https://peterjamesvilla.com/denurburator/denurburator.py
+
+<span class="cm"># feed it your most precious parametric surfaces</span>
+<span class="hl">python denurburator.py YOUR_PART.step</span>
+
+<span class="cm"># no STEP file handy? violate the built-in nitinol actuator</span>
+<span class="hl">python denurburator.py --demo</span></pre>
+  </div>
+
+  <p style="font-size:17px; color: var(--moss-dim);">Prefer the heavyweight
+  OpenCascade experience? <strong>pip install cadquery</strong> works as a
+  fallback backend and tessellates STEP natively. The deNURBurator tries
+  trimesh + cascadio first, then cadquery, then insults you with a helpful
+  error message.</p>
+</section>
+
+<hr class="gunk">
+
+<!-- ═══ DEMO ═══ -->
+<section id="demo">
+  <h2>Live* Demonstration</h2>
+  <p style="font-size:16px; color:var(--moss-dim);">*a single frame of the
+  built-in nitinol actuator coil, captured from the actual engine and
+  embalmed here in HTML. In your terminal it rotates at 30 frames per
+  second and you can steer it with the arrow keys.</p>
+
+  <div class="term">
+    <div class="term-bar">
+      <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+      <span>pjv@bog:~/parts — python denurburator.py --demo</span>
+    </div>
+    <pre>
+                                 $$$$$$$#
+                             @@********#####**
+                           @***,,,---~$::==###*!
+                         @!!!,,,..;--~~;*.!!!$$$=
+                        @!!!,,.,,,......===;**$$$=
+                       $$!!,,...,,,....$;=-*:##$$!!
+                       ##;!#.,,.,,-..#$;;.*~#-**$$
+                       ##**~~....,.. ..;=-*#-$$$;.
+                       =#*!!:~,.         ~:$@$$;;
+                        *****!=           @,$$$:.
+                         :*!****!!*    $$$$$$::.
+                          ~!!!=***~~######::::.
+                            ~,,==;;;;;;;:::..
+                              -,....$!.....
+                                 .!.....
+</pre>
+    <div class="term-status">&nbsp;deNURBurator ░ NITINOL-COIL (built-in) ░ 1800 tris ░ 30.0 fps ░ zoom 1.00 ░ [q]uit [space]pause [+/-]zoom [arrows]spin</div>
+  </div>
+</section>
+
+<hr class="gunk">
+
+<!-- ═══ SPECS ═══ -->
+<section id="specs">
+  <h2>Technical Autopsy</h2>
+  <table>
+    <tr><th>Organ</th><th>What It Does To Your Geometry</th></tr>
+    <tr>
+      <td class="k">TESSELLATOR</td>
+      <td>trimesh + cascadio (or cadquery) parses the STEP B-rep and
+      force-flattens every NURBS patch into raw triangles. Chunkiness is
+      adjustable with <strong>--tol</strong>. Bigger tolerance = more
+      violence.</td>
+    </tr>
+    <tr>
+      <td class="k">DECIMATOR</td>
+      <td>Assemblies over the face budget (<strong>--max-faces</strong>,
+      default 1800) get quadric-decimated if fast-simplification is present —
+      or randomly cleaved if it is not. Either way they fit.</td>
+    </tr>
+    <tr>
+      <td class="k">PROJECTOR</td>
+      <td>Hand-rolled numpy: X/Y rotation matrices, perspective divide against
+      a camera parked at <strong>--distance</strong> part-radii, and a 2×
+      horizontal stretch because terminal cells are tall and nobody can stop
+      them.</td>
+    </tr>
+    <tr>
+      <td class="k">Z-BUFFER</td>
+      <td>Per-character depth buffer with barycentric interpolation, filled
+      front-to-back so hidden fragments die cheap. Your occluded faces stay
+      occluded, as nature intended.</td>
+    </tr>
+    <tr>
+      <td class="k">ILLUMINATOR</td>
+      <td>One fixed light vector, dot-producted against every face normal,
+      mapped onto the sacred ramp <strong>&nbsp;.,-~:;=!*#$@</strong>. Feral
+      STEP winding orders are handled by flipping normals camera-ward. Flat
+      shading. Gouraud is for cowards.</td>
+    </tr>
+    <tr>
+      <td class="k">THE LOOP</td>
+      <td>curses, flicker-free, targeting <strong>--fps 30</strong>. Pause,
+      zoom, and spin-rate keys included. <strong>--scale</strong> handles the
+      spread from warehouse-sized assemblies (0.5) to a lone nitinol actuator
+      (1.5+). <strong>--dump N</strong> prints frames straight to stdout for
+      piping, CI, or framing.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section id="get">
+  <div class="cta-box">
+    <div class="shout">Liberate Your Geometry</div>
+    <p style="margin: 0 auto 1.5rem; max-width: 56ch;">The deNURBurator is one
+    self-contained Python file, free forever. Download it, read every line of
+    it, run it on the crustiest STEP file a supplier ever emailed you at 4:58
+    on a Friday.</p>
+    <div class="btn-row">
+      <a class="big-btn" href="denurburator.py" download>⬇ Download denurburator.py</a>
+      <a class="big-btn pink" href="mailto:hello@peterjamesvilla.com?subject=deNURBurator">✉ Report a Haunting</a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="wrap">
+    <div class="construction">▓▒░ PERPETUALLY UNDER CONSTRUCTION ░▒▓</div>
+    <div style="margin-top:0.75rem;">you are visitor number</div>
+    <div class="counter">0042077</div>
+    <div style="margin-top:0.75rem;">
+      best viewed at 800×600 in a dark room · no NURBS were preserved in the
+      making of this software
+    </div>
+    <div style="margin-top:0.75rem;">
+      a <a href="https://peterjamesvilla.com">peterjamesvilla.com</a> production
+      · <a href="mailto:hello@peterjamesvilla.com">hello@peterjamesvilla.com</a>
+      · © 2026, or whenever you're reading this from
+    </div>
+  </div>
+</footer>
+
+<script>
+  function copyInstall(btn) {
+    const text = document.getElementById('installBlock').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const old = btn.textContent;
+      btn.textContent = 'IN YOUR CLIPBOARD';
+      setTimeout(() => { btn.textContent = old; }, 1800);
+    }).catch(() => {
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById('installBlock'));
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      btn.textContent = 'SELECTED — CTRL+C';
+    });
+  }
+</script>
+
+</body>
+</html>
