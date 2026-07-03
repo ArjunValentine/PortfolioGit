@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shadow AI &amp; Prompt Audit Checklist | Blue Vector</title>
+<style>
+  :root{--navy:#0B1A3E;--mid:#2B5EA7;--steel:#4A6FA5;--light:#D8E1EC;--cream:#F4F1EB;--slate:#2F4F4F;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Helvetica Neue',Arial,sans-serif;color:#1C1C1C;line-height:1.55;background:#fff;max-width:900px;margin:0 auto;padding:2.5rem 2rem 4rem}
+  .bar{height:4px;background:linear-gradient(90deg,#00CED1,#4169E1,#9370DB,#FF1493);margin-bottom:1.5rem}
+  .brand{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:.4rem}
+  h1{font-family:Georgia,'Times New Roman',serif;color:var(--navy);font-size:1.9rem;line-height:1.2;margin-bottom:.5rem}
+  .sub{color:var(--slate);font-size:.95rem;max-width:660px;margin-bottom:1.5rem}
+  h2{font-family:Georgia,serif;color:var(--navy);font-size:1.2rem;margin:2.25rem 0 .75rem;padding-bottom:.35rem;border-bottom:2px solid var(--light)}
+  table{width:100%;border-collapse:collapse;font-size:.83rem;margin-bottom:1rem}
+  th{background:var(--navy);color:#fff;text-align:left;padding:.5rem .6rem;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+  td{border:1px solid var(--light);padding:.5rem .6rem;vertical-align:top}
+  td.chk{width:56px;text-align:center;font-size:1rem}
+  td.notes{width:190px}
+  .note{background:var(--cream);border-left:3px solid var(--mid);padding:.75rem 1rem;font-size:.82rem;color:var(--slate);margin:1rem 0}
+  .print-btn{display:inline-block;background:var(--navy);color:#fff;border:none;padding:.6rem 1.5rem;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-bottom:1.5rem}
+  footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--light);font-size:.78rem;color:var(--steel)}
+  footer a{color:var(--mid)}
+  @media print{.print-btn{display:none}body{padding:0}}
+</style>
+</head>
+<body>
+<div class="bar"></div>
+<div class="brand">Blue Vector &bull; Free Resource</div>
+<h1>Shadow AI &amp; Prompt Audit Checklist</h1>
+<p class="sub">A leadership-only field checklist for finding out what your team is <em>actually</em> doing with AI&mdash;the unsanctioned tools, the data walking out the door, and the quiet non-adoption killing your official rollout. Work through it discreetly. The goal is a picture and a plan, not a witch hunt.</p>
+
+<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+
+<div class="note"><strong>Ground rule:</strong> announce a no-blame amnesty window before you start asking questions. People tell the truth about shadow tools exactly once&mdash;when honesty is safe. Burn that, and every future audit is fiction.</div>
+
+<h2>Phase 1 &mdash; Discovery (What's Actually in Use)</h2>
+<table>
+  <tr><th>Check</th><th>Done</th><th>Findings</th></tr>
+  <tr><td>Pull the network/DNS logs (or ask IT) for traffic to consumer AI domains over the last 90 days</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Inventory browser extensions and installed apps on company machines for AI tools</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Check expense reports and credit-card statements for AI subscriptions</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Interview one person per department: &ldquo;What do you use AI for? What would you use it for if you could?&rdquo;</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>List every sanctioned AI tool and who is licensed vs. who actually logs in</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+</table>
+
+<h2>Phase 2 &mdash; Exposure (What Data Is Leaving)</h2>
+<table>
+  <tr><th>Check</th><th>Done</th><th>Findings</th></tr>
+  <tr><td>Identify whether customer drawings, CAD, or specs have been pasted/uploaded into consumer tools</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Identify whether pricing, cost sheets, or customer lists have been used in prompts</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Check whether any AI accounts in use train on submitted data (consumer vs. business tier)</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Review NDAs and customer flow-downs for clauses AI use could already be violating</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Flag any export-controlled or regulated data (ITAR/EAR, HIPAA, etc.) in the exposure paths above</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+</table>
+
+<h2>Phase 3 &mdash; Prompt Quality &amp; Drift (For Sanctioned Tools)</h2>
+<table>
+  <tr><th>Check</th><th>Done</th><th>Findings</th></tr>
+  <tr><td>Sample 20+ recent outputs from each sanctioned workflow; grade against spec</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Compare current prompts against the originally approved versions (drift check)</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Verify human-approval steps are actually happening, not rubber-stamped</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Test agent-connected workflows for prompt-injection paths (untrusted email/document content reaching the agent)</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Confirm logs exist for agent actions and someone reviews them on a schedule</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+</table>
+
+<h2>Phase 4 &mdash; Adoption Map (Who's In, Who's Out, Why)</h2>
+<table>
+  <tr><th>Check</th><th>Done</th><th>Findings</th></tr>
+  <tr><td>Map actual usage by team: enthusiasts, quiet avoiders, and active workaround-builders</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Identify the specific reason for each pocket of avoidance (trust, training, fear, tool quality)</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Find the &ldquo;pilot purgatory&rdquo; projects: POCs older than 90 days with no deploy date</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+  <tr><td>Identify knowledge-hoarding chokepoints (processes only one person can run)</td><td class="chk">&#9744;</td><td class="notes"></td></tr>
+</table>
+
+<h2>Phase 5 &mdash; Remediation Plan</h2>
+<table>
+  <tr><th>#</th><th>Finding</th><th>Action (replace / govern / train / shut down)</th><th>Owner</th><th>Date</th></tr>
+  <tr><td class="chk">1</td><td></td><td></td><td class="notes"></td><td class="chk"></td></tr>
+  <tr><td class="chk">2</td><td></td><td></td><td class="notes"></td><td class="chk"></td></tr>
+  <tr><td class="chk">3</td><td></td><td></td><td class="notes"></td><td class="chk"></td></tr>
+  <tr><td class="chk">4</td><td></td><td></td><td class="notes"></td><td class="chk"></td></tr>
+</table>
+
+<footer>
+  &copy; Blue Vector &mdash; Fractional AI Integration &amp; Quality Systems &bull; St. Petersburg, Florida.<br>
+  Prefer this done by an outside auditor, confidentially, with findings to leadership only? <a href="mailto:hello@peterjamesvilla.com">hello@peterjamesvilla.com</a>
+</footer>
+</body>
+</html>

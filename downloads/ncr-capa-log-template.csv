@@ -1,0 +1,6 @@
+NCR ID,Date Opened,Part Number / Process,Description of Nonconformance,Detected By,Detection Point (Incoming/In-Process/Final/Customer),Quantity Affected,Containment Action,Disposition (Use-As-Is/Rework/Repair/Scrap/RTV),Root Cause (5-Why / Fishbone Summary),Corrective Action,Preventive Action,CA Owner,CA Due Date,Effectiveness Check Method,Effectiveness Verified (Y/N),Date Closed,Status
+NCR-26-001,2026-01-14,PN-4482 Bracket,Hole position out of tolerance +0.012 in,J. Alvarez,In-Process,42,Lot quarantined; sorted 100%,Rework,Fixture locating pin worn beyond limit,Replace pin; add pin to PM schedule,Add fixture wear check to first-article checklist,M. Chen,2026-02-01,Re-inspect next 3 lots,Y,2026-02-20,Closed
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
