@@ -1318,6 +1318,198 @@
       background: var(--mid-blue);
       color: #fff;
     }
+
+    /* ═══ TOOL / STANDARD LOCKUPS ═══ */
+    .tool-lockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .tool-lockup img { height: 30px; width: auto; display: block; }
+
+    .tool-lockup span {
+      font-family: var(--sans);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .tool-lockup.dark span { color: var(--near-black); }
+
+    .hero-stack-row { gap: 2rem; row-gap: 1.25rem; }
+    .hero-stack-row img { height: 30px; }
+
+    .hero-std-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hero-std-badge img { background: #fff; padding: 4px; border-radius: 3px; }
+    .hero-std-badge > span {
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: 0.04em;
+    }
+    .hero-std-badge img[src*="iso42001-white"] { background: transparent; padding: 0; }
+
+    .std-lockup { display: inline-flex; align-items: center; gap: 0.85rem; }
+    .std-lockup img { height: 72px; width: auto; }
+    .std-lockup span {
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+    }
+
+    /* ═══ CASE STUDIES ═══ */
+    .fict-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: var(--cream);
+      border: 1px solid var(--rule-gray);
+      color: var(--slate);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+    }
+
+    .case-study {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .case-study::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+
+    .case-study .cs-kicker {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mid-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .case-study h3 {
+      font-family: var(--serif);
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.35rem;
+    }
+
+    .case-study .cs-meta {
+      font-size: 0.8rem;
+      color: var(--rule-gray);
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.04em;
+    }
+
+    .case-study p { color: var(--slate); font-size: 0.92rem; margin-bottom: 0.9rem; max-width: 760px; }
+
+    .cs-walk { list-style: none; margin: 1.5rem 0; counter-reset: cs; }
+
+    .cs-walk li {
+      counter-increment: cs;
+      position: relative;
+      padding: 0 0 1.4rem 3.2rem;
+      border-left: 2px solid var(--light-silver);
+      margin-left: 1.1rem;
+    }
+
+    .cs-walk li:last-child { border-left-color: transparent; padding-bottom: 0.25rem; }
+
+    .cs-walk li::before {
+      content: counter(cs);
+      position: absolute;
+      left: -1.15rem;
+      top: -0.1rem;
+      width: 2.1rem;
+      height: 2.1rem;
+      background: var(--corp-gradient);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .cs-walk li b { color: var(--navy); display: block; font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .cs-walk li span { color: var(--slate); font-size: 0.87rem; line-height: 1.6; display: block; max-width: 700px; }
+
+    .cs-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0;
+      border: 1px solid var(--light-silver);
+      margin-top: 1.5rem;
+    }
+
+    .cs-results .cs-r {
+      padding: 1.25rem 1rem;
+      text-align: center;
+      border-right: 1px solid var(--light-silver);
+      background: var(--cream);
+    }
+
+    .cs-results .cs-r:last-child { border-right: none; }
+
+    .cs-results .cs-r .num {
+      font-family: var(--serif);
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+
+    .cs-results .cs-r .lbl {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--steel);
+      margin-top: 0.35rem;
+    }
+
+    /* ═══ REVOPS ═══ */
+    .revops-tools-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 2.25rem;
+      padding: 1.75rem 1.5rem;
+      border: 1px solid var(--light-silver);
+      background: #fff;
+      margin-bottom: 3rem;
+    }
+
+    .revops-tools-row .tool-lockup img { height: 26px; }
+
+    @media (max-width: 600px) {
+      .case-study { padding: 1.5rem; }
+      .cs-walk li { padding-left: 2.4rem; }
+    }
   </style>
 </head>
 <body>
@@ -1332,7 +1524,7 @@
         <img src="bvlogo.png" alt="Blue Vector" />
       </a>
     </div>
-    <div class="header-meta">AI Integration &amp; Quality Systems &bull; Orlando, Florida</div>
+    <div class="header-meta">AI Integration &amp; Quality Systems &bull; St. Petersburg, Florida</div>
   </div>
 </header>
 
@@ -1350,6 +1542,9 @@
       <button class="tab-btn" data-tab="compliance" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Compliance</button>
       <button class="tab-btn" data-tab="airisk" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">AI Risk &amp; Sabotage</button>
       <button class="tab-btn" data-tab="engagement" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Engagement</button>
+      <button class="tab-btn" data-tab="casestudies" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Case Studies</button>
+      <button class="tab-btn" data-tab="revops" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">RevOps</button>
+      <button class="tab-btn" data-tab="resources" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Free Resources</button>
     </div>
 
     <!-- Consultation Buttons -->
@@ -1366,32 +1561,31 @@
         <div style="font-family: var(--sans); font-size: 1.1rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.08em; text-transform: uppercase;">Dura-Cast Products, Inc</div>
         <div style="font-family: var(--sans); font-size: 1.05rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2;">MCX Core Brands<br><span style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Corps Value</span></div>
         <div style="font-family: var(--sans); font-size: 1.25rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.06em; text-transform: uppercase;">UniFirst</div>
-        <div style="font-family: var(--sans); font-size: 1.7rem; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.12em; text-transform: uppercase;">NIKE</div>
+        <div><img src="logos/gtm/nike-white.svg" alt="Nike" title="Nike" style="height: 34px; width: auto; display: block;"></div>
       </div>
     </div>
 
-    <!-- Regulatory Partners -->
+    <!-- Standards -->
     <div class="hero-logo-section">
       <div class="hero-logo-label">Standards &amp; Credentials</div>
       <div class="hero-logo-row">
-        <img src="logos/image2.png" alt="ISO 9001" title="ISO 9001 Quality Management">
-        <img src="logos/image3.jpeg" alt="NSF" title="NSF">
-        <img src="logos/image4.jpeg" alt="FDA" title="FDA">
-        <img src="logos/image5.jpeg" alt="FAA Certified Remote Pilot" title="FAA Certified Remote Pilot" style="height: 68px;">
-        <img src="logos/image6.jpeg" alt="ASQ Certified Quality Auditor" title="ASQ Certified Quality Auditor">
-        <img src="logos/image7.png" alt="OSHA 30-Hour Trained" title="OSHA 30-Hour Trained">
-        <img src="logos/image8.jpeg" alt="cGMP" title="Current Good Manufacturing Practice">
-        <img src="logos/image9.jpeg" alt="UL 508A" title="UL 508A">
+        <span class="hero-std-badge"><img src="logos/image2.png" alt="ISO 9001:2026" title="ISO 9001:2026 Quality Management" style="height: 64px;"><span>ISO 9001:2026</span></span>
+        <span class="hero-std-badge"><img src="logos/gtm/iso42001-white.svg" alt="ISO/IEC 42001:2023" title="ISO/IEC 42001:2023 AI Management System" style="height: 64px;"><span>ISO/IEC 42001:2023</span></span>
       </div>
     </div>
 
-    <!-- Toolchain -->
+    <!-- GTM & Integration Stack -->
     <div class="hero-logo-section">
-      <div class="hero-logo-label">Integration Toolchain</div>
-      <div class="hero-logo-row">
-        <img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="height: 44px;">
-        <img src="logos/image12.png" alt="Notion" title="Notion" style="height: 50px;">
-        <img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="height: 64px;">
+      <div class="hero-logo-label">GTM &amp; Integration Stack</div>
+      <div class="hero-logo-row hero-stack-row">
+        <span class="tool-lockup"><img src="logos/gtm/clay-white.svg" alt="Clay" title="Clay &mdash; data enrichment &amp; scoring"></span>
+        <span class="tool-lockup"><img src="logos/gtm/claudecode-white.svg" alt="Claude Code" title="Claude Code &mdash; agentic build &amp; automation"><span>Claude Code</span></span>
+        <span class="tool-lockup"><img src="logos/gtm/apollo-white.svg" alt="Apollo.io" title="Apollo.io &mdash; prospect data &amp; sequencing"></span>
+        <span class="tool-lockup"><img src="logos/gtm/docker-white.svg" alt="Docker" title="Docker &mdash; containerized deployment"><span>Docker</span></span>
+        <span class="tool-lockup"><img src="logos/gtm/supabase-white.svg" alt="Supabase" title="Supabase &mdash; data layer"><span>Supabase</span></span>
+        <span class="tool-lockup"><img src="logos/gtm/retool-white.svg" alt="Retool" title="Retool &mdash; internal dashboards"><span>Retool</span></span>
+        <span class="tool-lockup"><img src="logos/gtm/hubspot-white.svg" alt="HubSpot" title="HubSpot &mdash; CRM"><span>HubSpot</span></span>
+        <span class="tool-lockup"><img src="logos/gtm/n8n-white.svg" alt="n8n" title="n8n &mdash; workflow orchestration"><span>n8n</span></span>
       </div>
     </div>
 
@@ -1489,24 +1683,23 @@
       <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Standards &amp; Credentials</div>
     </div>
     <div class="img-logo-cloud">
-      <div class="img-logo-item"><img src="logos/image2.png" alt="ISO 9001" title="ISO 9001"></div>
-      <div class="img-logo-item"><img src="logos/image3.jpeg" alt="NSF" title="NSF"></div>
-      <div class="img-logo-item"><img src="logos/image4.jpeg" alt="FDA" title="FDA"></div>
-      <div class="img-logo-item"><img src="logos/image5.jpeg" alt="FAA Remote Pilot" title="FAA Certified Remote Pilot" style="max-height: 80px;"></div>
-      <div class="img-logo-item"><img src="logos/image6.jpeg" alt="ASQ Quality Auditor" title="ASQ Certified Quality Auditor"></div>
-      <div class="img-logo-item"><img src="logos/image7.png" alt="OSHA 30-Hour" title="OSHA 30-Hour Trained"></div>
-      <div class="img-logo-item"><img src="logos/image8.jpeg" alt="cGMP" title="cGMP"></div>
-      <div class="img-logo-item"><img src="logos/image9.jpeg" alt="UL 508A" title="UL 508A"></div>
+      <div class="img-logo-item"><span class="std-lockup"><img src="logos/image2.png" alt="ISO 9001:2026" title="ISO 9001:2026 Quality Management"><span>ISO 9001:2026</span></span></div>
+      <div class="img-logo-item"><span class="std-lockup"><img src="logos/gtm/iso42001.svg" alt="ISO/IEC 42001:2023" title="ISO/IEC 42001:2023 AI Management System"><span>ISO/IEC 42001:2023</span></span></div>
     </div>
 
-    <!-- Toolchain Logo Cloud -->
+    <!-- GTM Stack Logo Cloud -->
     <div style="margin-bottom: 0.75rem;">
-      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">Integration Toolchain</div>
+      <div class="label" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rule-gray); margin-bottom: 1rem; text-align: center;">GTM &amp; Integration Stack</div>
     </div>
     <div class="img-logo-cloud" style="margin-bottom: 1.5rem;">
-      <div class="img-logo-item"><img src="logos/image11.png" alt="GitHub Copilot" title="GitHub Copilot" style="max-height: 50px; max-width: 220px;"></div>
-      <div class="img-logo-item"><img src="logos/image12.png" alt="Notion" title="Notion" style="max-height: 55px; max-width: 180px;"></div>
-      <div class="img-logo-item"><img src="logos/image10.jpeg" alt="Continuous Improvement" title="Continuous Improvement" style="max-height: 70px;"></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/clay.svg" alt="Clay" title="Clay &mdash; data enrichment &amp; scoring"></span></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/claudecode.svg" alt="Claude Code" title="Claude Code &mdash; agentic build &amp; automation"><span>Claude Code</span></span></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/apollo.svg" alt="Apollo.io" title="Apollo.io &mdash; prospect data &amp; sequencing"></span></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/docker.svg" alt="Docker" title="Docker &mdash; containerized deployment"><span>Docker</span></span></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/supabase.svg" alt="Supabase" title="Supabase &mdash; data layer"><span>Supabase</span></span></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/retool.svg" alt="Retool" title="Retool &mdash; internal dashboards"><span>Retool</span></span></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/hubspot.svg" alt="HubSpot" title="HubSpot &mdash; CRM"><span>HubSpot</span></span></div>
+      <div class="img-logo-item"><span class="tool-lockup dark"><img src="logos/gtm/n8n.svg" alt="n8n" title="n8n &mdash; workflow orchestration"><span>n8n</span></span></div>
     </div>
   </div>
 
@@ -1893,6 +2086,255 @@
     </div>
   </div>
 
+  <!-- ────── CASE STUDIES ────── -->
+  <div class="tab-panel" id="casestudies">
+    <div class="section-head">
+      <div class="label">Case Studies</div>
+      <h2>Three Engagements, Walked Through Step by Step</h2>
+      <p>What a Blue Vector engagement actually looks like from first plant walk to measured result. These are <strong>illustrative, fictional composites</strong>&mdash;drawn from how real engagements of this type run, with the details changed and the companies invented&mdash;so you can see the process without anyone's confidential data on display.</p>
+    </div>
+
+    <!-- Case Study 1 -->
+    <div class="case-study">
+      <span class="fict-badge">Fictional Composite &mdash; Illustrative</span>
+      <div class="cs-kicker">Case Study 01 &bull; Agentic Workflow Integration</div>
+      <h3>Gulf Coast Precision Machining: An RFQ Agent That Stopped the Quote Leak</h3>
+      <div class="cs-meta">CNC job shop &bull; 55 employees &bull; Largo, FL &bull; 14-week engagement, 2 days/month after go-live</div>
+      <p><strong>The problem.</strong> Two estimators, forty-plus inbound RFQs a week, and a 3.2-day average quote turnaround. Roughly a third of RFQs were never quoted at all&mdash;they simply aged out in a shared inbox while competitors answered first.</p>
+      <ol class="cs-walk">
+        <li><b>Plant walk &amp; baseline (week 1)</b><span>Timed the real quoting path: inbox triage, drawing review, ERP price-history lookups, spreadsheet math, formatting. Wrote the baseline down: 3.2 days turnaround, 31% of RFQs never quoted, 11 estimator-hours/week on lookups alone.</span></li>
+        <li><b>Guardrails before the agent (week 2)</b><span>One-page AI use policy signed off; autonomy set to draft-only with a named approver (the senior estimator). The quoting agent became entry AI-001 in a new ISO/IEC 42001:2023-style risk register.</span></li>
+        <li><b>Build on the real stack (weeks 3&ndash;6)</b><span>Agent wired to the RFQ inbox and a nightly ERP price-history export. It parses the RFQ and drawing notes, matches similar past jobs, drafts a quote with margin rules applied, and cites which historical jobs it priced from&mdash;every action logged.</span></li>
+        <li><b>Side-by-side trial (weeks 7&ndash;8)</b><span>Agent quoted in parallel with the estimators on live RFQs. Every draft graded; prompts fixed where it missed (tolerance callouts, material surcharges). Deploy criteria&mdash;95% of drafts approved with minor or no edits&mdash;were set in writing before the trial started.</span></li>
+        <li><b>Go-live with one-click approval (week 9)</b><span>Estimators now open a drafted quote, check the two numbers that matter, and approve or edit. Nothing sends without a human click. The &ldquo;never quoted&rdquo; pile went to zero in the first month.</span></li>
+        <li><b>Measure and hand off (weeks 10&ndash;14)</b><span>Before/after numbers reported to ownership and the floor. The shop's own team trained to tune prompts and margin rules&mdash;they own the workflow, not a vendor.</span></li>
+      </ol>
+      <div class="cs-results">
+        <div class="cs-r"><div class="num">3.2d &rarr; 4h</div><div class="lbl">Quote Turnaround</div></div>
+        <div class="cs-r"><div class="num">31% &rarr; 0%</div><div class="lbl">RFQs Never Quoted</div></div>
+        <div class="cs-r"><div class="num">+9 pts</div><div class="lbl">Quote Win Rate</div></div>
+        <div class="cs-r"><div class="num">11 hrs/wk</div><div class="lbl">Estimator Time Freed</div></div>
+      </div>
+    </div>
+
+    <!-- Case Study 2 -->
+    <div class="case-study">
+      <span class="fict-badge">Fictional Composite &mdash; Illustrative</span>
+      <div class="cs-kicker">Case Study 02 &bull; Quality Documentation + ISO 9001:2026</div>
+      <h3>Suncoast Molded Products: NCRs People Actually File, and a Clean Audit</h3>
+      <div class="cs-meta">Injection molder &bull; 130 employees &bull; St. Petersburg, FL &bull; Certification sprint + fractional retainer</div>
+      <p><strong>The problem.</strong> Filing a nonconformance report took an operator 25 minutes of forms, so small defects went unreported and root causes stayed invisible. Meanwhile the ISO 9001:2026 transition was approaching with a quality manual last touched in 2019.</p>
+      <ol class="cs-walk">
+        <li><b>Gap assessment (weeks 1&ndash;2)</b><span>Clause-by-clause review against the 2026 revision. Two systemic gaps dominated: nonconformance capture (Clause 8.7) and evidence of continual improvement (Clause 10)&mdash;both symptoms of the same paperwork problem.</span></li>
+        <li><b>NCR agent, designed with the floor (weeks 3&ndash;5)</b><span>Operators photograph the defect and leave a 20-second voice note at a shop-floor station. The agent drafts a structured NCR&mdash;part number, defect classification, suspected cause, containment suggestion&mdash;in the QMS format. The most skeptical shift lead co-designed the flow.</span></li>
+        <li><b>Human disposition stays human (week 6)</b><span>The quality manager reviews every draft NCR, sets the disposition, and owns the CAPA. The agent drafts; it never dispositions. Severity flags on safety-critical part families route to a mandatory second check.</span></li>
+        <li><b>Documentation sprint (weeks 7&ndash;10)</b><span>Manual, procedures, and records rewritten to match the actual process&mdash;AI-assisted drafting, auditor-verified output. The NCR agent itself was documented in the AI risk register with its controls and logs.</span></li>
+        <li><b>Internal audit &amp; management review (weeks 11&ndash;12)</b><span>Full internal audit run by an ASQ-trained auditor; findings closed; management review held with real trend data&mdash;for the first time, from NCRs that actually existed.</span></li>
+        <li><b>Registrar visit</b><span>Certification audit passed with zero major nonconformities. The auditor's comment on the NCR system: the evidence trail was easier to follow than most paper systems.</span></li>
+      </ol>
+      <div class="cs-results">
+        <div class="cs-r"><div class="num">25m &rarr; 4m</div><div class="lbl">Time to File an NCR</div></div>
+        <div class="cs-r"><div class="num">3.4&times;</div><div class="lbl">NCR Capture Rate</div></div>
+        <div class="cs-r"><div class="num">0</div><div class="lbl">Major NCs at Audit</div></div>
+        <div class="cs-r"><div class="num">18%</div><div class="lbl">Scrap Reduction, 6 mo</div></div>
+      </div>
+    </div>
+
+    <!-- Case Study 3 -->
+    <div class="case-study">
+      <span class="fict-badge">Fictional Composite &mdash; Illustrative</span>
+      <div class="cs-kicker">Case Study 03 &bull; Shadow AI Audit + ISO/IEC 42001:2023</div>
+      <h3>Bayline Fabrication &amp; Coatings: From Shadow AI to Governed AI in 90 Days</h3>
+      <div class="cs-meta">Metal fabricator &bull; 45 employees &bull; Pinellas Park, FL &bull; Fixed-scope audit, then remediation</div>
+      <p><strong>The problem.</strong> Ownership suspected &ldquo;a couple of people use ChatGPT.&rdquo; A defense-adjacent customer had just added AI-governance questions to their supplier survey, and nobody knew what the honest answer was.</p>
+      <ol class="cs-walk">
+        <li><b>Discreet discovery (weeks 1&ndash;2)</b><span>Network logs, expense reports, and one-on-one interviews under a no-blame amnesty. Findings: 14 unsanctioned AI tools in use, including customer drawings pasted into consumer chatbots and quotes drafted on personal accounts&mdash;plus three people quietly doing excellent work with AI that nobody had noticed.</span></li>
+        <li><b>Leadership-only report (week 3)</b><span>Exposure map delivered privately: what data went where, which NDAs were at risk, and where the genuine productivity wins were hiding. No floor-wide spectacle&mdash;the goal was a picture, not a purge.</span></li>
+        <li><b>Replace, don't just ban (weeks 4&ndash;6)</b><span>Sanctioned, business-tier AI tooling deployed with data controls&mdash;matching what people actually used the shadow tools for. The amnesty window converted every known shadow user to the governed stack.</span></li>
+        <li><b>Stand up the AIMS (weeks 7&ndash;10)</b><span>AI policy published; risk register opened with every AI system, its intended use, autonomy level, and controls; human-approval gates and logging configured&mdash;the working skeleton of an ISO/IEC 42001:2023 management system.</span></li>
+        <li><b>Prove it to the customer (weeks 11&ndash;12)</b><span>The supplier survey answered with evidence: policy, register, logs, and named oversight. The customer's follow-up audit closed with no findings&mdash;and Bayline started using its governance posture as a sales point.</span></li>
+      </ol>
+      <div class="cs-results">
+        <div class="cs-r"><div class="num">14 &rarr; 0</div><div class="lbl">Ungoverned AI Tools</div></div>
+        <div class="cs-r"><div class="num">0</div><div class="lbl">Data Exposures After Day 90</div></div>
+        <div class="cs-r"><div class="num">11 hrs/wk</div><div class="lbl">Productivity Kept, Governed</div></div>
+        <div class="cs-r"><div class="num">Passed</div><div class="lbl">Customer AI Audit</div></div>
+      </div>
+    </div>
+
+    <div class="speaking-cta" style="border: 1px solid var(--light-silver); background: #fff;">
+      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Case Study Walkthrough Request'; return false;" style="display:inline-block; padding:0.7rem 2rem; background:var(--corp-gradient); color:#fff; font-family:var(--sans); font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;">Walk Through Your Version</a>
+      <span>Every engagement starts with a plant walk and a baseline number. Yours would too.</span>
+    </div>
+  </div>
+
+  <!-- ────── REVOPS ────── -->
+  <div class="tab-panel" id="revops">
+    <div class="section-head">
+      <div class="label">Revenue Operations</div>
+      <h2>RevOps: The Same Agentic Discipline, Pointed at Your Pipeline</h2>
+      <p>The workflows that fix a shop floor fix a sales floor. We wire a modern GTM stack&mdash;Apollo for prospect data, Clay for enrichment, Claude for research and personalization, n8n for orchestration, HubSpot as the system of record, Retool and Supabase for reporting&mdash;into one governed pipeline machine. Same rules as the plant: humans approve what ships, and every step is logged.</p>
+    </div>
+
+    <div class="revops-tools-row">
+      <span class="tool-lockup dark"><img src="logos/gtm/apollo.svg" alt="Apollo.io" title="Apollo.io"></span>
+      <span class="tool-lockup dark"><img src="logos/gtm/clay.svg" alt="Clay" title="Clay"></span>
+      <span class="tool-lockup dark"><img src="logos/gtm/claude.svg" alt="Claude" title="Claude"><span>Claude</span></span>
+      <span class="tool-lockup dark"><img src="logos/gtm/n8n.svg" alt="n8n" title="n8n"><span>n8n</span></span>
+      <span class="tool-lockup dark"><img src="logos/gtm/hubspot.svg" alt="HubSpot" title="HubSpot"><span>HubSpot</span></span>
+      <span class="tool-lockup dark"><img src="logos/gtm/retool.svg" alt="Retool" title="Retool"><span>Retool</span></span>
+      <span class="tool-lockup dark"><img src="logos/gtm/supabase.svg" alt="Supabase" title="Supabase"><span>Supabase</span></span>
+      <span class="tool-lockup dark"><img src="logos/gtm/docker.svg" alt="Docker" title="Docker"><span>Docker</span></span>
+    </div>
+
+    <div class="colibri-flow">
+      <h3>A Typical RevOps Workflow, End to End</h3>
+      <p>From ideal-customer profile to closed-loop reporting. Each box is a tool doing the one job it's best at; the arrows are automated handoffs with a human gate before anything reaches a prospect.</p>
+      <div class="flow-container">
+        <div class="flow-tier">
+          <div class="flow-box"><div class="fb-label">ICP Definition</div><div class="fb-sub">Target accounts &amp; triggers</div></div>
+          <div class="flow-box"><div class="fb-label">Apollo.io</div><div class="fb-sub">Prospect &amp; contact sourcing</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box accent"><div class="fb-label">Clay</div><div class="fb-sub">Waterfall enrichment &amp; lead scoring</div></div>
+          <div class="flow-box accent"><div class="fb-label">Claude</div><div class="fb-sub">Account research &amp; drafted personalization</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box primary"><div class="fb-label">Human Review Gate</div><div class="fb-sub">Rep approves list &amp; messaging</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box"><div class="fb-label">n8n</div><div class="fb-sub">Orchestration, sequencing &amp; reply routing</div></div>
+          <div class="flow-box"><div class="fb-label">HubSpot</div><div class="fb-sub">CRM &mdash; deals created with full context</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box output"><div class="fb-label">Supabase</div><div class="fb-sub">GTM data warehouse</div></div>
+          <div class="flow-box output"><div class="fb-label">Retool</div><div class="fb-sub">Pipeline &amp; cost-per-meeting dashboards</div></div>
+          <div class="flow-box output"><div class="fb-label">Weekly Loop</div><div class="fb-sub">ICP &amp; messaging tuned on real numbers</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mcp-section">
+      <h3>The Workflow in Action: One Week in the Pipeline</h3>
+      <p>What the machine actually does between Monday and Friday&mdash;the RevOps equivalent of the case-study walkthroughs above.</p>
+      <ol class="cs-walk" style="margin-top: 1.75rem;">
+        <li><b>Monday &mdash; Apollo pulls the list</b><span>A saved search surfaces ~400 accounts matching the ICP (industry, headcount, region, hiring signals) and the right contacts at each. Raw, unenriched, and not yet touchable by outreach.</span></li>
+        <li><b>Monday &mdash; Clay enriches and scores</b><span>Clay runs waterfall enrichment across providers&mdash;verified email, tech stack, recent news, growth signals&mdash;then scores each account against the ICP. Anything below threshold never enters a sequence; nobody burns domain reputation on bad-fit accounts.</span></li>
+        <li><b>Tuesday &mdash; Claude drafts the personalization</b><span>For accounts above threshold, Claude turns the enrichment into a two-line, factually grounded opener and selects the right message track. Drafts, not sends&mdash;each one cites the data point it used.</span></li>
+        <li><b>Tuesday &mdash; a human approves the batch</b><span>A rep reviews the scored list and drafted messaging in one sitting&mdash;approve, edit, or kill per account. The gate that keeps the machine honest is the same one that keeps a quoting agent honest.</span></li>
+        <li><b>Wed&ndash;Fri &mdash; n8n runs the sequence</b><span>Approved contacts flow into sequenced outreach with reply detection: out-of-office triggers a re-schedule, an objection routes to the rep, a positive reply creates a HubSpot deal with the full research trail attached&mdash;no &ldquo;who is this again?&rdquo; on the first call.</span></li>
+        <li><b>Friday &mdash; the numbers close the loop</b><span>Every event lands in Supabase; a Retool dashboard shows reply rate by segment, cost per meeting, and pipeline created. The weekly review tunes the ICP and messaging&mdash;so next Monday's 400 accounts are better than this Monday's.</span></li>
+      </ol>
+      <div class="mcp-tools-grid">
+        <div class="mcp-tool-card">
+          <h4>Self-Hosted Where It Counts</h4>
+          <p>Orchestration and data layers (n8n, Supabase) run in Docker containers you control&mdash;your pipeline data isn't scattered across a dozen vendors' clouds.</p>
+        </div>
+        <div class="mcp-tool-card">
+          <h4>Built With Claude Code</h4>
+          <p>The custom glue&mdash;scoring logic, integrations, Retool apps&mdash;is built agentically with Claude Code, documented and handed off so your team can extend it.</p>
+        </div>
+        <div class="mcp-tool-card">
+          <h4>Governed Like Everything Else</h4>
+          <p>Outreach agents live in the same risk register as plant agents: intended use, autonomy level, human gates, and logs. Your GTM stack passes the same audit your QMS does.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="speaking-cta" style="border: 1px solid var(--light-silver); background: #fff;">
+      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='RevOps Workflow Inquiry'; return false;" style="display:inline-block; padding:0.7rem 2rem; background:var(--corp-gradient); color:#fff; font-family:var(--sans); font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;">Scope a RevOps Build</a>
+      <span>Typical build: 4&ndash;6 weeks to a running pipeline, then a light monthly tune.</span>
+    </div>
+  </div>
+
+  <!-- ────── FREE RESOURCES ────── -->
+  <div class="tab-panel" id="resources">
+    <div class="section-head">
+      <div class="label">Free Downloads</div>
+      <h2>Templates &amp; Checklists We Actually Use</h2>
+      <p>The working documents behind our assessments&mdash;free, no email gate. Open the HTML tools in your browser (print to PDF from there); the CSV templates open in Excel or Google Sheets. Use them yourself, or bring the filled-in version to a consult and skip a week of discovery.</p>
+    </div>
+
+    <a class="patent-download" href="downloads/iso-9001-2026-gap-checklist.html" target="_blank" rel="noopener">
+      <div class="patent-icon">HTML</div>
+      <div class="patent-info">
+        <h4>ISO 9001:2026 Readiness Gap Checklist</h4>
+        <div class="patent-meta">Self-Assessment &bull; Clauses 4&ndash;10 &bull; Printable</div>
+        <p>Score your quality system clause by clause against the 2026 revision, then roll your 0s and 1s straight into a prioritized closure plan. The same skeleton we use on a paid gap assessment.</p>
+        <span class="dl-badge">Open / Download Free</span>
+      </div>
+    </a>
+
+    <a class="patent-download" href="downloads/iso-42001-ai-risk-register.csv" download>
+      <div class="patent-icon">CSV</div>
+      <div class="patent-info">
+        <h4>ISO/IEC 42001:2023 AI Risk Register Template</h4>
+        <div class="patent-meta">Spreadsheet Template &bull; Pre-Filled Examples &bull; Excel / Sheets</div>
+        <p>The core artifact of an AI management system: every AI system, its intended use, autonomy level, risks, controls, and 42001 clause references&mdash;with three worked example rows including the shadow-AI entry most registers forget.</p>
+        <span class="dl-badge">Download Free</span>
+      </div>
+    </a>
+
+    <a class="patent-download" href="downloads/ai-acceptable-use-policy-template.html" target="_blank" rel="noopener">
+      <div class="patent-icon">HTML</div>
+      <div class="patent-info">
+        <h4>AI Acceptable Use Policy &mdash; Template</h4>
+        <div class="patent-meta">Policy Template &bull; Fill-in-the-Blank &bull; 42001-Aligned</div>
+        <p>A one-page-spirit policy for teams already using AI: approved tools, data ceilings, human-oversight rules, and the no-blame reporting window that makes shadow-AI amnesty actually work.</p>
+        <span class="dl-badge">Open / Download Free</span>
+      </div>
+    </a>
+
+    <a class="patent-download" href="downloads/agentic-workflow-roi-worksheet.html" target="_blank" rel="noopener">
+      <div class="patent-icon">CALC</div>
+      <div class="patent-info">
+        <h4>Agentic Workflow ROI Worksheet</h4>
+        <div class="patent-meta">Interactive Calculator &bull; Shortlist Scorecard &bull; Printable</div>
+        <p>Put a defensible annual number on automating one workflow&mdash;hours freed, labor value, error savings&mdash;plus a scoring grid to pick which workflow to automate first and five sanity checks before you commit.</p>
+        <span class="dl-badge">Open / Download Free</span>
+      </div>
+    </a>
+
+    <a class="patent-download" href="downloads/shadow-ai-prompt-audit-checklist.html" target="_blank" rel="noopener">
+      <div class="patent-icon">HTML</div>
+      <div class="patent-info">
+        <h4>Shadow AI &amp; Prompt Audit Checklist</h4>
+        <div class="patent-meta">Leadership Field Checklist &bull; 5 Phases &bull; Printable</div>
+        <p>The discovery-to-remediation sequence from our discreet audits: find what's actually in use, map the data exposure, check prompt drift, map adoption vs. avoidance, and plan the fix&mdash;without triggering a witch hunt.</p>
+        <span class="dl-badge">Open / Download Free</span>
+      </div>
+    </a>
+
+    <a class="patent-download" href="downloads/ncr-capa-log-template.csv" download>
+      <div class="patent-icon">CSV</div>
+      <div class="patent-info">
+        <h4>NCR / CAPA Log Template</h4>
+        <div class="patent-meta">Spreadsheet Template &bull; Worked Example Row &bull; Excel / Sheets</div>
+        <p>A clean nonconformance and corrective-action log with the fields an auditor looks for&mdash;containment, disposition, root cause, effectiveness verification&mdash;ready to use as-is or as the schema for an NCR agent.</p>
+        <span class="dl-badge">Download Free</span>
+      </div>
+    </a>
+
+    <a class="patent-download" href="downloads/first-90-days-ai-playbook.html" target="_blank" rel="noopener">
+      <div class="patent-icon">HTML</div>
+      <div class="patent-info">
+        <h4>The First 90 Days: AI Integration Playbook</h4>
+        <div class="patent-meta">Playbook &bull; 4 Phases + Scorecard &bull; Printable</div>
+        <p>The order of operations that keeps a first AI workflow out of pilot purgatory: map reality, set guardrails, build with the skeptic in the room, deploy and publish the numbers&mdash;with the trap to avoid at each phase.</p>
+        <span class="dl-badge">Open / Download Free</span>
+      </div>
+    </a>
+
+    <div class="philosophy" style="margin-top: 2.5rem;">
+      <h3>Why Free, No Email Gate?</h3>
+      <p>Because the templates aren't the product&mdash;the judgment is. If a checklist solves your problem, you didn't need us. If filling it in surfaces problems you'd rather not solve alone, you know exactly who does this all day.</p>
+    </div>
+  </div>
+
 </div>
 
 <!-- CTA -->
@@ -1932,7 +2374,7 @@
 <div class="iridescent-bar"></div>
 
 <footer>
-  Blue Vector &bull; Fractional AI Integration &amp; Quality Systems &bull; Orlando, Florida
+  Blue Vector &bull; Fractional AI Integration &amp; Quality Systems &bull; St. Petersburg, Florida
 </footer>
 
 <script>

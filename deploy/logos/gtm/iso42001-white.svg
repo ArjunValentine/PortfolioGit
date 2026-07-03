@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 130" role="img">
+<title>ISO/IEC 42001:2023 AI Management System</title>
+<defs><path id="arcTop" d="M 25 62 A 60 60 0 0 1 145 62"/></defs>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#FFFFFF" letter-spacing="1">
+  <textPath href="#arcTop" startOffset="50%" text-anchor="middle">AI Management System</textPath>
+</text>
+<circle cx="85" cy="68" r="34" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+<ellipse cx="85" cy="68" rx="15" ry="34" fill="none" stroke="#FFFFFF" stroke-width="1.4"/>
+<line x1="51" y1="68" x2="119" y2="68" stroke="#FFFFFF" stroke-width="1.4"/>
+<line x1="56" y1="51" x2="114" y2="51" stroke="#FFFFFF" stroke-width="1.4"/>
+<line x1="56" y1="85" x2="114" y2="85" stroke="#FFFFFF" stroke-width="1.4"/>
+<rect x="42" y="54" width="86" height="28" fill="#FFFFFF" opacity="0"/>
+<text x="85" y="79" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800" fill="#FFFFFF" text-anchor="middle" style="paint-order:stroke" stroke="#0B1A3E" stroke-width="7">ISO/IEC</text>
+<text x="85" y="122" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF" text-anchor="middle">42001:2023</text>
+</svg>
