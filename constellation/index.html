@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Constellation — a sitemap of two worlds</title>
+<meta name="description" content="An orbital, KSP-style constellation sitemap. Two domains are stars; every page is a planet whose size and surface reflect its contents.">
+<style>
+  :root{
+    --ink:#e8eef7; --dim:#8493a8; --line:rgba(140,165,200,.16);
+    --pjv:#36a7ff; --bv:#5b7bff; --amber:#ffb020;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#05070d;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+    overflow:hidden;-webkit-font-smoothing:antialiased}
+  #stage{position:fixed;inset:0;display:block;touch-action:none;cursor:grab}
+  #stage:active{cursor:grabbing}
+
+  /* ---- header ---- */
+  .hud{position:fixed;left:20px;top:18px;z-index:5;pointer-events:none;max-width:min(70vw,520px)}
+  .hud h1{margin:0;font-size:15px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  .hud h1 b{color:var(--pjv)} .hud h1 i{font-style:normal;color:var(--bv)}
+  .hud p{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--dim)}
+
+  /* ---- legend / controls ---- */
+  .panel{position:fixed;z-index:5;background:rgba(10,14,22,.62);
+    border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);padding:12px 14px;font-size:11.5px}
+  #legend{right:16px;top:16px;max-width:230px}
+  #legend .row{display:flex;align-items:center;gap:9px;margin:5px 0;color:#c7d2e2}
+  #legend .row:first-child{margin-top:0}
+  .swatch{width:13px;height:13px;border-radius:50%;flex:0 0 auto;
+    box-shadow:0 0 10px -1px currentColor}
+  #legend h3{margin:0 0 9px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  #legend .hint{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);color:var(--dim);line-height:1.5}
+
+  #ctl{left:16px;bottom:16px;display:flex;gap:8px;align-items:center}
+  #ctl button{all:unset;cursor:pointer;color:#c7d2e2;font-size:11.5px;letter-spacing:.04em;
+    padding:6px 11px;border:1px solid var(--line);border-radius:8px;transition:.15s}
+  #ctl button:hover{background:rgba(90,123,255,.14);border-color:rgba(120,150,220,.4);color:#fff}
+  #ctl button.on{background:rgba(54,167,255,.16);border-color:rgba(54,167,255,.5);color:#fff}
+
+  /* ---- tooltip ---- */
+  #tip{position:fixed;z-index:6;pointer-events:none;opacity:0;transform:translateY(4px);
+    transition:opacity .12s;max-width:260px;
+    background:rgba(9,13,20,.92);border:1px solid var(--line);border-radius:11px;
+    padding:11px 13px;font-size:12px;line-height:1.45;box-shadow:0 14px 40px -12px #000}
+  #tip.show{opacity:1;transform:translateY(0)}
+  #tip .k{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  #tip .t{font-weight:600;margin:3px 0 4px;font-size:13px}
+  #tip .d{color:#b3c0d4}
+  #tip .m{margin-top:7px;color:var(--dim);font-size:10.5px;letter-spacing:.03em}
+  #tip .go{color:var(--pjv)}
+  @media (max-width:640px){ #legend{display:none} .hud{max-width:80vw} }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+
+<div class="hud">
+  <h1><b>peterjamesvilla</b> · <i>bluevector</i> — constellation</h1>
+  <p>Two domains, two stars. Every page orbits its home star as a planet; size follows page weight, surface follows what the page does. Drag to rotate the sky · scroll to zoom · click a planet to travel there.</p>
+</div>
+
+<div class="panel" id="legend">
+  <h3>Planet topology</h3>
+  <div class="row"><span class="swatch" style="color:#ffd27a;background:radial-gradient(circle at 35% 30%,#fff,#ffb020)"></span>Star — the domain itself</div>
+  <div class="row"><span class="swatch" style="color:#39d38a;background:radial-gradient(circle at 35% 30%,#8ffbd0,#1fa268)"></span>Water / hydrology</div>
+  <div class="row"><span class="swatch" style="color:#ff7a3c;background:radial-gradient(circle at 35% 30%,#ffd08a,#e0491d)"></span>Energy / simulation</div>
+  <div class="row"><span class="swatch" style="color:#c9d2e0;background:radial-gradient(circle at 35% 30%,#fff,#8b97ab)"></span>Metal / engineering</div>
+  <div class="row"><span class="swatch" style="color:#6fb7ff;background:radial-gradient(circle at 35% 30%,#dff0ff,#2f7ad6)"></span>Data / gas giant</div>
+  <div class="row"><span class="swatch" style="color:#f6b6c8;background:radial-gradient(circle at 35% 30%,#fff0f4,#e07a99)"></span>Soft / human</div>
+  <div class="row"><span class="swatch" style="color:#b39bff;background:radial-gradient(circle at 35% 30%,#efe7ff,#7d5bff)"></span>Crystal / tooling</div>
+  <div class="row"><span class="swatch" style="color:#9fb0c6;background:radial-gradient(circle at 35% 30%,#e7edf6,#5b6b82)"></span>Ice / documents</div>
+  <div class="hint">Planet size ≈ page weight. Faint rings mark app-scale pages; the tight belts are design-token &amp; download pages.</div>
+</div>
+
+<div class="panel" id="ctl">
+  <button id="spin" class="on">⏸ orbit</button>
+  <button id="reset">⟲ recenter</button>
+  <button id="focus">◎ next system</button>
+</div>
+
+<div id="tip"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------------------------------------------------------
+   DATA  — two stars (domains), each with orbiting planets (pages)
+   category → surface topology · lines → relative size
+----------------------------------------------------------------*/
+const SYSTEMS = [
+  {
+    key:"pjv", name:"peterjamesvilla.com", origin:"https://peterjamesvilla.com",
+    tag:"Industrial engineer · quality auditor · bedside musician",
+    color:"#ffce7a", accent:"#36a7ff", pos:[-560,10,0], starLines:798,
+    planets:[
+      {n:"Engineering",  path:"/engineering/",        cat:"metal", lines:674, r:150, blurb:"Controls &amp; automation engineering — PLC, SCADA, systems work.", ring:true},
+      {n:"Hydrology / SCADA", path:"/SCADA/",          cat:"water", lines:606, r:212, blurb:"Florida hydrology passability model — Winter Haven chain of lakes."},
+      {n:"Combined-Cycle Sim", path:"/generator-sim/", cat:"fire",  lines:658, r:278, blurb:"Voltage Falls Power — a combined-cycle plant simulator.", ring:true},
+      {n:"Traffic Oracle", path:"/traffic-oracle/",    cat:"gas",   lines:972, r:352, blurb:"Pinellas Traffic Oracle — St. Petersburg live traffic modelling.", ring:true},
+      {n:"Companion",    path:"/companion/",           cat:"soft",  lines:454, r:430, blurb:"End-of-life companion &amp; bedside musician practice."},
+      {n:"Legacy Books", path:"/companion/legacy/",    cat:"soft",  lines:430, r:472, blurb:"Legacy Books — memory &amp; life-story keeping."},
+      {n:"UI Kit",       path:"/ui_kits/website/",     cat:"crystal",lines:68, r:508, blurb:"Website UI kit — the living style system."},
+      {n:"Owner 2FA",    path:"/owner-setup.html",     cat:"rock",  lines:124, r:120, blurb:"gAlatea — owner two-factor setup. A small guarded moon."},
+      // design-token belt (each card is its own tiny planet)
+      {n:"Brand · Emblem",   path:"/cards/brand-emblem.html",     cat:"crystal", lines:23, belt:"tokens"},
+      {n:"Brand · Motifs",   path:"/cards/brand-motifs.html",     cat:"crystal", lines:20, belt:"tokens"},
+      {n:"Color · Accents",  path:"/cards/colors-accents.html",   cat:"crystal", lines:26, belt:"tokens"},
+      {n:"Color · Neutrals", path:"/cards/colors-neutrals.html",  cat:"crystal", lines:26, belt:"tokens"},
+      {n:"Color · Night",    path:"/cards/colors-night.html",     cat:"crystal", lines:25, belt:"tokens"},
+      {n:"Color · Oxblood",  path:"/cards/colors-oxblood.html",   cat:"crystal", lines:26, belt:"tokens"},
+      {n:"Spacing · Scale",  path:"/cards/spacing-scale.html",    cat:"crystal", lines:26, belt:"tokens"},
+      {n:"Spacing · Elev.",  path:"/cards/spacing-elevation.html",cat:"crystal", lines:23, belt:"tokens"},
+      {n:"Type · Display",   path:"/cards/type-display.html",     cat:"crystal", lines:18, belt:"tokens"},
+      {n:"Type · Headings",  path:"/cards/type-headings.html",    cat:"crystal", lines:21, belt:"tokens"},
+      {n:"Type · Body",      path:"/cards/type-body.html",        cat:"crystal", lines:19, belt:"tokens"},
+      {n:"Type · Labels",    path:"/cards/type-labels.html",      cat:"crystal", lines:24, belt:"tokens"},
+      {n:"Cmp · Core",       path:"/components/core/core.card.html",       cat:"crystal", lines:62, belt:"tokens"},
+      {n:"Cmp · Content",    path:"/components/content/content.card.html",  cat:"crystal", lines:50, belt:"tokens"},
+      {n:"Cmp · Forms",      path:"/components/forms/forms.card.html",      cat:"crystal", lines:37, belt:"tokens"}
+    ]
+  },
+  {
+    key:"bv", name:"bluevector.it.com", origin:"https://bluevector.it.com",
+    tag:"AI integration &amp; ISO compliance for SMB manufacturers",
+    color:"#8fb0ff", accent:"#5b7bff", pos:[560,-10,0], starLines:2429,
+    planets:[
+      {n:"deNURBurator™", path:"/denurburator/", cat:"tri", lines:626, r:170, blurb:"NURBS go in, triangles come out. A meshing tool with attitude.", ring:true},
+      // downloads belt (lead-magnet documents as icy bodies)
+      {n:"ISO 9001:2026 Gap Checklist", path:"/downloads/iso-9001-2026-gap-checklist.html", cat:"ice", lines:125, belt:"downloads"},
+      {n:"Agentic Workflow ROI Worksheet", path:"/downloads/agentic-workflow-roi-worksheet.html", cat:"ice", lines:114, belt:"downloads"},
+      {n:"First 90 Days: AI Playbook", path:"/downloads/first-90-days-ai-playbook.html", cat:"ice", lines:100, belt:"downloads"},
+      {n:"AI Acceptable-Use Policy", path:"/downloads/ai-acceptable-use-policy-template.html", cat:"ice", lines:94, belt:"downloads"},
+      {n:"Shadow-AI Prompt Audit", path:"/downloads/shadow-ai-prompt-audit-checklist.html", cat:"ice", lines:91, belt:"downloads"}
+    ]
+  }
+];
+
+/* category palettes: [hi, mid, lo, glow] */
+const CAT = {
+  star:   ["#ffffff","#ffd27a","#ff9e18","#ffb020"],
+  water:  ["#c9fbe6","#39d38a","#0f6f4c","#33e0a0"],
+  fire:   ["#ffe0a8","#ff7a3c","#8f2408","#ff6a2a"],
+  metal:  ["#ffffff","#c2ccdb","#4f5a6b","#aebacb"],
+  gas:    ["#e4f2ff","#6fb7ff","#255a9e","#4aa3ff"],
+  soft:   ["#fff2f6","#f6b6c8","#b0607c","#f6a8c0"],
+  crystal:["#f3ecff","#b39bff","#5b3fd6","#9b7cff"],
+  rock:   ["#d6ddea","#9fb0c6","#3c4658","#8fa0b6"],
+  ice:    ["#eef4fc","#9fb0c6","#586a82","#b9c8dc"],
+  tri:    ["#ffe6f2","#ff6ab0","#8a1e6a","#ff4fa0"]
+};
+
+/* ---------------- canvas / camera ---------------- */
+const cv = document.getElementById("stage");
+const ctx = cv.getContext("2d");
+let W,H,DPR,cx,cy;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cv.style.width=W+"px"; cv.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  cx=W/2; cy=H/2;
+}
+window.addEventListener("resize",resize); resize();
+
+const cam = { yaw:0.5, pitch:-0.42, dist:1350, focal:900, ox:0, oy:0 };
+let spin = true, tPrev = performance.now(), tSpin = 0;
+
+/* ---------------- starfield ---------------- */
+const STARS = [];
+for(let i=0;i<420;i++){
+  STARS.push({ x:(Math.random()*2-1), y:(Math.random()*2-1),
+    z:Math.random(), s:Math.random()*1.3+.2, tw:Math.random()*6.28 });
+}
+
+/* ---------------- build bodies ---------------- */
+const bodies = [];
+function rnd(seed){ let x=Math.sin(seed*99.13)*43758.5453; return x-Math.floor(x); }
+
+SYSTEMS.forEach((sys,si)=>{
+  // star
+  bodies.push({ sys, star:true, name:sys.name, origin:sys.origin, path:"/",
+    blurb:sys.tag, cat:"star", color:sys.color, accent:sys.accent,
+    lines:sys.starLines, base:sys.pos, size:34, orbit:null });
+
+  // belts: give sequential ring layout
+  const belts = {};
+  sys.planets.forEach((p,pi)=>{
+    let r,inc,node,speed,a0,size;
+    const seed = si*100+pi+1;
+    if(p.belt){
+      belts[p.belt] = belts[p.belt]||{count:0};
+      const b = belts[p.belt];
+      const isTok = p.belt==="tokens";
+      const beltR = isTok ? 590 : 300;
+      r = beltR + (b.count%2? 26 : -26) + rnd(seed)*30;
+      a0 = b.count * (isTok? 0.42 : 1.05) + rnd(seed*3)*0.3;
+      inc = (isTok? 0.30 : 0.55) + (rnd(seed*7)-0.5)*0.5;
+      node = rnd(seed*5)*6.28;
+      speed = (isTok? 0.07 : 0.13) + rnd(seed*2)*0.02;
+      size = 3.4 + Math.sqrt(p.lines)*0.35;
+      b.count++;
+    } else {
+      r = p.r;
+      a0 = rnd(seed)*6.28;
+      inc = (rnd(seed*7)-0.5)*0.7 + (si? -0.15:0.15);
+      node = rnd(seed*5)*6.28;
+      speed = 0.30/Math.pow(r/150,1.15) * (si? -1:1);
+      size = 6 + Math.sqrt(p.lines)*0.62;
+    }
+    bodies.push({ sys, star:false, name:p.n, origin:sys.origin, path:p.path,
+      blurb:p.blurb||"", cat:p.cat, color:CAT[p.cat][1], ring:p.ring,
+      lines:p.lines, base:sys.pos, size:size,
+      orbit:{ r, a:a0, inc, node, speed } });
+  });
+});
+
+/* ---------------- math ---------------- */
+function orbitPos(b,t){
+  const o=b.orbit; const a=o.a + t*o.speed;
+  // circle in orbital plane
+  let x=Math.cos(a)*o.r, y=0, z=Math.sin(a)*o.r;
+  // inclination (tilt around X), then node (rotate around Y)
+  let y1=y*Math.cos(o.inc)-z*Math.sin(o.inc);
+  let z1=y*Math.sin(o.inc)+z*Math.cos(o.inc);
+  y=y1; z=z1;
+  let x2=x*Math.cos(o.node)+z*Math.sin(o.node);
+  let z2=-x*Math.sin(o.node)+z*Math.cos(o.node);
+  return [b.base[0]+x2, b.base[1]+y, b.base[2]+z2];
+}
+function toCam(p){
+  let x=p[0]+cam.ox, y=p[1]+cam.oy, z=p[2];
+  const cy_=Math.cos(cam.yaw), sy=Math.sin(cam.yaw);
+  let x1=x*cy_+z*sy, z1=-x*sy+z*cy_, y1=y;
+  const cp=Math.cos(cam.pitch), sp=Math.sin(cam.pitch);
+  let y2=y1*cp-z1*sp, z2=y1*sp+z1*cp;
+  return [x1,y2,z2];
+}
+function project(c){
+  const zc=c[2]+cam.dist;
+  if(zc<=1) return null;
+  const s=cam.focal/zc;
+  return { x:cx+c[0]*s, y:cy+c[1]*s, s, z:c[2] };
+}
+
+/* ---------------- drawing ---------------- */
+function drawStarfield(){
+  const g=ctx.createRadialGradient(cx,cy*0.7,0,cx,cy,Math.max(W,H));
+  g.addColorStop(0,"#0a1020"); g.addColorStop(.5,"#070a12"); g.addColorStop(1,"#04060b");
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  const now=performance.now()/900;
+  for(const s of STARS){
+    const px=cx + s.x*W*0.62 - cam.yaw*40*s.z;
+    const py=cy + s.y*H*0.62 - cam.pitch*30*s.z;
+    const tw=0.55+0.45*Math.sin(now+s.tw);
+    ctx.globalAlpha=(0.25+0.6*s.z)*tw;
+    ctx.fillStyle="#cfe0ff";
+    ctx.beginPath(); ctx.arc(px,py,s.s*(0.6+s.z),0,6.283); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawOrbit(b){
+  if(!b.orbit) return;
+  const seg=54, pts=[];
+  for(let i=0;i<=seg;i++){
+    const o=b.orbit, a=(i/seg)*6.283;
+    let x=Math.cos(a)*o.r, y=0, z=Math.sin(a)*o.r;
+    let y1=y*Math.cos(o.inc)-z*Math.sin(o.inc), z1=y*Math.sin(o.inc)+z*Math.cos(o.inc);
+    y=y1; z=z1;
+    let x2=x*Math.cos(o.node)+z*Math.sin(o.node), z2=-x*Math.sin(o.node)+z*Math.cos(o.node);
+    const p=project(toCam([b.base[0]+x2,b.base[1]+y,b.base[2]+z2]));
+    pts.push(p);
+  }
+  ctx.beginPath(); let started=false;
+  for(const p of pts){ if(!p){started=false;continue;}
+    if(!started){ctx.moveTo(p.x,p.y);started=true;} else ctx.lineTo(p.x,p.y); }
+  ctx.strokeStyle = b.hover? "rgba(140,180,255,.42)" : "rgba(120,150,200,.10)";
+  ctx.lineWidth=1; ctx.stroke();
+}
+
+function shade(hex,f){ // lighten/darken toward white(+) or black(-)
+  const n=parseInt(hex.slice(1),16);
+  let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  if(f>=0){ r+=(255-r)*f; g+=(255-g)*f; b+=(255-b)*f; }
+  else { r*=(1+f); g*=(1+f); b*=(1+f); }
+  return "rgb("+(r|0)+","+(g|0)+","+(b|0)+")";
+}
+
+function drawPlanet(b,p){
+  const R=Math.max(1.2,b.size*p.s), pal=CAT[b.cat];
+  const lx=p.x-R*0.34, ly=p.y-R*0.34; // light from upper-left
+
+  if(b.star){
+    // corona
+    const cg=ctx.createRadialGradient(p.x,p.y,R*0.4,p.x,p.y,R*4.2);
+    cg.addColorStop(0,"rgba(255,210,120,.42)");
+    cg.addColorStop(.4,"rgba(255,170,60,.14)");
+    cg.addColorStop(1,"rgba(255,150,40,0)");
+    ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(p.x,p.y,R*4.2,0,6.283); ctx.fill();
+    const sg=ctx.createRadialGradient(lx,ly,0,p.x,p.y,R*1.15);
+    sg.addColorStop(0,"#ffffff"); sg.addColorStop(.35,b.color);
+    sg.addColorStop(1,"#ff8a1e");
+    ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(p.x,p.y,R,0,6.283); ctx.fill();
+    return;
+  }
+
+  // faint atmosphere glow
+  if(R>4){
+    const gg=ctx.createRadialGradient(p.x,p.y,R*0.6,p.x,p.y,R*1.7);
+    gg.addColorStop(0,pal[3]+"55"); gg.addColorStop(1,pal[3]+"00");
+    ctx.globalAlpha=b.hover?0.9:0.5;
+    ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(p.x,p.y,R*1.7,0,6.283); ctx.fill();
+    ctx.globalAlpha=1;
+  }
+
+  // sphere body
+  const g=ctx.createRadialGradient(lx,ly,R*0.1,p.x,p.y,R*1.25);
+  g.addColorStop(0,pal[0]); g.addColorStop(.45,pal[1]); g.addColorStop(1,pal[2]);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(p.x,p.y,R,0,6.283); ctx.closePath(); ctx.clip();
+  ctx.fillStyle=g; ctx.fillRect(p.x-R,p.y-R,R*2,R*2);
+
+  // ---- procedural topology by category ----
+  if(R>3.5){
+    ctx.lineWidth=Math.max(.6,R*0.13);
+    if(b.cat==="gas"){                         // banded gas giant
+      ctx.globalAlpha=.35;
+      for(let i=-3;i<=3;i++){
+        ctx.strokeStyle= i%2? shade(pal[1],.18):shade(pal[2],.15);
+        ctx.beginPath();
+        ctx.ellipse(p.x,p.y+i*R*0.28,R,R*0.16,0,0,6.283); ctx.stroke();
+      }
+    } else if(b.cat==="water"){                // swirling seas
+      ctx.globalAlpha=.4; ctx.fillStyle=shade(pal[1],.22);
+      for(let i=0;i<4;i++){ const a=i*1.7+b.orbit.a;
+        ctx.beginPath();
+        ctx.ellipse(p.x+Math.cos(a)*R*0.4,p.y+Math.sin(a)*R*0.4,R*0.42,R*0.24,a,0,6.283); ctx.fill(); }
+    } else if(b.cat==="fire"){                 // molten cracks
+      ctx.globalAlpha=.55; ctx.strokeStyle="#ffdc8a";
+      for(let i=0;i<5;i++){ const a=i*1.25;
+        ctx.beginPath(); ctx.moveTo(p.x+Math.cos(a)*R,p.y+Math.sin(a)*R);
+        ctx.quadraticCurveTo(p.x,p.y,p.x-Math.cos(a+.5)*R,p.y-Math.sin(a+.5)*R); ctx.stroke(); }
+    } else if(b.cat==="metal"){                // panel plates
+      ctx.globalAlpha=.3; ctx.strokeStyle=shade(pal[2],.2);
+      for(let i=-2;i<=2;i++){ ctx.beginPath();
+        ctx.moveTo(p.x-R,p.y+i*R*0.4); ctx.lineTo(p.x+R,p.y+i*R*0.4); ctx.stroke(); }
+    } else if(b.cat==="tri"){                  // triangulation facets
+      ctx.globalAlpha=.5; ctx.strokeStyle="#ffb3dc";
+      for(let i=0;i<7;i++){ const a=i*0.9;
+        ctx.beginPath();
+        ctx.moveTo(p.x+Math.cos(a)*R,p.y+Math.sin(a)*R);
+        ctx.lineTo(p.x+Math.cos(a+2.1)*R*0.5,p.y+Math.sin(a+2.1)*R*0.5);
+        ctx.lineTo(p.x+Math.cos(a-1.2)*R,p.y+Math.sin(a-1.2)*R);
+        ctx.stroke(); }
+    } else if(b.cat==="crystal"){              // faceted shard
+      ctx.globalAlpha=.4; ctx.strokeStyle=shade(pal[0],0);
+      ctx.beginPath();
+      ctx.moveTo(p.x,p.y-R); ctx.lineTo(p.x+R*0.7,p.y);
+      ctx.lineTo(p.x,p.y+R); ctx.lineTo(p.x-R*0.7,p.y); ctx.closePath(); ctx.stroke();
+    } else if(b.cat==="soft"){                 // soft mottling
+      ctx.globalAlpha=.28; ctx.fillStyle=shade(pal[0],.1);
+      ctx.beginPath(); ctx.arc(p.x-R*0.2,p.y-R*0.1,R*0.5,0,6.283); ctx.fill();
+    } else if(b.cat==="rock"||b.cat==="ice"){  // craters / specks
+      ctx.globalAlpha=.3; ctx.fillStyle=shade(pal[2],.18);
+      for(let i=0;i<4;i++){ const a=i*1.9;
+        ctx.beginPath(); ctx.arc(p.x+Math.cos(a)*R*0.4,p.y+Math.sin(a)*R*0.4,R*0.18,0,6.283); ctx.fill(); }
+    }
+    ctx.globalAlpha=1;
+  }
+  // terminator shadow (night side)
+  const sh=ctx.createRadialGradient(lx,ly,R*0.2,p.x+R*0.3,p.y+R*0.3,R*1.5);
+  sh.addColorStop(0,"rgba(0,0,0,0)"); sh.addColorStop(1,"rgba(0,0,10,.62)");
+  ctx.fillStyle=sh; ctx.fillRect(p.x-R,p.y-R,R*2,R*2);
+  ctx.restore();
+
+  // rings for app-scale pages
+  if(b.ring && R>4){
+    ctx.save();
+    ctx.strokeStyle=pal[0]+"cc"; ctx.lineWidth=Math.max(.8,R*0.12);
+    ctx.beginPath(); ctx.ellipse(p.x,p.y,R*1.9,R*0.5,-0.5,0,6.283); ctx.stroke();
+    ctx.globalAlpha=.5; ctx.lineWidth=Math.max(.5,R*0.06);
+    ctx.beginPath(); ctx.ellipse(p.x,p.y,R*2.3,R*0.62,-0.5,0,6.283); ctx.stroke();
+    ctx.restore();
+  }
+  // rim light
+  ctx.globalAlpha=b.hover?1:.7;
+  ctx.strokeStyle=b.hover? "#ffffff" : pal[0]+"66";
+  ctx.lineWidth=b.hover?1.6:0.8;
+  ctx.beginPath(); ctx.arc(p.x,p.y,R+ (b.hover?1.5:0),0,6.283); ctx.stroke();
+  ctx.globalAlpha=1;
+}
+
+/* ---------------- frame ---------------- */
+let hoverBody=null;
+function frame(now){
+  const dt=Math.min(0.05,(now-tPrev)/1000); tPrev=now;
+  if(spin){ tSpin+=dt; cam.yaw+=dt*0.05; }
+  drawStarfield();
+
+  // compute projected positions
+  const draw=[];
+  for(const b of bodies){
+    const world = b.star? b.base : orbitPos(b,tSpin);
+    const c=toCam(world); const p=project(c);
+    b._p=p; b._z=c[2];
+    if(p) draw.push(b);
+  }
+  // orbits first (far to near a touch faded), behind planets
+  for(const b of bodies){ if(!b.star) drawOrbit(b); }
+
+  // painter's sort: far (large z) first
+  draw.sort((a,b)=>b._z-a._z);
+  for(const b of draw) drawPlanet(b,b._p);
+
+  // labels for near / hovered / stars
+  ctx.textAlign="left"; ctx.textBaseline="middle";
+  for(const b of draw){
+    const near = b.star || b.hover || (b._p.s>0.62 && !b.orbit?.belt && b.size*b._p.s>7);
+    if(!near) continue;
+    const R=Math.max(2,b.size*b._p.s);
+    ctx.font=(b.star?"600 13px":"500 11px")+" -apple-system,system-ui,sans-serif";
+    const tx=b._p.x+R+7, ty=b._p.y;
+    ctx.globalAlpha=b.hover?1:(b.star?.95:.72);
+    ctx.fillStyle=b.hover?"#fff":(b.star?b.color:"#cdd8e8");
+    if(b.star){
+      ctx.fillText(b.name.replace(".com","").replace(".it",""), tx, ty-7);
+      ctx.font="10px -apple-system,system-ui"; ctx.fillStyle="rgba(180,195,220,.7)";
+      ctx.fillText("★ "+ (b.sys.planets.length) +" pages", tx, ty+8);
+    } else {
+      ctx.fillText(b.name.replace(/&amp;/g,"&"), tx, ty);
+    }
+    ctx.globalAlpha=1;
+  }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------------- interaction ---------------- */
+let drag=null;
+function pick(mx,my){
+  let best=null,bd=1e9;
+  for(const b of bodies){ const p=b._p; if(!p)continue;
+    const R=Math.max(3,b.size*p.s)+4;
+    const d=Math.hypot(mx-p.x,my-p.y);
+    if(d<R && p.z<bd){ best=b; bd=p.z; } }
+  return best;
+}
+cv.addEventListener("pointerdown",e=>{
+  drag={x:e.clientX,y:e.clientY,yaw:cam.yaw,pitch:cam.pitch,moved:0};
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener("pointermove",e=>{
+  if(drag){
+    const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+    drag.moved+=Math.abs(dx)+Math.abs(dy);
+    cam.yaw=drag.yaw+dx*0.005;
+    cam.pitch=Math.max(-1.45,Math.min(1.45,drag.pitch+dy*0.005));
+  } else {
+    const b=pick(e.clientX,e.clientY);
+    if(b!==hoverBody){
+      if(hoverBody)hoverBody.hover=false;
+      hoverBody=b; if(b)b.hover=true;
+      cv.style.cursor=b?"pointer":"grab";
+      showTip(b,e.clientX,e.clientY);
+    } else if(b){ moveTip(e.clientX,e.clientY); }
+  }
+});
+cv.addEventListener("pointerup",e=>{
+  if(drag && drag.moved<6){
+    const b=pick(e.clientX,e.clientY);
+    if(b) window.open(b.origin+b.path,"_blank","noopener");
+  }
+  drag=null;
+});
+cv.addEventListener("wheel",e=>{
+  e.preventDefault();
+  cam.dist=Math.max(500,Math.min(2600,cam.dist*(1+Math.sign(e.deltaY)*0.08)));
+},{passive:false});
+
+/* tooltip */
+const tip=document.getElementById("tip");
+function showTip(b,x,y){
+  if(!b){ tip.classList.remove("show"); return; }
+  const kind = b.star? "Star · domain" : (b.cat.charAt(0).toUpperCase()+b.cat.slice(1)+" world");
+  tip.innerHTML =
+    '<div class="k">'+kind+'</div>'+
+    '<div class="t">'+b.name+'</div>'+
+    (b.blurb?'<div class="d">'+b.blurb+'</div>':'')+
+    '<div class="m">'+b.lines+' lines · '+b.origin.replace("https://","")+b.path+
+    ' &nbsp;<span class="go">open ↗</span></div>';
+  tip.classList.add("show"); moveTip(x,y);
+}
+function moveTip(x,y){
+  const r=tip.getBoundingClientRect();
+  let px=x+16, py=y+16;
+  if(px+r.width>window.innerWidth-10) px=x-r.width-16;
+  if(py+r.height>window.innerHeight-10) py=y-r.height-16;
+  tip.style.left=px+"px"; tip.style.top=py+"px";
+}
+
+/* controls */
+const spinBtn=document.getElementById("spin");
+spinBtn.onclick=()=>{ spin=!spin; spinBtn.classList.toggle("on",spin);
+  spinBtn.textContent=spin?"⏸ orbit":"▶ orbit"; };
+document.getElementById("reset").onclick=()=>{
+  cam.yaw=0.5; cam.pitch=-0.42; cam.dist=1350; cam.ox=0; cam.oy=0; };
+let focusIdx=-1;
+document.getElementById("focus").onclick=()=>{
+  focusIdx=(focusIdx+1)%(SYSTEMS.length+1);
+  if(focusIdx===SYSTEMS.length){ cam.ox=0;cam.oy=0;cam.dist=1350; return; }
+  const s=SYSTEMS[focusIdx];
+  cam.ox=-s.pos[0]; cam.oy=-s.pos[1]; cam.dist=900;
+};
+
+/* nudge pitch on load so depth reads immediately */
+})();
+</script>
+</body>
+</html>
