@@ -1510,6 +1510,111 @@
       .case-study { padding: 1.5rem; }
       .cs-walk li { padding-left: 2.4rem; }
     }
+
+    /* ═══ OUTCOME / TWO-ENGINE DIAGRAMS ═══ */
+    .diagram-block {
+      background: #fff;
+      border: 1px solid var(--light-silver);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .diagram-block::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: var(--stripe-gradient);
+    }
+    .diagram-block h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--navy); margin-bottom: 0.5rem;
+    }
+    .diagram-block > p {
+      color: var(--slate); font-size: 0.92rem;
+      max-width: 720px; margin-bottom: 2rem;
+    }
+
+    .diagram-caption {
+      font-size: 0.78rem; color: var(--rule-gray);
+      font-style: italic; margin-top: 1.25rem; text-align: center;
+    }
+
+    /* small time / delta annotation inside a flow box */
+    .fb-time {
+      display: block; margin-top: 0.4rem;
+      font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.03em; text-transform: uppercase;
+      color: var(--gold-accent);
+    }
+    .flow-box.primary .fb-time { color: #ffd9a8; }
+
+    /* divergent fork into the two engines */
+    .engine-fork {
+      display: flex; justify-content: space-around;
+      align-items: flex-end; gap: 1rem;
+      max-width: 560px; margin: 0.75rem auto 1.25rem;
+    }
+    .engine-fork .fork-leg {
+      flex: 1; text-align: center;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--rule-gray);
+    }
+    .engine-fork .fork-leg .arw {
+      display: block; font-size: 1.3rem; line-height: 1;
+      background: var(--stripe-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 0.3rem;
+    }
+
+    .engine-split {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    }
+    .engine-lane {
+      border: 1px solid var(--light-silver);
+      background: linear-gradient(180deg, #f6f9fc 0%, #fff 60%);
+      padding: 1.5rem 1.6rem;
+    }
+    .engine-lane.internal { border-top: 4px solid var(--mid-blue); }
+    .engine-lane.external { border-top: 4px solid var(--magenta); }
+    .engine-lane .lane-label {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 0.2rem;
+    }
+    .engine-lane.internal .lane-label { color: var(--mid-blue); }
+    .engine-lane.external .lane-label { color: var(--magenta); }
+    .engine-lane h4 {
+      font-family: var(--serif); font-size: 1.15rem; font-weight: 700;
+      color: var(--navy); margin-bottom: 0.9rem;
+    }
+    .engine-lane ul { list-style: none; }
+    .engine-lane ul li {
+      padding: 0.5rem 0; border-bottom: 1px solid var(--off-white);
+      color: var(--slate); font-size: 0.86rem; line-height: 1.5;
+      display: flex; align-items: baseline; gap: 0.6rem;
+    }
+    .engine-lane ul li:last-child { border-bottom: none; }
+    .engine-lane ul li::before {
+      content: '\25B8'; font-size: 0.62rem; flex-shrink: 0;
+    }
+    .engine-lane.internal ul li::before { color: var(--mid-blue); }
+    .engine-lane.external ul li::before { color: var(--magenta); }
+    .engine-lane .lane-metric {
+      margin-top: 1rem; padding-top: 0.8rem;
+      border-top: 1px dashed var(--light-silver);
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .engine-lane.internal .lane-metric { color: var(--corp-blue); }
+    .engine-lane.external .lane-metric { color: var(--magenta); }
+    .engine-lane .lane-metric b { font-size: 0.95rem; }
+
+    @media (max-width: 600px) {
+      .engine-split { grid-template-columns: 1fr; }
+      .diagram-block { padding: 1.5rem; }
+      .engine-fork { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -1646,6 +1751,61 @@
       <p>Everything is <strong>personally audited</strong>. The same person who architects your agentic workflow writes the risk register, runs the internal audit, and sits across from your certification body. No handoffs, no offshore ticket queue, no &ldquo;that&rsquo;s a different team.&rdquo;</p>
     </div>
 
+    <!-- Master diagram: tools -> agent layer -> two outcomes -->
+    <div class="diagram-block">
+      <h3>One System, Two Engines</h3>
+      <p>The whole thesis in one picture. We connect the tools a plastics or fabricated-product shop already runs into a single governed agent layer&mdash;then point that layer at two payoffs at once: work that gets done faster <em>inside</em> the plant, and more work coming <em>in</em> the door.</p>
+
+      <div class="flow-container">
+        <div class="flow-tier">
+          <div class="flow-box"><div class="fb-label">ERP / MES</div><div class="fb-sub">Orders, inventory, routing</div></div>
+          <div class="flow-box"><div class="fb-label">CAD / CAM &amp; Quoting</div><div class="fb-sub">Drawings, tooling, price history</div></div>
+          <div class="flow-box"><div class="fb-label">Email / Shared Inbox</div><div class="fb-sub">RFQs, POs, supplier replies</div></div>
+          <div class="flow-box"><div class="fb-label">Spreadsheets</div><div class="fb-sub">The math nobody documented</div></div>
+          <div class="flow-box"><div class="fb-label">Copilot / Notion</div><div class="fb-sub">Docs &amp; tribal knowledge</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660; the tools you already pay for &#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box primary" style="min-width: 260px;">
+            <div class="fb-label">Governed Agent Layer</div>
+            <div class="fb-sub">Reads, drafts, updates &mdash; human approves what ships, every action logged</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="engine-fork">
+        <div class="fork-leg"><span class="arw">&#9199;</span>Faster inside the plant</div>
+        <div class="fork-leg"><span class="arw">&#9199;</span>More business in the door</div>
+      </div>
+
+      <div class="engine-split">
+        <div class="engine-lane internal">
+          <div class="lane-label">Engine 01 &bull; Internal Velocity</div>
+          <h4>The work gets done faster</h4>
+          <ul>
+            <li>Quotes drafted in hours, not days &mdash; with margin rules applied and sources cited</li>
+            <li>Purchase orders and resin/stock expediting chased without a human babysitting them</li>
+            <li>NCRs, FAIRs, and inspection docs written as the job runs, not skipped</li>
+            <li>Schedules re-planned the moment a press or cell goes down</li>
+          </ul>
+          <div class="lane-metric">Typical: <b>3+ days &rarr; hours</b> on a quote; a headcount of busywork handed back to the floor</div>
+        </div>
+        <div class="engine-lane external">
+          <div class="lane-label">Engine 02 &bull; New Business In</div>
+          <h4>More jobs, won faster</h4>
+          <ul>
+            <li>Every RFQ answered &mdash; the &ldquo;never quoted&rdquo; pile goes to zero</li>
+            <li>Faster, cleaner quotes beat competitors to the reply on the same job</li>
+            <li>Capacity you can actually promise a customer, backed by a live schedule</li>
+            <li>Governed AI you can put on a supplier survey &mdash; a sales point, not a liability</li>
+          </ul>
+          <div class="lane-metric">Typical: <b>+9 pts</b> quote win rate; AI governance turned into a reason to buy</div>
+        </div>
+      </div>
+
+      <div class="diagram-caption">Same governed agent layer, two payoffs &mdash; built for plastics and fabricated-product shops running real ERP, real drawings, and real deadlines.</div>
+    </div>
+
     <div class="section-head" style="margin-bottom: 2rem; border-bottom: none; padding-bottom: 0;">
       <div class="label">Service Lines</div>
       <h2 style="font-size: 1.5rem;">Four Ways We Get Engaged</h2>
@@ -1708,7 +1868,7 @@
     <div class="section-head">
       <div class="label">Agentic Workflows</div>
       <h2>Agents That Run Your Boring Work &mdash; On Your Floor, In Your Stack</h2>
-      <p>An agentic workflow is AI that doesn&rsquo;t just answer&mdash;it acts. It reads the email, drafts the quote, updates the record, flags the exception, and hands a human the one decision that actually needs judgment. We build these for the specific, repetitive processes that quietly cost SMB manufacturers a full headcount.</p>
+      <p>An agentic workflow is AI that doesn&rsquo;t just answer&mdash;it acts. It reads the email, drafts the quote, updates the record, flags the exception, and hands a human the one decision that actually needs judgment. We build these for the specific, repetitive processes that quietly cost a plastics or fabricated-product shop a full headcount&mdash;quoting, purchasing, quality documentation, and scheduling.</p>
     </div>
 
     <div class="card-grid">
@@ -1802,6 +1962,52 @@
           <p>Every agent action is logged with inputs, outputs, and the model used&mdash;the evidence trail ISO/IEC 42001 expects, generated automatically as the workflow runs.</p>
         </div>
       </div>
+    </div>
+
+    <!-- Quote-to-Cash process flow for a plastics / fab shop -->
+    <div class="diagram-block">
+      <h3>Quote-to-Cash on a Plastics or Fab Floor</h3>
+      <p>One job, start to finish, with agents on the repetitive stretches and a human on every decision that spends money, ships product, or touches the customer. The front half wins the job faster; the back half runs it with less overhead and cleaner documentation.</p>
+
+      <div class="flow-container">
+        <div class="flow-tier">
+          <div class="flow-box accent" style="min-width: 220px;">
+            <div class="fb-label">RFQ + Drawing Arrives</div>
+            <div class="fb-sub">Lands in the shared inbox</div>
+          </div>
+        </div>
+        <div class="flow-arrow"><span>&#9660; agent picks it up in seconds &#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box"><div class="fb-label">Parse RFQ &amp; Drawing</div><div class="fb-sub">Qty, material, tolerances, notes</div><span class="fb-time">minutes</span></div>
+          <div class="flow-box"><div class="fb-label">DFM / Moldability Check</div><div class="fb-sub">Flags risks before you quote</div></div>
+          <div class="flow-box"><div class="fb-label">Pull Cost &amp; History</div><div class="fb-sub">Resin/stock, tooling, similar past jobs</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660; drafts a priced quote, sources cited &#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box primary" style="min-width: 240px;">
+            <div class="fb-label">Human Approves &amp; Sends</div>
+            <div class="fb-sub">Checks the two numbers that matter, one click</div>
+            <span class="fb-time">3+ days &rarr; hours &bull; job won faster</span>
+          </div>
+        </div>
+        <div class="flow-arrow"><span>&#9660; PO received &mdash; job released to the floor &#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box"><div class="fb-label">Schedule to Capacity</div><div class="fb-sub">Slots the press / cell, re-plans on changes</div></div>
+          <div class="flow-box"><div class="fb-label">Issue POs</div><div class="fb-sub">Resin, stock &amp; outside processing</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660; production runs &#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box"><div class="fb-label">Mold / Press / Fab</div><div class="fb-sub">The part actually gets made</div></div>
+        </div>
+        <div class="flow-arrow"><span>&#9660; quality captured as it happens &#9660;</span></div>
+        <div class="flow-tier">
+          <div class="flow-box output"><div class="fb-label">FAIR &amp; Inspection Docs</div><div class="fb-sub">Auto-drafted in your QMS format</div><span class="fb-time">was skipped &rarr; automatic</span></div>
+          <div class="flow-box output"><div class="fb-label">NCR / CAPA on Defect</div><div class="fb-sub">Photo + voice note &rarr; structured record</div></div>
+          <div class="flow-box output"><div class="fb-label">Ship + Invoice</div><div class="fb-sub">Closed out, fully documented</div></div>
+        </div>
+      </div>
+
+      <div class="diagram-caption">Every box is a tool doing the one job it's best at; every arrow is an automated handoff with a human gate before anything ships or spends. The same audit trail that runs the job is the evidence your ISO 9001:2026 and ISO/IEC 42001 certifications need.</div>
     </div>
 
     <div class="feature-row">
