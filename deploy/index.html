@@ -1,2019 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blue Vector | Mechanical Engineering &amp; CAD Design &mdash; SolidWorks Contract Design Services</title>
-  <meta name="description" content="Blue Vector is a contract mechanical design and CAD practice. SolidWorks 3D modeling, GD&amp;T production drawings, design for manufacturing, reverse engineering, and tooling design for small and medium manufacturers.">
-  <link rel="icon" type="image/png" href="bvlogo.png">
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      /* Hummingbird logo palette */
-      --cyan: #00CED1;
-      --royal: #4169E1;
-      --purple: #9370DB;
-      --magenta: #FF1493;
-      --slate: #2F4F4F;
-      --near-black: #1C1C1C;
-
-      /* 80s/90s aerospace corporate palette */
-      --navy: #0B1A3E;
-      --corp-blue: #1B3A6B;
-      --mid-blue: #2B5EA7;
-      --steel: #4A6FA5;
-      --silver: #B8C6D9;
-      --light-silver: #D8E1EC;
-      --cream: #F4F1EB;
-      --warm-white: #FAFAF7;
-      --off-white: #EDECE8;
-      --gold-accent: #C5985A;
-      --rule-gray: #9EAEC0;
-
-      --stripe-gradient: linear-gradient(90deg, var(--cyan), var(--royal), var(--purple), var(--magenta));
-      --corp-gradient: linear-gradient(135deg, var(--navy) 0%, var(--corp-blue) 40%, var(--mid-blue) 100%);
-
-      --serif: 'EB Garamond', 'Georgia', 'Times New Roman', serif;
-      --sans: 'Inter', 'Helvetica Neue', 'Arial', sans-serif;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: var(--sans);
-      background: var(--warm-white);
-      color: var(--near-black);
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ═══ IRIDESCENT STRIPE ═══ */
-    .iridescent-bar { height: 4px; background: var(--stripe-gradient); }
-    .iridescent-bar.thin { height: 2px; }
-
-    /* ═══ HEADER ═══ */
-    header {
-      background: #ffffff;
-      border-bottom: 1px solid var(--light-silver);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 1rem 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo-group {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .logo-group img { height: 50px; width: auto; max-width: 220px; display: block; }
-
-    .header-suppliers {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-    }
-
-    .header-meta {
-      font-size: 0.75rem;
-      color: var(--rule-gray);
-      text-align: right;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    /* ═══ HERO ═══ */
-    .hero {
-      background: var(--corp-gradient);
-      color: #fff;
-      padding: 5rem 2.5rem 4.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-
-    .hero::after {
-      content: '';
-      position: absolute;
-      top: 0; right: 0;
-      width: 320px; height: 100%;
-      background: repeating-linear-gradient(
-        -45deg, transparent, transparent 8px,
-        rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px
-      );
-    }
-
-    .hero-content {
-      max-width: 1100px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero h1 {
-      font-family: var(--serif);
-      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
-      margin-bottom: 1.5rem;
-      max-width: 700px;
-    }
-
-    .hero-rule {
-      width: 80px; height: 2px;
-      background: var(--stripe-gradient);
-      margin-bottom: 1.5rem;
-    }
-
-    .hero p {
-      font-size: 1.05rem;
-      font-weight: 300;
-      color: rgba(255,255,255,0.78);
-      max-width: 600px;
-      line-height: 1.7;
-    }
-
-    .hero-disciplines {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 2rem;
-    }
-
-    .hero-disciplines span {
-      padding: 0.45rem 1.1rem;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.8);
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 500;
-    }
-
-    /* ═══ TAB NAVIGATION ═══ */
-    .tab-nav-wrap {
-      background: var(--warm-white);
-      border-bottom: 1px solid var(--light-silver);
-      position: sticky;
-      top: 62px;
-      z-index: 90;
-    }
-
-    .tab-nav {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding: 0 2rem;
-    }
-
-    .tab-nav::-webkit-scrollbar { display: none; }
-
-    .tab-btn {
-      flex-shrink: 0;
-      padding: 1rem 1.4rem;
-      background: none;
-      border: none;
-      font-family: var(--sans);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--rule-gray);
-      cursor: pointer;
-      position: relative;
-      transition: color 0.2s;
-      white-space: nowrap;
-    }
-
-    .tab-btn:hover { color: var(--corp-blue); }
-
-    .tab-btn.active { color: var(--navy); }
-
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 1rem; right: 1rem;
-      height: 3px;
-      background: var(--stripe-gradient);
-    }
-
-    /* ═══ CONTENT ═══ */
-    .tab-content {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 3.5rem 2.5rem 5rem;
-    }
-
-    .tab-panel { display: none; animation: panelIn 0.3s ease; }
-    .tab-panel.active { display: block; }
-
-    @keyframes panelIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Section Header */
-    .section-head {
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid var(--light-silver);
-    }
-
-    .section-head .label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mid-blue);
-      margin-bottom: 0.6rem;
-    }
-
-    .section-head h2 {
-      font-family: var(--serif);
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.75rem;
-    }
-
-    .section-head p {
-      color: var(--slate);
-      font-size: 1rem;
-      max-width: 640px;
-      font-weight: 300;
-    }
-
-    /* Cards */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-    }
-
-    .card {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      padding: 2rem;
-      position: relative;
-      transition: box-shadow 0.3s;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--stripe-gradient);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .card:hover {
-      box-shadow: 0 4px 20px rgba(11, 26, 62, 0.08);
-    }
-
-    .card:hover::before { opacity: 1; }
-
-    .card-number {
-      font-family: var(--sans);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--rule-gray);
-      margin-bottom: 0.75rem;
-    }
-
-    .card h3 {
-      font-family: var(--serif);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.6rem;
-    }
-
-    .card p {
-      color: var(--slate);
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    .card .tech-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 1rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--off-white);
-    }
-
-    .card .tech-tags span {
-      padding: 0.2rem 0.6rem;
-      background: var(--off-white);
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: var(--steel);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    /* Stats */
-    .stat-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 0;
-      margin-bottom: 3rem;
-      border: 1px solid var(--light-silver);
-      background: #fff;
-    }
-
-    .stat-item {
-      padding: 1.75rem 1.5rem;
-      text-align: center;
-      border-right: 1px solid var(--light-silver);
-    }
-
-    .stat-item:last-child { border-right: none; }
-
-    .stat-item .number {
-      font-family: var(--serif);
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: var(--navy);
-      line-height: 1;
-    }
-
-    .stat-item .label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--rule-gray);
-      margin-top: 0.4rem;
-    }
-
-    /* Feature Row */
-    .feature-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      margin-bottom: 3rem;
-      border: 1px solid var(--light-silver);
-      background: #fff;
-    }
-
-    .feature-block { padding: 2rem; }
-
-    .feature-block:first-child {
-      border-right: 1px solid var(--light-silver);
-    }
-
-    .feature-block h3 {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--off-white);
-    }
-
-    .feature-block ul { list-style: none; }
-
-    .feature-block ul li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--off-white);
-      color: var(--slate);
-      font-size: 0.88rem;
-      display: flex;
-      align-items: baseline;
-      gap: 0.75rem;
-    }
-
-    .feature-block ul li:last-child { border-bottom: none; }
-
-    .feature-block ul li::before {
-      content: '\25B8';
-      color: var(--mid-blue);
-      font-size: 0.7rem;
-      flex-shrink: 0;
-    }
-
-    /* Collections */
-    .collection-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 0;
-      margin-bottom: 3rem;
-      border: 1px solid var(--light-silver);
-      background: #fff;
-    }
-
-    .collection-card {
-      padding: 2rem 1.75rem;
-      border-right: 1px solid var(--light-silver);
-      border-bottom: 1px solid var(--light-silver);
-      transition: background 0.25s;
-    }
-
-    .collection-card:hover { background: var(--cream); }
-
-    .collection-card .series-num {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mid-blue);
-      margin-bottom: 0.75rem;
-    }
-
-    .collection-card h4 {
-      font-family: var(--serif);
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.25rem;
-    }
-
-    .collection-card .subtitle {
-      font-family: var(--serif);
-      font-size: 0.85rem;
-      font-style: italic;
-      color: var(--steel);
-      margin-bottom: 0.75rem;
-    }
-
-    .collection-card p {
-      font-size: 0.85rem;
-      color: var(--slate);
-      line-height: 1.55;
-    }
-
-    /* Philosophy callout */
-    .philosophy {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      padding: 2.5rem;
-      margin-bottom: 3rem;
-      position: relative;
-    }
-
-    .philosophy::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: var(--stripe-gradient);
-    }
-
-    .philosophy h3 {
-      font-family: var(--serif);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 1rem;
-    }
-
-    .philosophy p {
-      color: var(--slate);
-      font-size: 0.92rem;
-      margin-bottom: 0.75rem;
-      max-width: 720px;
-    }
-
-    .philosophy p:last-child { margin-bottom: 0; }
-
-    .philosophy .quote {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-style: italic;
-      color: var(--corp-blue);
-      border-left: 3px solid var(--mid-blue);
-      padding-left: 1.25rem;
-      margin: 1.25rem 0;
-    }
-
-    /* ═══ CTA / FOOTER ═══ */
-    .cta-section {
-      background: var(--corp-gradient);
-      color: #fff;
-      text-align: center;
-      padding: 4rem 2.5rem;
-      position: relative;
-    }
-
-    .cta-section::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-
-    .cta-section > * { position: relative; z-index: 1; }
-
-    .cta-section h2 {
-      font-family: var(--serif);
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
-    }
-
-    .cta-section p {
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 2rem;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-      font-weight: 300;
-    }
-
-    .cta-btn {
-      display: inline-block;
-      padding: 0.85rem 2.5rem;
-      background: transparent;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.4);
-      font-family: var(--sans);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.25s, border-color 0.25s;
-    }
-
-    .cta-btn:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.7);
-    }
-
-    /* Contact Modal */
-    .contact-modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    .contact-modal {
-      background: #fff;
-      border-radius: 3px;
-      max-width: 520px;
-      width: 100%;
-      padding: 2.5rem;
-      position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-
-    .contact-modal h3 {
-      font-family: var(--serif);
-      font-size: 1.4rem;
-      color: var(--navy);
-      margin-bottom: 0.35rem;
-    }
-
-    .contact-modal .modal-sub {
-      font-size: 0.78rem;
-      color: var(--rule-gray);
-      margin-bottom: 1.5rem;
-    }
-
-    .contact-modal label {
-      display: block;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--navy);
-      margin-bottom: 0.35rem;
-    }
-
-    .contact-modal input,
-    .contact-modal textarea {
-      width: 100%;
-      padding: 0.65rem 0.8rem;
-      border: 1px solid var(--light-silver);
-      border-radius: 2px;
-      font-family: var(--sans);
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-    }
-
-    .contact-modal input:focus,
-    .contact-modal textarea:focus {
-      outline: none;
-      border-color: var(--navy);
-    }
-
-    .contact-modal textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-
-    .contact-modal .modal-send-btn {
-      display: inline-block;
-      background: var(--navy);
-      color: #fff;
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: 2px;
-      font-family: var(--sans);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.25s;
-    }
-
-    .contact-modal .modal-send-btn:hover {
-      background: #1a2a40;
-    }
-
-    .contact-modal .modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1.25rem;
-      background: none;
-      border: none;
-      font-size: 1.4rem;
-      color: var(--rule-gray);
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    .contact-modal .modal-close:hover {
-      color: var(--navy);
-    }
-
-    .contact-modal .modal-success {
-      display: none;
-      text-align: center;
-      padding: 2rem 0;
-    }
-
-    .contact-modal .modal-success h4 {
-      font-family: var(--serif);
-      font-size: 1.2rem;
-      color: var(--navy);
-      margin-bottom: 0.5rem;
-    }
-
-    .contact-modal .modal-success p {
-      font-size: 0.85rem;
-      color: var(--rule-gray);
-    }
-
-    footer {
-      background: var(--navy);
-      color: var(--silver);
-      text-align: center;
-      padding: 1.5rem 2rem;
-      font-size: 0.72rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    /* ═══ HERO LOGO ROWS ═══ */
-    .hero-logo-section {
-      margin-top: 1.75rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .hero-logo-section .hero-logo-label {
-      font-size: 0.62rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      margin-bottom: 0.9rem;
-    }
-
-    .hero-logo-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .hero-logo-row img {
-      height: 60px;
-      width: auto;
-      opacity: 1;
-      transition: transform 0.25s;
-    }
-
-    .hero-logo-row img:hover { transform: scale(1.08); }
-
-    /* Overview tab image logo clouds */
-    .img-logo-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      border: 1px solid var(--light-silver);
-      background: #fff;
-      margin-bottom: 3rem;
-    }
-
-    .img-logo-cloud .img-logo-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem 2rem;
-      border-right: 1px solid var(--light-silver);
-      border-bottom: 1px solid var(--light-silver);
-      min-height: 80px;
-      min-width: 140px;
-      flex: 1 1 140px;
-      transition: background 0.25s;
-    }
-
-    .img-logo-cloud .img-logo-item:hover { background: var(--cream); }
-
-    .img-logo-cloud .img-logo-item img {
-      max-height: 70px;
-      max-width: 160px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      opacity: 1;
-      transition: transform 0.3s;
-    }
-
-    .img-logo-cloud .img-logo-item:hover img {
-      transform: scale(1.08);
-    }
-
-    /* ═══ RESPONSIVE ═══ */
-    @media (max-width: 768px) {
-      .feature-row { grid-template-columns: 1fr; }
-      .feature-block:first-child { border-right: none; border-bottom: 1px solid var(--light-silver); }
-      .hero { padding: 3.5rem 1.5rem 3rem; }
-      .tab-content { padding: 2.5rem 1.5rem 4rem; }
-      .header-inner { padding: 0.85rem 1.5rem; }
-      .header-meta { display: none; }
-      .stat-item { border-bottom: 1px solid var(--light-silver); }
-      .collection-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 480px) {
-      .card-grid { grid-template-columns: 1fr; }
-      .collection-grid { grid-template-columns: 1fr; }
-      .stat-bar { grid-template-columns: 1fr 1fr; }
-      .hero-disciplines span { font-size: 0.7rem; padding: 0.35rem 0.8rem; }
-      .logo-cloud { grid-template-columns: repeat(2, 1fr); }
-      .mcp-diagram { flex-direction: column; }
-      .colibri-flow { overflow-x: auto; }
-    }
-
-    /* ═══ LOGO CLOUD ═══ */
-    .logo-cloud-section {
-      margin-bottom: 3rem;
-    }
-
-    .logo-cloud-section .label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--rule-gray);
-      margin-bottom: 1.25rem;
-      text-align: center;
-    }
-
-    .logo-cloud {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 0;
-      border: 1px solid var(--light-silver);
-      background: #fff;
-    }
-
-    .logo-cloud-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.75rem 1.5rem;
-      border-right: 1px solid var(--light-silver);
-      border-bottom: 1px solid var(--light-silver);
-      transition: background 0.25s;
-      min-height: 90px;
-    }
-
-    .logo-cloud-item:hover { background: var(--cream); }
-
-    .logo-cloud-item .client-name {
-      font-family: var(--sans);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--navy);
-      text-align: center;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      line-height: 1.3;
-    }
-
-    .logo-cloud-item .client-name.serif-logo {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    /* ═══ MCP DIAGRAM ═══ */
-    .mcp-section {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      padding: 2.5rem;
-      margin-bottom: 3rem;
-      position: relative;
-    }
-
-    .mcp-section::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: var(--stripe-gradient);
-    }
-
-    .mcp-section h3 {
-      font-family: var(--serif);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.75rem;
-    }
-
-    .mcp-section > p {
-      color: var(--slate);
-      font-size: 0.92rem;
-      max-width: 720px;
-      margin-bottom: 1.5rem;
-    }
-
-    .mcp-diagram {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      flex-wrap: wrap;
-      margin: 2rem 0;
-    }
-
-    .mcp-node {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 140px;
-      height: 90px;
-      border: 2px solid var(--mid-blue);
-      background: linear-gradient(135deg, #f0f4fa 0%, #fff 100%);
-      position: relative;
-      text-align: center;
-      padding: 0.5rem;
-    }
-
-    .mcp-node .node-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--navy);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .mcp-node .node-sub {
-      font-size: 0.6rem;
-      color: var(--steel);
-      margin-top: 0.15rem;
-    }
-
-    .mcp-hub {
-      width: 160px;
-      height: 100px;
-      border: 3px solid var(--royal);
-      background: var(--corp-gradient);
-      color: #fff;
-    }
-
-    .mcp-hub .node-label {
-      color: #fff;
-      font-size: 0.8rem;
-    }
-
-    .mcp-hub .node-sub {
-      color: rgba(255,255,255,0.7);
-    }
-
-    .mcp-connector {
-      width: 40px;
-      height: 2px;
-      background: var(--stripe-gradient);
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .mcp-connector::after {
-      content: '\25B6';
-      position: absolute;
-      right: -4px;
-      top: -8px;
-      font-size: 0.6rem;
-      color: var(--royal);
-    }
-
-    .mcp-connector.bidi::before {
-      content: '\25C0';
-      position: absolute;
-      left: -4px;
-      top: -8px;
-      font-size: 0.6rem;
-      color: var(--purple);
-    }
-
-    .mcp-tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .mcp-tool-card {
-      padding: 1.25rem;
-      background: var(--cream);
-      border-left: 3px solid var(--mid-blue);
-    }
-
-    .mcp-tool-card h4 {
-      font-family: var(--serif);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.35rem;
-    }
-
-    .mcp-tool-card p {
-      font-size: 0.8rem;
-      color: var(--slate);
-      line-height: 1.5;
-    }
-
-    /* ═══ COLIBRI FLOWCHART ═══ */
-    .colibri-flow {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      padding: 2.5rem;
-      margin-bottom: 3rem;
-      position: relative;
-    }
-
-    .colibri-flow::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: var(--stripe-gradient);
-    }
-
-    .colibri-flow h3 {
-      font-family: var(--serif);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.5rem;
-    }
-
-    .colibri-flow > p {
-      color: var(--slate);
-      font-size: 0.92rem;
-      max-width: 720px;
-      margin-bottom: 2rem;
-    }
-
-    .flow-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      align-items: center;
-    }
-
-    .flow-tier {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      width: 100%;
-    }
-
-    .flow-box {
-      padding: 1rem 1.5rem;
-      border: 2px solid var(--mid-blue);
-      background: linear-gradient(135deg, #f0f4fa 0%, #fff 100%);
-      text-align: center;
-      min-width: 130px;
-    }
-
-    .flow-box .fb-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--navy);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .flow-box .fb-sub {
-      font-size: 0.65rem;
-      color: var(--steel);
-      margin-top: 0.15rem;
-    }
-
-    .flow-box.primary {
-      border-color: var(--royal);
-      background: var(--corp-gradient);
-    }
-
-    .flow-box.primary .fb-label { color: #fff; }
-    .flow-box.primary .fb-sub { color: rgba(255,255,255,0.7); }
-
-    .flow-box.accent {
-      border-color: var(--cyan);
-      background: linear-gradient(135deg, #e8fafa 0%, #fff 100%);
-    }
-
-    .flow-box.output {
-      border-color: var(--purple);
-      background: linear-gradient(135deg, #f3eef9 0%, #fff 100%);
-    }
-
-    .flow-arrow {
-      font-size: 1.2rem;
-      color: var(--mid-blue);
-      text-align: center;
-      width: 100%;
-    }
-
-    .flow-arrow span {
-      display: inline-block;
-      background: var(--stripe-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* ═══ SPEAKING OFFERING ═══ */
-    .speaking-offering {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      margin-bottom: 3rem;
-      position: relative;
-    }
-
-    .speaking-offering::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: var(--stripe-gradient);
-    }
-
-    .speaking-header {
-      padding: 2.5rem 2.5rem 1.5rem;
-    }
-
-    .speaking-header .label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mid-blue);
-      margin-bottom: 0.6rem;
-    }
-
-    .speaking-header h3 {
-      font-family: var(--serif);
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.75rem;
-    }
-
-    .speaking-header p {
-      color: var(--slate);
-      font-size: 0.95rem;
-      max-width: 640px;
-    }
-
-    .speaking-tiers {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 0;
-    }
-
-    .speaking-tier {
-      padding: 2rem 2.5rem;
-      border-top: 1px solid var(--light-silver);
-      border-right: 1px solid var(--light-silver);
-    }
-
-    .speaking-tier h4 {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.5rem;
-    }
-
-    .speaking-tier .duration {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--mid-blue);
-      margin-bottom: 0.75rem;
-    }
-
-    .speaking-tier p {
-      font-size: 0.88rem;
-      color: var(--slate);
-      line-height: 1.6;
-      margin-bottom: 0.5rem;
-    }
-
-    .speaking-tier ul {
-      list-style: none;
-      margin-top: 0.75rem;
-    }
-
-    .speaking-tier ul li {
-      padding: 0.35rem 0;
-      color: var(--slate);
-      font-size: 0.85rem;
-      display: flex;
-      align-items: baseline;
-      gap: 0.6rem;
-    }
-
-    .speaking-tier ul li::before {
-      content: '\25B8';
-      color: var(--mid-blue);
-      font-size: 0.65rem;
-      flex-shrink: 0;
-    }
-
-    .speaking-cta {
-      padding: 1.75rem 2.5rem;
-      border-top: 1px solid var(--light-silver);
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .speaking-cta a {
-      display: inline-block;
-      padding: 0.7rem 2rem;
-      background: var(--corp-gradient);
-      color: #fff;
-      font-family: var(--sans);
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: opacity 0.25s;
-    }
-
-    .speaking-cta a:hover { opacity: 0.85; }
-
-    .speaking-cta span {
-      font-size: 0.82rem;
-      color: var(--rule-gray);
-      font-style: italic;
-    }
-
-    /* ═══ PATENT DOWNLOADS ═══ */
-    .patent-download {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      padding: 2rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 1.5rem;
-      transition: box-shadow 0.3s;
-      position: relative;
-      text-decoration: none;
-      color: inherit;
-      margin-bottom: 1rem;
-    }
-
-    .patent-download:hover {
-      box-shadow: 0 4px 20px rgba(11, 26, 62, 0.08);
-    }
-
-    .patent-download::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--stripe-gradient);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .patent-download:hover::before { opacity: 1; }
-
-    .patent-icon {
-      width: 48px;
-      height: 56px;
-      background: var(--corp-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: #fff;
-      font-family: var(--sans);
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .patent-info h4 {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.25rem;
-    }
-
-    .patent-info .patent-meta {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--mid-blue);
-      margin-bottom: 0.5rem;
-    }
-
-    .patent-info p {
-      font-size: 0.85rem;
-      color: var(--slate);
-      line-height: 1.55;
-      max-width: 600px;
-    }
-
-    .patent-info .dl-badge {
-      display: inline-block;
-      margin-top: 0.75rem;
-      padding: 0.3rem 0.9rem;
-      border: 1px solid var(--mid-blue);
-      color: var(--mid-blue);
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .patent-download:hover .dl-badge {
-      background: var(--mid-blue);
-      color: #fff;
-    }
-
-    /* ═══ TOOL / STANDARD LOCKUPS ═══ */
-    .tool-lockup {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-    }
-
-    .tool-lockup img { height: 30px; width: auto; display: block; }
-
-    .tool-lockup span {
-      font-family: var(--sans);
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: rgba(255,255,255,0.92);
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
-
-    .tool-lockup.dark span { color: var(--near-black); }
-
-    .hero-stack-row { gap: 2rem; row-gap: 1.25rem; }
-    .hero-stack-row img { height: 30px; }
-
-    .hero-std-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .hero-std-badge img { background: #fff; padding: 4px; border-radius: 3px; }
-    .hero-std-badge > span {
-      font-family: var(--sans);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: rgba(255,255,255,0.92);
-      letter-spacing: 0.04em;
-    }
-    .hero-std-badge img[src*="iso42001-white"] { background: transparent; padding: 0; }
-
-    .std-lockup { display: inline-flex; align-items: center; gap: 0.85rem; }
-    .std-lockup img { height: 72px; width: auto; }
-    .std-lockup span {
-      font-family: var(--sans);
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--navy);
-      letter-spacing: 0.04em;
-    }
-
-    /* ═══ CASE STUDIES ═══ */
-    .fict-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      background: var(--cream);
-      border: 1px solid var(--rule-gray);
-      color: var(--slate);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 0.9rem;
-    }
-
-    .case-study {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      padding: 2.5rem;
-      margin-bottom: 2.5rem;
-      position: relative;
-    }
-
-    .case-study::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: var(--stripe-gradient);
-    }
-
-    .case-study .cs-kicker {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mid-blue);
-      margin-bottom: 0.5rem;
-    }
-
-    .case-study h3 {
-      font-family: var(--serif);
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.35rem;
-    }
-
-    .case-study .cs-meta {
-      font-size: 0.8rem;
-      color: var(--rule-gray);
-      margin-bottom: 1.25rem;
-      letter-spacing: 0.04em;
-    }
-
-    .case-study p { color: var(--slate); font-size: 0.92rem; margin-bottom: 0.9rem; max-width: 760px; }
-
-    .cs-walk { list-style: none; margin: 1.5rem 0; counter-reset: cs; }
-
-    .cs-walk li {
-      counter-increment: cs;
-      position: relative;
-      padding: 0 0 1.4rem 3.2rem;
-      border-left: 2px solid var(--light-silver);
-      margin-left: 1.1rem;
-    }
-
-    .cs-walk li:last-child { border-left-color: transparent; padding-bottom: 0.25rem; }
-
-    .cs-walk li::before {
-      content: counter(cs);
-      position: absolute;
-      left: -1.15rem;
-      top: -0.1rem;
-      width: 2.1rem;
-      height: 2.1rem;
-      background: var(--corp-gradient);
-      color: #fff;
-      font-family: var(--sans);
-      font-size: 0.8rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-    }
-
-    .cs-walk li b { color: var(--navy); display: block; font-size: 0.9rem; margin-bottom: 0.2rem; }
-    .cs-walk li span { color: var(--slate); font-size: 0.87rem; line-height: 1.6; display: block; max-width: 700px; }
-
-    .cs-results {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0;
-      border: 1px solid var(--light-silver);
-      margin-top: 1.5rem;
-    }
-
-    .cs-results .cs-r {
-      padding: 1.25rem 1rem;
-      text-align: center;
-      border-right: 1px solid var(--light-silver);
-      background: var(--cream);
-    }
-
-    .cs-results .cs-r:last-child { border-right: none; }
-
-    .cs-results .cs-r .num {
-      font-family: var(--serif);
-      font-size: 1.7rem;
-      font-weight: 700;
-      color: var(--navy);
-      line-height: 1.1;
-    }
-
-    .cs-results .cs-r .lbl {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--steel);
-      margin-top: 0.35rem;
-    }
-
-    /* ═══ REVOPS ═══ */
-    .revops-tools-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 2.25rem;
-      padding: 1.75rem 1.5rem;
-      border: 1px solid var(--light-silver);
-      background: #fff;
-      margin-bottom: 3rem;
-    }
-
-    .revops-tools-row .tool-lockup img { height: 26px; }
-
-    @media (max-width: 600px) {
-      .case-study { padding: 1.5rem; }
-      .cs-walk li { padding-left: 2.4rem; }
-    }
-
-    /* ═══ OUTCOME / TWO-ENGINE DIAGRAMS ═══ */
-    .diagram-block {
-      background: #fff;
-      border: 1px solid var(--light-silver);
-      padding: 2.5rem;
-      margin-bottom: 3rem;
-      position: relative;
-    }
-    .diagram-block::before {
-      content: '';
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: var(--stripe-gradient);
-    }
-    .diagram-block h3 {
-      font-family: var(--serif);
-      font-size: 1.2rem; font-weight: 700;
-      color: var(--navy); margin-bottom: 0.5rem;
-    }
-    .diagram-block > p {
-      color: var(--slate); font-size: 0.92rem;
-      max-width: 720px; margin-bottom: 2rem;
-    }
-
-    .diagram-caption {
-      font-size: 0.78rem; color: var(--rule-gray);
-      font-style: italic; margin-top: 1.25rem; text-align: center;
-    }
-
-    /* small time / delta annotation inside a flow box */
-    .fb-time {
-      display: block; margin-top: 0.4rem;
-      font-size: 0.62rem; font-weight: 700;
-      letter-spacing: 0.03em; text-transform: uppercase;
-      color: var(--gold-accent);
-    }
-    .flow-box.primary .fb-time { color: #ffd9a8; }
-
-    /* divergent fork into the two engines */
-    .engine-fork {
-      display: flex; justify-content: space-around;
-      align-items: flex-end; gap: 1rem;
-      max-width: 560px; margin: 0.75rem auto 1.25rem;
-    }
-    .engine-fork .fork-leg {
-      flex: 1; text-align: center;
-      font-size: 0.68rem; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--rule-gray);
-    }
-    .engine-fork .fork-leg .arw {
-      display: block; font-size: 1.3rem; line-height: 1;
-      background: var(--stripe-gradient);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text; margin-bottom: 0.3rem;
-    }
-
-    .engine-split {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
-    }
-    .engine-lane {
-      border: 1px solid var(--light-silver);
-      background: linear-gradient(180deg, #f6f9fc 0%, #fff 60%);
-      padding: 1.5rem 1.6rem;
-    }
-    .engine-lane.internal { border-top: 4px solid var(--mid-blue); }
-    .engine-lane.external { border-top: 4px solid var(--magenta); }
-    .engine-lane .lane-label {
-      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; margin-bottom: 0.2rem;
-    }
-    .engine-lane.internal .lane-label { color: var(--mid-blue); }
-    .engine-lane.external .lane-label { color: var(--magenta); }
-    .engine-lane h4 {
-      font-family: var(--serif); font-size: 1.15rem; font-weight: 700;
-      color: var(--navy); margin-bottom: 0.9rem;
-    }
-    .engine-lane ul { list-style: none; }
-    .engine-lane ul li {
-      padding: 0.5rem 0; border-bottom: 1px solid var(--off-white);
-      color: var(--slate); font-size: 0.86rem; line-height: 1.5;
-      display: flex; align-items: baseline; gap: 0.6rem;
-    }
-    .engine-lane ul li:last-child { border-bottom: none; }
-    .engine-lane ul li::before {
-      content: '\25B8'; font-size: 0.62rem; flex-shrink: 0;
-    }
-    .engine-lane.internal ul li::before { color: var(--mid-blue); }
-    .engine-lane.external ul li::before { color: var(--magenta); }
-    .engine-lane .lane-metric {
-      margin-top: 1rem; padding-top: 0.8rem;
-      border-top: 1px dashed var(--light-silver);
-      font-size: 0.7rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    .engine-lane.internal .lane-metric { color: var(--corp-blue); }
-    .engine-lane.external .lane-metric { color: var(--magenta); }
-    .engine-lane .lane-metric b { font-size: 0.95rem; }
-
-    @media (max-width: 600px) {
-      .engine-split { grid-template-columns: 1fr; }
-      .diagram-block { padding: 1.5rem; }
-      .engine-fork { max-width: 100%; }
-    }
-  </style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Vector</title>
+<meta name="description" content="Blue Vector is a contract mechanical design and CAD engineering practice. SolidWorks 3D modeling, GD&amp;T production drawings, design for manufacturing, reverse engineering, and tooling design for precision manufacturing.">
+<link rel="icon" type="image/png" href="bvlogo.png">
+<style>
+@charset "utf-8";
+
+body { background: white; }
+
+body, p, input, textarea, td, li { font-family: "Helvetica Neue", "Segoe UI", Segoe, Helvetica, Arial, "Lucida Grande", sans-serif; font-size: 20px; margin: 0px; padding: 0px; text-align: left; }
+
+h1 { font-size: 60px; font-weight: 600; font-style: italic; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0, 0, 128); -webkit-text-stroke: 1px black; margin: 0px; text-align: center; }
+
+h2 { font-size: 35px; font-weight: 600; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0, 0, 128); -webkit-text-stroke: 1px black; margin: 0px 0px 12px 0px; text-align: left; }
+
+h3 { font-size: 28px; font-weight: 600; color: rgb(0, 0, 128); margin: 0px; text-align: center; }
+
+a { color: rgb(0, 0, 128); }
+
+.masthead { text-align: center; padding: 26px 10px 6px; background: white; }
+.masthead img.logo { height: 112px; width: auto; max-width: 92%; display: inline-block; }
+.tagline { text-align: center; font-size: 22px; font-style: italic; color: rgb(0, 0, 128); padding: 0 10px 16px; }
+
+div { margin-left: 2%; margin-right: 2%; padding: 5px; font-size: 20px; }
+
+div.mainpage { margin-left: 0%; margin-right: 0%; padding: 0px 0px 18px; font-size: 20px; background-color: rgb(208, 208, 208); }
+
+div.section { margin-left: 0%; margin-right: 0%; padding: 18px 2% 6px; background-color: rgb(208, 208, 208); }
+div.section p { margin-left: 2%; margin-right: 2%; }
+
+div.footer { background-color: rgb(0, 0, 128); margin-left: 0px; margin-right: 0px; padding: 14px; font-size: 18px; color: white; text-align: center; line-height: 1.5; }
+div.footer a { color: rgb(200, 210, 255); }
+
+ul.list { margin: 6px 2% 12px; padding-left: 26px; }
+ul.list li { margin: 4px 0; }
+
+/* ── NAV (Coastal-style navy bar) ── */
+nav { margin: 0px; padding: 0px; background-color: rgb(0, 0, 128); }
+nav::after { content: ""; display: table; clear: both; }
+nav ul { float: left; padding: 0px; margin: 0px; list-style: none; position: relative; }
+nav ul li { margin: 0px; display: inline-block; float: left; background-color: rgb(0, 0, 128); }
+nav a { display: block; padding: 0px 20px; color: rgb(255, 255, 255); font-size: 20px; line-height: 50px; text-decoration: none; cursor: pointer; }
+.toggle, [id^="drop"] { display: none; }
+nav ul li ul li:hover { color: rgb(0, 0, 0); background: rgb(240, 240, 255); }
+nav a:hover { color: rgb(0, 0, 0); background-color: rgb(240, 240, 255); }
+nav ul ul { display: none; position: absolute; top: 50px; z-index: 20; }
+nav ul li:hover > ul { display: inherit; }
+nav ul ul li { width: 300px; float: none; display: list-item; position: relative; }
+
+/* ── Home cards table ── */
+table.cards { border-collapse: separate; }
+td.rounded { border-radius: 15px; background-color: rgb(255, 255, 255); margin: 25px; text-align: center; vertical-align: top; padding: 18px 14px; }
+td.rounded h3 { margin-bottom: 10px; }
+td.rounded svg { width: 170px; height: 140px; }
+td.rounded p { font-size: 17px; text-align: center; color: #333; margin-top: 8px; }
+td.spacer { width: 3%; }
+
+/* ── Buttons / CTA ── */
+.btnrow { text-align: center; margin: 8px 0 14px; }
+a.button { display: inline-block; background: rgb(0, 0, 128); color: #fff; padding: 12px 30px; margin: 8px; font-size: 20px; font-weight: 600; text-decoration: none; border: 2px solid rgb(0, 0, 128); }
+a.button:hover { background: #fff; color: rgb(0, 0, 128); }
+
+/* ── Downloads ── */
+a.download { display: block; background: #fff; border: 1px solid rgb(0, 0, 128); margin: 10px 2%; padding: 12px 16px; text-decoration: none; color: rgb(0, 0, 128); }
+a.download:hover { background: rgb(240, 240, 255); }
+a.download .meta { font-size: 15px; color: #555; }
+
+/* ── Contact modal ── */
+.contact-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.contact-modal { background: #fff; max-width: 520px; width: 100%; padding: 26px 28px; position: relative; border: 3px solid rgb(0, 0, 128); }
+.contact-modal h3 { text-align: left; font-style: italic; margin-bottom: 6px; }
+.contact-modal .modal-sub { font-size: 16px; color: #555; margin-bottom: 16px; }
+.contact-modal label { display: block; font-size: 15px; font-weight: 600; color: rgb(0, 0, 128); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.contact-modal input, .contact-modal textarea { width: 100%; padding: 9px 10px; border: 1px solid #999; font-size: 17px; margin-bottom: 12px; box-sizing: border-box; }
+.contact-modal textarea { min-height: 110px; resize: vertical; }
+.contact-modal .modal-send-btn { background: rgb(0, 0, 128); color: #fff; padding: 11px 26px; border: none; font-size: 18px; font-weight: 600; cursor: pointer; }
+.contact-modal .modal-send-btn:hover { background: #000; }
+.contact-modal .modal-close { position: absolute; top: 8px; right: 14px; background: none; border: none; font-size: 30px; color: #888; cursor: pointer; line-height: 1; }
+.contact-modal .modal-close:hover { color: rgb(0, 0, 128); }
+.contact-modal .modal-success { display: none; text-align: center; padding: 24px 0; }
+
+/* ── Mobile nav (Coastal-style checkbox toggle) ── */
+@media (max-width: 800px) {
+  nav { margin: 0px; }
+  .toggle + a, .menu { display: none; }
+  .toggle { display: block; background-color: rgb(0, 0, 128); padding: 0px 20px; color: rgb(255, 255, 255); font-size: 20px; line-height: 50px; text-decoration: none; border-style: none; }
+  .toggle:hover { color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); }
+  [id^="drop"]:checked + ul { display: block; }
+  nav ul li { display: block; width: 100%; }
+  nav ul ul .toggle, nav ul ul a { padding: 0px 40px; }
+  nav a:hover { color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); }
+  nav ul ul { float: none; position: static; color: rgb(255, 255, 255); }
+  nav ul ul li:hover > ul, nav ul li:hover > ul { display: none; }
+  nav ul ul li { display: block; width: 100%; }
+  td.rounded, td.spacer { display: block; width: auto; margin: 10px 0; }
+  h1 { font-size: 44px; }
+  h2 { font-size: 28px; }
+}
+</style>
 </head>
+
 <body>
-<!-- Iridescent bar -->
-<div class="iridescent-bar"></div>
 
-<!-- Header -->
-<header>
-  <div class="header-inner">
-    <div class="logo-group">
-      <a href="#" onclick="document.getElementById('overview').scrollIntoView({behavior:'smooth'}); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active')); document.querySelector('[data-tab=overview]').classList.add('active'); document.getElementById('overview').classList.add('active'); return false;" style="display:flex; align-items:center;">
-        <img src="bvlogo.png" alt="Blue Vector" />
-      </a>
-    </div>
-  </div>
-</header>
+<!-- Masthead -->
+<div class="masthead" id="top">
+  <img class="logo" src="bvlogo.png" alt="Blue Vector">
+</div>
+<div class="tagline">Mechanical Design &amp; CAD Engineering for Precision Manufacturing</div>
 
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-content">
-    <h1>Mechanical Design &amp; CAD, Built Around How Your Parts Actually Get Made</h1>
-    <div class="hero-rule"></div>
-    <p>Blue Vector is a contract mechanical design practice. We turn napkin sketches, worn-out legacy parts, and half-finished ideas into clean SolidWorks models and drawings a shop can quote and cut from the first time&mdash;fully dimensioned, GD&amp;T where it counts, and reviewed against how the part will really be manufactured. One engineer, on your project, start to finish.</p>
+<!-- Navigation -->
+<nav>
+  <label for="drop" class="toggle">Menu</label>
+  <input type="checkbox" id="drop">
+  <ul class="menu">
+    <li><a href="#top">Home</a></li>
+    <li>
+      <label for="drop-2" class="toggle">Engineering</label>
+      <a href="#engineering">Engineering</a>
+      <input type="checkbox" id="drop-2">
+      <ul>
+        <li><a href="#engineering">CAD Design</a></li>
+        <li><a href="#engineering">Drafting &amp; GD&amp;T</a></li>
+        <li><a href="#engineering">Reverse Engineering</a></li>
+      </ul>
+    </li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#projects">Sample Projects</a></li>
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;">Contact Us</a></li>
+  </ul>
+</nav>
 
-    <!-- Tab Navigation (in hero) -->
-    <div class="hero-tab-nav" role="tablist" style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem;">
-      <button class="tab-btn active" data-tab="overview" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Overview</button>
-      <button class="tab-btn" data-tab="services" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Services</button>
-      <button class="tab-btn" data-tab="capabilities" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Capabilities</button>
-      <button class="tab-btn" data-tab="process" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Process</button>
-      <button class="tab-btn" data-tab="casestudies" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Case Studies</button>
-      <button class="tab-btn" data-tab="resources" role="tab" style="padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: none; cursor: pointer; font-family: var(--sans);">Resources</button>
-    </div>
+<div class="mainpage">
+<br>
+<div>
 
-    <!-- CTA Buttons -->
-    <div style="margin-top: 2.5rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
-      <a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">&#128295; Request a Quote</a>
-      <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:0.85rem 2rem; background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.6); border-radius:3px; font-family:var(--sans); font-size:0.8rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-decoration:none;">&#128203; Book Consulting</a>
-    </div>
+  <!-- Three service cards -->
+  <table class="cards" align="center" width="94%" cellpadding="5px">
+    <tbody>
+      <tr>
+        <td class="rounded" width="31%">
+          <h3>CAD Design</h3>
+          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M60 12 L100 32 L100 72 L60 92 L20 72 L20 32 Z"/>
+            <path d="M20 32 L60 52 L100 32"/>
+            <path d="M60 52 L60 92"/>
+            <path d="M60 12 L60 52" stroke-dasharray="4 4"/>
+          </svg>
+          <p>Parametric parts &amp; assemblies in SolidWorks</p>
+        </td>
+        <td class="spacer"></td>
+        <td class="rounded" width="31%">
+          <h3>Drafting &amp; GD&amp;T</h3>
+          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+            <rect x="16" y="14" width="88" height="72"/>
+            <path d="M16 30 L104 30 M40 30 L40 86"/>
+            <path d="M52 46 L74 46 M52 46 L52 70 M74 46 L74 70 M52 70 L74 70"/>
+            <circle cx="63" cy="58" r="7"/>
+          </svg>
+          <p>Production drawings to ASME Y14.5</p>
+        </td>
+        <td class="spacer"></td>
+        <td class="rounded" width="31%">
+          <h3>Machine &amp; Tooling</h3>
+          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M60 24 l6 0 3 -10 6 0 3 10 6 3 9 -6 4 5 -6 9 3 6 10 3 0 6 -10 3 -3 6 6 9 -4 5 -9 -6 -6 3 -3 10 -6 0 -3 -10 -6 -3 -9 6 -4 -5 6 -9 -3 -6 -10 -3 0 -6 10 -3 3 -6 -6 -9 4 -5 9 6 6 -3 3 -10 6 0 Z"/>
+            <circle cx="60" cy="50" r="12"/>
+          </svg>
+          <p>Fixtures, jigs &amp; weldment fabrication</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-    <!-- Tools & Standards -->
-    <div class="hero-logo-section">
-      <div class="hero-logo-label">Design Tools &amp; Standards</div>
-      <div class="hero-disciplines" style="margin-top: 0;">
-        <span>SolidWorks</span>
-        <span>AutoCAD</span>
-        <span>GD&amp;T &middot; ASME Y14.5</span>
-        <span>DriveWorks</span>
-        <span>SolidWorks Simulation (FEA)</span>
-        <span>PDM / Revision Control</span>
-      </div>
-    </div>
-
-    <!-- Standards & Partners -->
-    <div class="hero-logo-section">
-      <div class="hero-logo-label">Quality &amp; Supply Partners</div>
-      <div class="hero-logo-row">
-        <span class="hero-std-badge"><img src="logos/image2.png" alt="ISO 9001:2026" title="ISO 9001:2026 Quality Management" style="height: 60px;"><span>ISO 9001:2026 Documentation</span></span>
-        <img src="logos/image13.png" alt="McMaster-Carr" title="McMaster-Carr" style="height: 26px; width: auto;">
-        <img src="logos/image14.png" alt="Vention" title="Vention" style="height: 22px; width: auto;">
-        <img src="logos/image15.png" alt="Standard Bots" title="Standard Bots" style="height: 26px; width: auto;">
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<div class="iridescent-bar thin"></div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- TAB PANELS                                  -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="tab-content">
-
-  <!-- ────── OVERVIEW ────── -->
-  <div class="tab-panel active" id="overview">
-    <div class="section-head">
-      <div class="label">Blue Vector &bull; Contract Mechanical Design</div>
-      <h2>Drawings a Shop Can Actually Build From</h2>
-      <p>Plenty of people can spin a pretty render. Fewer can hand a machinist a print with the right datums, tolerances, and callouts so the part comes off the machine correct on the first run. That&rsquo;s the whole job here: models that are cleanly parametric, drawings that hold up on the floor, and a designer who thinks about the fixture and the fab time before the geometry is locked.</p>
-    </div>
-
-    <div class="stat-bar">
-      <div class="stat-item">
-        <div class="number">1:1</div>
-        <div class="label">Work directly with the engineer</div>
-      </div>
-      <div class="stat-item">
-        <div class="number">Y14.5</div>
-        <div class="label">GD&amp;T dimensioning standard</div>
-      </div>
-      <div class="stat-item">
-        <div class="number">DFM</div>
-        <div class="label">Manufacturing-first modeling</div>
-      </div>
-      <div class="stat-item">
-        <div class="number">48 hr</div>
-        <div class="label">Typical revision turnaround</div>
-      </div>
-    </div>
-
-    <div class="feature-row">
-      <div class="feature-block">
-        <h3>What We Design</h3>
-        <ul>
-          <li>Parts, assemblies, and weldments in SolidWorks</li>
-          <li>Fully dimensioned production drawings with GD&amp;T</li>
-          <li>Sheet-metal enclosures, brackets, and chassis</li>
-          <li>Fixtures, jigs, and machine tooling</li>
-          <li>Reverse-engineered models from legacy parts</li>
-          <li>Concept models and design-for-manufacturing reviews</li>
-        </ul>
-      </div>
-      <div class="feature-block">
-        <h3>Who We Work With</h3>
-        <ul>
-          <li>Machine shops needing overflow drafting capacity</li>
-          <li>Fabricators turning field sketches into real prints</li>
-          <li>Product companies without an in-house CAD seat</li>
-          <li>Automation and robotics integrators</li>
-          <li>Inventors and startups taking a part to first article</li>
-          <li>OEMs modernizing paper or legacy CAD drawings</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="philosophy">
-      <h3>How We Think About a Part</h3>
-      <p>A model is only worth what the shop can make from it. Before the geometry is fixed, we&rsquo;re already asking how it gets held, how it gets cut, where the tolerances actually matter, and where they&rsquo;re just adding cost. The goal is a print that answers the machinist&rsquo;s questions before they have to call.</p>
-      <p class="quote">&ldquo;Design isn&rsquo;t done when the render looks good. It&rsquo;s done when the part comes off the machine right and the fabricator never had to guess.&rdquo;</p>
-      <p>Everything is fully parametric and organized, so a revision three months from now is a clean edit&mdash;not a rebuild. You get native files, neutral formats, and drawings that stand on their own.</p>
-    </div>
-  </div>
-
-  <!-- ────── SERVICES ────── -->
-  <div class="tab-panel" id="services">
-    <div class="section-head">
-      <div class="label">Design Services</div>
-      <h2>From Sketch to Production Drawing</h2>
-      <p>Engage us for a single part or an entire assembly program. Every deliverable is native SolidWorks plus whatever neutral formats and prints your manufacturing partners need.</p>
-    </div>
-
-    <div class="card-grid">
-      <div class="card">
-        <div class="card-number">Service 01</div>
-        <h3>3D CAD Modeling</h3>
-        <p>Parametric parts and assemblies built in SolidWorks with a clean, editable feature tree&mdash;so the next revision is a two-minute change, not a from-scratch rebuild.</p>
-        <div class="tech-tags"><span>SolidWorks</span><span>Parts</span><span>Assemblies</span><span>Configurations</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Service 02</div>
-        <h3>2D Drafting &amp; GD&amp;T</h3>
-        <p>Fully dimensioned manufacturing drawings to ASME Y14.5&mdash;datums, tolerances, weld symbols, and notes that let a shop quote and machine without a single clarifying email.</p>
-        <div class="tech-tags"><span>ASME Y14.5</span><span>GD&amp;T</span><span>Detailing</span><span>Tolerance Stacks</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Service 03</div>
-        <h3>Design for Manufacturing</h3>
-        <p>A second set of eyes on cost and producibility&mdash;draft angles, wall thickness, standard stock, reachable features&mdash;before you commit to tooling or a first run.</p>
-        <div class="tech-tags"><span>DFM</span><span>Cost Review</span><span>Producibility</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Service 04</div>
-        <h3>Sheet Metal &amp; Weldments</h3>
-        <p>Enclosures, brackets, chassis, and frames modeled as true sheet metal and weldments&mdash;with accurate flat patterns, bend tables, and cut lists your fabricator can run straight to the brake or the saw.</p>
-        <div class="tech-tags"><span>Sheet Metal</span><span>Weldments</span><span>Flat Patterns</span><span>DXF</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Service 05</div>
-        <h3>Reverse Engineering</h3>
-        <p>A worn legacy part, a hand measurement, or a mesh from a 3D scan becomes a clean, fully parametric CAD model and a drawing you can reorder from for years.</p>
-        <div class="tech-tags"><span>Scan-to-CAD</span><span>Legacy Parts</span><span>Measurement</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Service 06</div>
-        <h3>FEA &amp; Design Validation</h3>
-        <p>Static stress, deflection, and factor-of-safety checks in SolidWorks Simulation&mdash;so you find the weak rib or the over-built plate on the screen instead of on the shop floor.</p>
-        <div class="tech-tags"><span>SolidWorks Simulation</span><span>Static FEA</span><span>Factor of Safety</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Service 07</div>
-        <h3>Fixtures, Jigs &amp; Tooling</h3>
-        <p>Workholding, weld fixtures, assembly jigs, and check gauges designed around your actual machines and process&mdash;the tooling that makes the real part repeatable.</p>
-        <div class="tech-tags"><span>Workholding</span><span>Weld Fixtures</span><span>Gauges</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Service 08</div>
-        <h3>Product &amp; Concept Design</h3>
-        <p>Early-stage concept modeling, mechanism studies, and prototype-ready geometry to move an idea from &ldquo;what if&rdquo; to a part you can print, machine, and put in someone&rsquo;s hands.</p>
-        <div class="tech-tags"><span>Concept CAD</span><span>Mechanisms</span><span>Prototyping</span></div>
-      </div>
-    </div>
-
-    <div class="philosophy">
-      <h3>Not Sure Which One You Need?</h3>
-      <p>Most projects are a mix&mdash;a model, a drawing package, and a DFM pass. Send what you have (a sketch, a sample part, an old print, even a photo) and we&rsquo;ll tell you the fastest path to a manufacturable deliverable and a fixed quote before any work starts.</p>
-    </div>
-  </div>
-
-  <!-- ────── CAPABILITIES ────── -->
-  <div class="tab-panel" id="capabilities">
-    <div class="section-head">
-      <div class="label">Capabilities</div>
-      <h2>Software, Formats, and the Shops We Design For</h2>
-      <p>Native files where you need to keep editing, neutral formats where you need to hand off, and drawings that work regardless of who ends up making the part.</p>
-    </div>
-
-    <div class="collection-grid">
-      <div class="collection-card">
-        <div class="series-num">Software</div>
-        <h4>The Toolset</h4>
-        <div class="subtitle">what we design in</div>
-        <p>SolidWorks (modeling, drawings, sheet metal, weldments, simulation), AutoCAD for 2D, DriveWorks for configurable designs, eDrawings for markup, and PDM for revision control.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Deliverables</div>
-        <h4>What You Get</h4>
-        <div class="subtitle">files &amp; documents</div>
-        <p>Native SLDPRT / SLDASM / SLDDRW, dimensioned PDF prints, editable BOMs, tolerance stack-ups, and revision-controlled release packages ready for your shop or supplier.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Formats</div>
-        <h4>Handoff Ready</h4>
-        <div class="subtitle">neutral exchange</div>
-        <p>STEP and IGES for 3D, DXF and DWG for cutting and nesting, PDF for prints, and STL for print/prototype&mdash;so any CNC, laser, waterjet, or 3D-print vendor can run your part.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Methods</div>
-        <h4>Designed to Be Made By</h4>
-        <div class="subtitle">manufacturing processes</div>
-        <p>CNC milling &amp; turning, sheet-metal fab, weldments, injection molding, castings, and additive&mdash;modeled with the right allowances for the process that will actually make it.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Industries</div>
-        <h4>Where We Work</h4>
-        <div class="subtitle">who we serve</div>
-        <p>Industrial equipment, automation &amp; robotics, consumer and hardware products, metal fabrication, and OEMs modernizing legacy drawing sets.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Working Style</div>
-        <h4>How We Engage</h4>
-        <div class="subtitle">fractional &amp; on-demand</div>
-        <p>Fixed-quote projects or ongoing overflow capacity, NDA on every engagement, and direct access to the engineer doing the work&mdash;no account managers, no offshore relay.</p>
-      </div>
-    </div>
-
-    <div class="feature-row">
-      <div class="feature-block">
-        <h3>Standards We Draw To</h3>
-        <ul>
-          <li>ASME Y14.5 geometric dimensioning &amp; tolerancing</li>
-          <li>ASME Y14.100 drawing practices</li>
-          <li>ISO 9001:2026-aligned documentation &amp; revision control</li>
-          <li>Third-angle projection, title blocks, and rev tables</li>
-          <li>Weld symbols per AWS A2.4</li>
-        </ul>
-      </div>
-      <div class="feature-block">
-        <h3>What Speeds Things Up</h3>
-        <ul>
-          <li>A sample part, sketch, or existing print to start from</li>
-          <li>Your preferred stock, finishes, and fasteners</li>
-          <li>Which manufacturing process you&rsquo;re targeting</li>
-          <li>Critical fits and mating interfaces called out early</li>
-          <li>The shop&rsquo;s capabilities, if it&rsquo;s already chosen</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ────── PROCESS ────── -->
-  <div class="tab-panel" id="process">
-    <div class="section-head">
-      <div class="label">How It Works</div>
-      <h2>From First Call to Released Drawing</h2>
-      <p>A simple, predictable path with a fixed quote up front&mdash;so you know the scope, the deliverables, and the cost before any modeling begins.</p>
-    </div>
-
-    <div class="collection-grid">
-      <div class="collection-card">
-        <div class="series-num">Step 01</div>
-        <h4>Scope &amp; Quote</h4>
-        <div class="subtitle">no surprises</div>
-        <p>You send the sketch, sample, or print. We define deliverables, formats, and revisions, then return a fixed quote and timeline before work starts.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Step 02</div>
-        <h4>Concept &amp; Modeling</h4>
-        <div class="subtitle">get the geometry right</div>
-        <p>We build the parametric model, share early views for a quick alignment check, and lock the design intent before drawings begin.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Step 03</div>
-        <h4>Detailing &amp; GD&amp;T</h4>
-        <div class="subtitle">make it buildable</div>
-        <p>Full dimensioning, datums, tolerances, and notes to ASME Y14.5&mdash;the print a shop can quote and machine without guessing.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Step 04</div>
-        <h4>DFM Review</h4>
-        <div class="subtitle">before you cut metal</div>
-        <p>We pressure-test the design against how it&rsquo;ll be made&mdash;stock, tooling, cost&mdash;and flag anything worth changing while it&rsquo;s still cheap.</p>
-      </div>
-      <div class="collection-card">
-        <div class="series-num">Step 05</div>
-        <h4>Release &amp; Revisions</h4>
-        <div class="subtitle">files that stay useful</div>
-        <p>You get native files, neutral formats, and PDFs&mdash;revision-controlled, so future changes are clean edits you can reorder from for years.</p>
-      </div>
-    </div>
-
-    <div class="philosophy">
-      <h3>Confidential by Default</h3>
-      <p>Your part, your IP. Every engagement runs under NDA, files are handled discreetly, and nothing you share gets reused. You work directly with the engineer&mdash;there&rsquo;s no offshore relay and no outsourced draftsman you never meet.</p>
-    </div>
-  </div>
-
-  <!-- ────── CASE STUDIES ────── -->
-  <div class="tab-panel" id="casestudies">
-    <div class="section-head">
-      <div class="label">Selected Work</div>
-      <h2>A Few Parts, Walked Through</h2>
-      <p>Representative engagements&mdash;details generalized to respect client confidentiality&mdash;showing the kind of problem we take from rough input to a manufacturable release.</p>
-    </div>
-
-    <div class="card-grid">
-      <div class="card">
-        <div class="card-number">Case 01</div>
-        <h3>Weldment Frame, Redrawn for Fab</h3>
-        <p>A fabricator had a bolted-up steel frame that kept coming back wrong. We rebuilt it as a true SolidWorks weldment with an accurate cut list, weld callouts, and a clean drawing&mdash;cutting shop questions to near zero and tightening the fit-up on the next build.</p>
-        <div class="tech-tags"><span>Weldment</span><span>Cut List</span><span>AWS Symbols</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Case 02</div>
-        <h3>Legacy Part, Reverse Engineered</h3>
-        <p>An obsolete component with no drawing&mdash;only a worn sample&mdash;was measured and rebuilt into a fully parametric model with a dimensioned print, so the client could re-source it from any CNC shop instead of chasing a single supplier.</p>
-        <div class="tech-tags"><span>Reverse Engineering</span><span>Scan-to-CAD</span><span>Re-Sourcing</span></div>
-      </div>
-      <div class="card">
-        <div class="card-number">Case 03</div>
-        <h3>Sheet-Metal Enclosure to Production</h3>
-        <p>A rough concept for an electronics enclosure became a manufacturable sheet-metal design&mdash;correct bend reliefs, flat pattern, hardware callouts, and DXFs&mdash;handed straight to a laser-and-brake shop for a clean first article.</p>
-        <div class="tech-tags"><span>Sheet Metal</span><span>Flat Pattern</span><span>First Article</span></div>
-      </div>
-    </div>
-
-    <div class="philosophy">
-      <h3>Want to See Work Closer to Your Part?</h3>
-      <p>Portfolio samples relevant to your industry&mdash;machined, fabricated, molded, or additive&mdash;are available on request under NDA. Tell us what you&rsquo;re building and we&rsquo;ll show you the most relevant examples.</p>
-    </div>
-  </div>
-
-  <!-- ────── RESOURCES ────── -->
-  <div class="tab-panel" id="resources">
-    <div class="section-head">
-      <div class="label">Free Downloads</div>
-      <h2>Templates We Actually Use</h2>
-      <p>A couple of the working documents behind our quality and documentation practice&mdash;free, no email gate. Open the HTML checklist in your browser (print to PDF from there); the CSV opens in Excel or Google Sheets.</p>
-    </div>
-
-    <a class="patent-download" href="downloads/iso-9001-2026-gap-checklist.html" target="_blank" rel="noopener">
-      <div class="patent-icon">HTML</div>
-      <div class="patent-info">
-        <h4>ISO 9001:2026 Readiness Gap Checklist</h4>
-        <div class="patent-meta">Self-Assessment &bull; Clauses 4&ndash;10 &bull; Printable</div>
-        <p>Score your quality system clause by clause against the 2026 revision, then roll the gaps into a prioritized closure plan. Useful for any shop tightening up its documentation and drawing control.</p>
-        <span class="dl-badge">Open / Download Free</span>
-      </div>
-    </a>
-
-    <a class="patent-download" href="downloads/ncr-capa-log-template.csv" download>
-      <div class="patent-icon">CSV</div>
-      <div class="patent-info">
-        <h4>NCR / CAPA Log Template</h4>
-        <div class="patent-meta">Spreadsheet Template &bull; Worked Example Row &bull; Excel / Sheets</div>
-        <p>A clean nonconformance and corrective-action log with the fields an auditor looks for&mdash;containment, disposition, root cause, effectiveness verification&mdash;ready to use as-is.</p>
-        <span class="dl-badge">Download Free</span>
-      </div>
-    </a>
-
-    <div class="philosophy" style="margin-top: 2.5rem;">
-      <h3>Why Free, No Email Gate?</h3>
-      <p>Because the templates aren&rsquo;t the product&mdash;the design work is. If a checklist solves your problem, you didn&rsquo;t need us. If it surfaces something bigger, you know exactly who to call.</p>
-    </div>
-  </div>
-
+  Blue Vector is a contract mechanical design and CAD engineering practice serving small and medium manufacturers. We turn sketches, sample parts, and legacy drawings into production-ready SolidWorks models and fully dimensioned drawings a shop can quote and build from the first time.
+  <br><br>As a design partner, our services include 3D CAD modeling, 2D drafting and GD&amp;T to ASME Y14.5, design-for-manufacturing reviews, sheet metal and weldment design, reverse engineering, FEA validation, and fixture and tooling design (<a href="#services">see our services</a>).
+  <br><br>Our work has supported machine shops, fabricators, product companies, and automation integrators across the Industrial Equipment, Consumer Hardware, Metal Fabrication, and Robotics industries. Blue Vector specializes in parts that have to be made right &mdash; clean parametric models, drawings that hold up on the shop floor, and a designer who thinks about the fixture and the fab time before the geometry is locked.
+  <br><br>On past projects we've reverse-engineered obsolete components from worn samples, rebuilt bolted assemblies as true weldments with accurate cut lists, and taken rough concepts to manufacturable sheet-metal designs handed straight to a laser-and-brake shop for a clean first article.
+  <br><br>Every engagement runs under NDA, with a fixed quote agreed up front and direct access to the engineer doing the work &mdash; no offshore relay and no outsourced draftsman you never meet.
+  <br>
+</div>
 </div>
 
-<!-- CTA -->
-<section class="cta-section">
-  <h2>Have a Part That Needs to Get Made? Let&rsquo;s Model It.</h2>
-  <p>Send a sketch, a sample, or an old print. You&rsquo;ll get a clear scope, a fixed quote, and a designer who thinks about the shop floor before the geometry is locked.</p>
-  <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
-    <a href="#" class="cta-btn" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;">Request a Quote</a>
-    <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" class="cta-btn" target="_blank" rel="noopener noreferrer">Book Consulting</a>
+<!-- Engineering -->
+<div class="section" id="engineering">
+  <h2>Engineering</h2>
+  <p><b>CAD Design.</b> Parametric parts and assemblies built in SolidWorks with a clean, editable feature tree &mdash; so the next revision is a two-minute change, not a rebuild. Configurations, large assemblies, and design tables where they earn their keep.</p>
+  <p><b>Mechanical Design &amp; Drafting.</b> Fully dimensioned manufacturing drawings to ASME Y14.5 &mdash; datums, geometric tolerances, weld symbols, tolerance stack-ups, and notes that let a shop quote and machine without a single clarifying email.</p>
+  <p><b>Reverse Engineering.</b> A worn legacy part, a hand measurement, or a mesh from a 3D scan becomes a clean, fully parametric CAD model and a drawing you can re-order from any qualified shop for years.</p>
+  <p><b>Analysis &amp; Validation.</b> Static stress, deflection, and factor-of-safety checks in SolidWorks Simulation &mdash; so you find the weak rib or the over-built plate on the screen instead of on the shop floor.</p>
+</div>
+
+<!-- Services -->
+<div class="section" id="services">
+  <h2>Services</h2>
+  <ul class="list">
+    <li><b>3D CAD Modeling</b> &mdash; parts, assemblies, configurations (SolidWorks)</li>
+    <li><b>2D Drafting &amp; GD&amp;T</b> &mdash; production drawings to ASME Y14.5</li>
+    <li><b>Design for Manufacturing</b> &mdash; cost and producibility review before you cut metal</li>
+    <li><b>Sheet Metal &amp; Weldments</b> &mdash; flat patterns, bend tables, cut lists, DXFs</li>
+    <li><b>Reverse Engineering</b> &mdash; scan-to-CAD and legacy part reconstruction</li>
+    <li><b>FEA &amp; Design Validation</b> &mdash; static stress and factor-of-safety checks</li>
+    <li><b>Fixtures, Jigs &amp; Tooling</b> &mdash; workholding, weld fixtures, check gauges</li>
+    <li><b>Product &amp; Concept Design</b> &mdash; mechanism studies and prototype-ready geometry</li>
+  </ul>
+  <p><b>Deliverables:</b> native SLDPRT / SLDASM / SLDDRW, dimensioned PDF prints, editable BOMs, plus STEP, IGES, DXF, DWG, and STL for any CNC, laser, waterjet, molding, or 3D-print vendor.</p>
+</div>
+
+<!-- Sample Projects -->
+<div class="section" id="projects">
+  <h2>Sample Projects</h2>
+  <p><b>Weldment Frame, Redrawn for Fabrication.</b> A fabricator had a bolted-up steel frame that kept coming back wrong. We rebuilt it as a true SolidWorks weldment with an accurate cut list, weld callouts, and a clean drawing &mdash; cutting shop questions to near zero and tightening fit-up on the next build.</p>
+  <p><b>Obsolete Part, Reverse Engineered.</b> A component with no drawing &mdash; only a worn sample &mdash; was measured and rebuilt into a fully parametric model with a dimensioned print, so the client could re-source it from any CNC shop instead of chasing a single supplier.</p>
+  <p><b>Sheet-Metal Enclosure to Production.</b> A rough concept for an electronics enclosure became a manufacturable sheet-metal design with correct bend reliefs, flat pattern, hardware callouts, and DXFs &mdash; handed straight to a laser-and-brake shop for a clean first article.</p>
+  <p style="font-size:16px; color:#555;">Details generalized to respect client confidentiality. Portfolio samples relevant to your industry are available on request under NDA.</p>
+</div>
+
+<!-- Resources -->
+<div class="section" id="resources">
+  <h2>Resources</h2>
+  <p>A couple of the working documents behind our quality and documentation practice &mdash; free, no email required.</p>
+  <a class="download" href="downloads/iso-9001-2026-gap-checklist.html" target="_blank" rel="noopener">
+    ISO 9001:2026 Readiness Gap Checklist
+    <div class="meta">Self-assessment, clauses 4&ndash;10, printable HTML</div>
+  </a>
+  <a class="download" href="downloads/ncr-capa-log-template.csv" download>
+    NCR / CAPA Log Template
+    <div class="meta">Nonconformance &amp; corrective-action log &mdash; CSV for Excel / Sheets</div>
+  </a>
+</div>
+
+<!-- Contact / CTA -->
+<div class="section" id="contact">
+  <h2>Contact Us</h2>
+  <p>Send a sketch, a sample, or an old print. You'll get a clear scope, a fixed quote, and a designer who thinks about the shop floor before the geometry is locked.</p>
+  <div class="btnrow">
+    <a href="#" class="button" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;">Request a Quote</a>
+    <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" class="button" target="_blank" rel="noopener noreferrer">Book Consulting</a>
   </div>
-</section>
+</div>
 
 <!-- Contact Modal -->
 <div class="contact-modal-overlay" id="contactModal" onclick="if(event.target===this)this.style.display='none'">
@@ -2021,7 +249,7 @@
     <button class="modal-close" onclick="document.getElementById('contactModal').style.display='none'">&times;</button>
     <div id="contactForm">
       <h3>Get in Touch</h3>
-      <p class="modal-sub">Tell us about your part or project. We&rsquo;ll respond within 24 hours&mdash;and everything you share stays confidential.</p>
+      <p class="modal-sub">Tell us about your part or project. We'll respond within 24 hours &mdash; and everything you share stays confidential.</p>
       <label for="contactName">Your Name</label>
       <input type="text" id="contactName" placeholder="Full name" required>
       <label for="contactEmail">Your Email</label>
@@ -2033,21 +261,18 @@
       <button class="modal-send-btn" onclick="sendContactEmail()">Send Message</button>
     </div>
     <div class="modal-success" id="contactSuccess">
-      <h4>Message Sent</h4>
-      <p>Thank you for reaching out. We&rsquo;ll get back to you shortly.</p>
+      <h3>Message Sent</h3>
+      <p class="modal-sub">Thank you for reaching out. We'll get back to you shortly.</p>
     </div>
   </div>
 </div>
 
-<div class="iridescent-bar"></div>
-
-<footer>
-  Blue Vector &bull; Contract Mechanical Design &amp; CAD
-  &nbsp;&bull;&nbsp; <a href="archive/" style="color: var(--silver); text-decoration: underline;">Previous practice (AI &amp; quality systems) archived &rarr;</a>
-  <div style="margin-top: 0.75rem; text-transform: none; letter-spacing: 0; font-size: 0.7rem; color: var(--steel);">
-    Contact Us &mdash; 2655 Ulmerton Rd, Suite 243, Clearwater, FL 33762
-  </div>
-</footer>
+<!-- Footer -->
+<div class="footer">
+  Copyright 2026 by Blue Vector &nbsp;&bull;&nbsp; 2655 Ulmerton Rd, Suite 243, Clearwater, FL 33762
+  <br>
+  <a href="archive/">Previous practice (AI &amp; quality systems) archived</a>
+</div>
 
 <script>
   function sendContactEmail() {
@@ -2081,20 +306,6 @@
       document.getElementById('contactMessage').value = '';
     }, 3000);
   }
-
-  const tabs = document.querySelectorAll('.tab-btn');
-  const panels = document.querySelectorAll('.tab-panel');
-
-  tabs.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = btn.dataset.tab;
-      tabs.forEach(t => t.classList.remove('active'));
-      panels.forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(target).classList.add('active');
-      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    });
-  });
 </script>
 
 </body>
