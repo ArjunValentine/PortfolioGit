@@ -108,6 +108,19 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
 .hit-counter { display: inline-block; background: #000; color: #33ff33; font-family: "Courier New", Courier, monospace; font-size: 20px; letter-spacing: 4px; padding: 4px 10px; border-top: 2px solid #000; border-left: 2px solid #000; border-bottom: 2px solid #888; border-right: 2px solid #888; vertical-align: middle; }
 .counter-wrap { text-align: center; padding: 10px; background: rgb(0, 0, 128); color: #fff; font-family: "Courier New", Courier, monospace; font-size: 15px; }
 
+/* ── Case Study ── */
+.cs-box { background: #fff; border: 2px solid rgb(0, 0, 128); margin: 8px 2% 6px; padding: 16px 20px 18px; }
+.cs-tag { display: inline-block; background: rgb(0, 0, 128); color: #ffff00; font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 13px; padding: 3px 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; border-top: 2px solid #7a7ad8; border-left: 2px solid #7a7ad8; border-bottom: 2px solid #000030; border-right: 2px solid #000030; }
+.cs-box h3 { text-align: left; font-size: 25px; margin: 0 0 10px; }
+.cs-box p { margin: 0 0 10px; }
+.cs-label { color: rgb(0, 0, 128); font-weight: bold; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; font-family: "Courier New", Courier, monospace; }
+table.cs-results { border-collapse: collapse; width: 96%; margin: 12px 0 14px; font-family: "Courier New", Courier, monospace; font-size: 15px; }
+table.cs-results caption { text-align: left; font-weight: bold; color: rgb(0, 0, 128); font-family: "Courier New", Courier, monospace; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+table.cs-results th, table.cs-results td { border: 2px solid rgb(0, 0, 128); padding: 7px 10px; text-align: left; vertical-align: top; }
+table.cs-results th { background: rgb(0, 0, 128); color: #fff; }
+table.cs-results td.metric { background: rgb(240, 240, 255); font-weight: bold; color: rgb(0, 0, 128); }
+.cs-note { font-size: 15px; color: #222; border-left: 5px solid rgb(0, 0, 128); padding: 8px 12px; margin: 12px 0 2px; background: rgb(240, 240, 255); }
+
 /* ── Guestbook ── */
 .guestbook { background-color: rgb(208, 208, 208); padding: 18px 2% 22px; }
 .gb-entries { margin: 10px 2% 0; }
@@ -180,6 +193,7 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
     </li>
     <li><a href="#services">Services</a></li>
     <li><a href="#projects">Sample Projects</a></li>
+    <li><a href="#casestudy">Case Study</a></li>
     <li><a href="#resources">Resources</a></li>
     <li><a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;">Contact Us</a></li>
   </ul>
@@ -275,6 +289,34 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
   <p><b>Obsolete Part, Reverse Engineered.</b> A component with no drawing &mdash; only a worn sample &mdash; was measured and rebuilt into a fully parametric model with a dimensioned print, so the client could re-source it from any CNC shop instead of chasing a single supplier.</p>
   <p><b>Sheet-Metal Enclosure to Production.</b> A rough concept for an electronics enclosure became a manufacturable sheet-metal design with correct bend reliefs, flat pattern, hardware callouts, and DXFs &mdash; handed straight to a laser-and-brake shop for a clean first article.</p>
   <p style="font-size:16px; color:#555;">Details generalized to respect client confidentiality. Portfolio samples relevant to your industry are available on request under NDA.</p>
+</div>
+
+<!-- Case Study -->
+<div class="section" id="casestudy">
+  <h2>Case Study</h2>
+  <div class="cs-box">
+    <span class="cs-tag">Custom Model &bull; Control Panel Schematics</span>
+    <h3>Teaching a Model to Scratch-Write Panel Schematics from a Submittal</h3>
+
+    <p><span class="cs-label">The Challenge.</span> A municipal controls builder had thirty years of electronic control panel schematics on file &mdash; pump stations, lift stations, water and wastewater treatment, SCADA and PLC cabinets &mdash; and every new job still started from a blank sheet. An engineer read the equipment submittal, then hand-drew power distribution, PLC I/O, control ladders, terminal plans, and a wire-numbered field-connection sheet from scratch. Days of skilled drafting per panel, and the house drawing standard lived mostly in one senior engineer's head.</p>
+
+    <p><span class="cs-label">The Approach.</span> We trained a custom model on that thirty-year archive. Legacy drawings were vectorized and normalized to a common symbol library and title block; every device, rung, terminal, and net was tagged so the model learned not just what the drawings looked like but how they were wired &mdash; the house wire-numbering scheme, terminal-block conventions, UL 508A power and control layout, and the standard I/O structure. Given a new equipment submittal, the model now scratch-writes a first-draft schematic set: single-line and power distribution, PLC I/O assignments, control ladder logic, terminal-block plans, and a preliminary bill of materials &mdash; all in the builder's own drafting standard.</p>
+
+    <p><span class="cs-label">Human in the Loop.</span> The model drafts; a licensed engineer reviews, corrects, and stamps. Nothing ships to a shop or a municipality on the model's word alone &mdash; it removes the blank-sheet grind so the engineer spends their hours on judgment, code compliance, and verification instead of redrawing the same terminal strip for the four-hundredth time.</p>
+
+    <table class="cs-results">
+      <caption>Draft panel set from a submittal &mdash; before vs. after</caption>
+      <tbody>
+        <tr><th>Metric</th><th>Before (from scratch)</th><th>After (model draft + engineer review)</th></tr>
+        <tr><td class="metric">First-draft schematic set</td><td>2&ndash;4 days of drafting</td><td>Drafted in under an hour, then reviewed</td></tr>
+        <tr><td class="metric">Wire numbers &amp; terminal assignment</td><td>Placed by hand, drawing by drawing</td><td>Auto-applied in the house standard</td></tr>
+        <tr><td class="metric">Drawing-standard consistency</td><td>Varied with whoever drafted it</td><td>Uniform across every panel</td></tr>
+        <tr><td class="metric">Engineer's time goes to</td><td>Drafting from a blank sheet</td><td>Review, code compliance, verification</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cs-note"><b>Note:</b> The model is a drafting accelerator, not an autopilot. Every schematic is engineer-reviewed and stamped before it leaves the building. Client, domain, and dataset details generalized under NDA.</div>
+  </div>
 </div>
 
 <!-- Resources -->
