@@ -108,6 +108,32 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
 .hit-counter { display: inline-block; background: #000; color: #33ff33; font-family: "Courier New", Courier, monospace; font-size: 20px; letter-spacing: 4px; padding: 4px 10px; border-top: 2px solid #000; border-left: 2px solid #000; border-bottom: 2px solid #888; border-right: 2px solid #888; vertical-align: middle; }
 .counter-wrap { text-align: center; padding: 10px; background: rgb(0, 0, 128); color: #fff; font-family: "Courier New", Courier, monospace; font-size: 15px; }
 
+/* ── Guestbook ── */
+.guestbook { background-color: rgb(208, 208, 208); padding: 18px 2% 22px; }
+.gb-entries { margin: 10px 2% 0; }
+.gb-entry { background: #fffbe6; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #000; border-right: 2px solid #000; padding: 9px 12px; margin: 0 0 10px; font-family: "Courier New", Courier, monospace; font-size: 15px; line-height: 1.4; }
+.gb-entry .gb-head { color: rgb(0, 0, 128); font-weight: bold; }
+.gb-entry .gb-loc { color: #555; font-weight: normal; }
+.gb-entry .gb-date { color: #777; font-size: 13px; float: right; }
+.gb-entry .gb-msg { margin-top: 4px; color: #111; }
+.gb-entry .gb-msg .blink { color: #cc0000; font-weight: bold; }
+.gb-form { background: #fff; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #000; border-right: 2px solid #000; margin: 16px 2% 0; padding: 12px 14px; font-family: "Courier New", Courier, monospace; }
+.gb-form .gb-form-title { color: rgb(0, 0, 128); font-weight: bold; font-size: 17px; margin-bottom: 8px; }
+.gb-form label { display: inline-block; width: 90px; color: rgb(0, 0, 128); font-weight: bold; font-size: 14px; vertical-align: top; }
+.gb-form input, .gb-form textarea { font-family: "Courier New", Courier, monospace; font-size: 15px; border: 2px inset #999; padding: 3px 5px; margin: 0 0 8px; width: 60%; max-width: 340px; box-sizing: border-box; }
+.gb-form textarea { min-height: 54px; vertical-align: top; resize: vertical; }
+.gb-sign-btn { font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 15px; background: #c0c0c0; color: #000080; padding: 5px 16px; cursor: pointer; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #000; border-right: 2px solid #000; margin-left: 90px; }
+.gb-sign-btn:active { border-top: 2px solid #000; border-left: 2px solid #000; border-bottom: 2px solid #fff; border-right: 2px solid #fff; }
+
+/* ── Webring ── */
+.webring { text-align: center; background: #000; color: #33ff33; font-family: "Courier New", Courier, monospace; font-size: 16px; padding: 14px 10px; }
+.webring .ring-title { color: #ffff00; font-weight: bold; letter-spacing: 0.12em; margin-bottom: 8px; text-transform: uppercase; }
+.webring .ring-nav a { color: #33ff33; text-decoration: none; font-weight: bold; padding: 2px 7px; }
+.webring .ring-nav a:hover { background: #33ff33; color: #000; }
+.webring .ring-sep { color: #007700; }
+.webring .ring-name { color: #ffffff; }
+.webring .ring-foot { color: #888; font-size: 12px; margin-top: 7px; }
+
 /* ── Mobile nav (Coastal-style checkbox toggle) ── */
 @media (max-width: 800px) {
   nav { margin: 0px; }
@@ -299,6 +325,56 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
   </div>
 </div>
 
+<!-- Guestbook (webmaster classic) -->
+<div class="guestbook" id="guestbook">
+  <h2>Sign My Guestbook</h2>
+  <p>Drop a note before you surf off. No login, no cookies, no newsletter &mdash; just say you were here.</p>
+  <div class="gb-entries" id="gbEntries">
+    <div class="gb-entry">
+      <span class="gb-head">Dave "TIG" Rodriguez</span> <span class="gb-loc">&lt;dave@rodriguezfab.net&gt; &mdash; Cleveland, OH</span>
+      <span class="gb-date">14 Mar 2026</span>
+      <div class="gb-msg">Finally a CAD guy who hands you the SLDPRT and not a locked PDF. Cut list was dead on. Bookmarked.</div>
+    </div>
+    <div class="gb-entry">
+      <span class="gb-head">ShopFloorSal</span> <span class="gb-loc">&mdash; Toledo</span>
+      <span class="gb-date">02 Mar 2026</span>
+      <div class="gb-msg">redrew our weld fixture and the first article passed. five stars * * * * *</div>
+    </div>
+    <div class="gb-entry">
+      <span class="gb-head">webmaster@precisionmfg.net</span>
+      <span class="gb-date">27 Feb 2026</span>
+      <div class="gb-msg">Cool site!! Added you to my links page &mdash; sign mine? (guestbook's down again, ugh)</div>
+    </div>
+    <div class="gb-entry">
+      <span class="gb-head">Ken // Q.A.</span> <span class="gb-loc">&mdash; somewhere near a granite plate</span>
+      <span class="gb-date">19 Feb 2026</span>
+      <div class="gb-msg">Y14.5 done right for once. Where were you in 2003. <span class="blink">A+</span></div>
+    </div>
+    <div class="gb-entry">
+      <span class="gb-head">Tr0n_1982</span> <span class="gb-loc">&mdash; the information superhighway</span>
+      <span class="gb-date">11 Feb 2026</span>
+      <div class="gb-msg">no javascript frameworks detected. based. keep it analog webmaster.</div>
+    </div>
+  </div>
+
+  <div class="gb-form">
+    <div class="gb-form-title">&raquo; Add your entry</div>
+    <div>
+      <label for="gbName">Handle:</label>
+      <input type="text" id="gbName" maxlength="40" placeholder="your name or handle">
+    </div>
+    <div>
+      <label for="gbLoc">From:</label>
+      <input type="text" id="gbLoc" maxlength="40" placeholder="city / planet (optional)">
+    </div>
+    <div>
+      <label for="gbMsg">Message:</label>
+      <textarea id="gbMsg" maxlength="240" placeholder="say something nice..."></textarea>
+    </div>
+    <button type="button" class="gb-sign-btn" onclick="signGuestbook()">Sign It!</button>
+  </div>
+</div>
+
 <!-- Under Construction (webmaster classic) -->
 <div class="caution-bar"></div>
 <div class="construction">
@@ -336,6 +412,23 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
   <span class="badge b1">100% Human<br>No A.I.</span>
 </div>
 
+<!-- Webring -->
+<div class="webring">
+  <div class="ring-title">&laquo; The Precision Manufacturing Webring &raquo;</div>
+  <div class="ring-nav">
+    <a href="#" onclick="ringHop('prev'); return false;">[ &lt;&lt; Prev ]</a>
+    <span class="ring-sep">|</span>
+    <a href="#" onclick="ringHop('random'); return false;">[ ? Random ]</a>
+    <span class="ring-sep">|</span>
+    <a href="#guestbook" onclick="return true;">[ Hub ]</a>
+    <span class="ring-sep">|</span>
+    <a href="#" onclick="ringHop('next'); return false;">[ Next &gt;&gt; ]</a>
+  </div>
+  <div class="ring-foot">
+    This site is site <span class="ring-name">#37</span> of 88 &mdash; CAD &bull; Fab &bull; Machining &bull; GD&amp;T sites run by actual humans
+  </div>
+</div>
+
 <!-- Footer -->
 <div class="footer">
   Copyright 2026 by BlueVector &nbsp;&bull;&nbsp; 2655 Ulmerton Rd, Suite 243, Clearwater, FL 33762
@@ -344,6 +437,52 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
 </div>
 
 <script>
+  function signGuestbook() {
+    const name = document.getElementById('gbName').value.trim();
+    const loc = document.getElementById('gbLoc').value.trim();
+    const msg = document.getElementById('gbMsg').value.trim();
+
+    if (!name || !msg) {
+      alert('Please enter a handle and a message before signing!');
+      return;
+    }
+
+    const esc = function (s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const d = new Date();
+    const dateStr = String(d.getDate()).padStart(2, '0') + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+
+    const entry = document.createElement('div');
+    entry.className = 'gb-entry';
+    entry.innerHTML =
+      '<span class="gb-head">' + esc(name) + '</span> ' +
+      (loc ? '<span class="gb-loc">&mdash; ' + esc(loc) + '</span> ' : '') +
+      '<span class="gb-date">' + dateStr + '</span>' +
+      '<div class="gb-msg">' + esc(msg) + '</div>';
+
+    const entries = document.getElementById('gbEntries');
+    entries.insertBefore(entry, entries.firstChild);
+
+    document.getElementById('gbName').value = '';
+    document.getElementById('gbLoc').value = '';
+    document.getElementById('gbMsg').value = '';
+
+    alert('Thanks for signing the guestbook! Your entry is now live (until the server reboots).');
+  }
+
+  function ringHop(dir) {
+    const msgs = {
+      prev: 'The previous site (Bob\'s Fixture Palace) 404\'d in 2009.\nYou\'re stuck here with us. \u{1F6A7}',
+      next: 'The next site in the ring hasn\'t updated since a GeoCities notice.\nStaying put is the safe bet.',
+      random: 'Rolling the dice... all 87 other sites are on a server that got unplugged.\nRandom result: this exact page. Lucky you!'
+    };
+    alert(msgs[dir] || msgs.random);
+  }
+
   function sendContactEmail() {
     const name = document.getElementById('contactName').value.trim();
     const email = document.getElementById('contactEmail').value.trim();
