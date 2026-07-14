@@ -60,6 +60,12 @@ label { display: block; font-size: 14px; font-weight: 600; color: rgb(0, 0, 128)
 input[type=text], input[type=tel], textarea { width: 100%; padding: 9px 10px; border: 1px solid #999; font-size: 16px; box-sizing: border-box; }
 textarea { min-height: 80px; resize: vertical; }
 
+/* reference code box */
+.refbox { margin-top: 16px; border: 2px solid rgb(0,0,128); background: #f4f4fb; padding: 12px 14px; text-align: center; }
+.refbox-label { font-size: 13px; font-weight: 600; color: rgb(0,0,128); text-transform: uppercase; letter-spacing: 0.06em; }
+.refbox-code { font-family: "Courier New", Courier, monospace; font-size: 34px; font-weight: bold; letter-spacing: 8px; color: #000080; margin: 4px 0 2px; }
+.refbox-note { font-size: 13px; color: #555; }
+
 /* status line */
 .status { margin-top: 14px; padding: 10px 12px; font-family: "Courier New", Courier, monospace; font-size: 15px; display: none; }
 .status.info { display: block; background: #eef; border: 1px solid #99c; color: #003; }
@@ -119,6 +125,12 @@ textarea { min-height: 80px; resize: vertical; }
     <label for="faultDesc">What's the panel doing?</label>
     <textarea id="faultDesc" placeholder="e.g. Pump won't start. No fault code. Contactor doesn't click when I press start."></textarea>
 
+    <div class="refbox" id="refBox">
+      <div class="refbox-label">Your reference code</div>
+      <div class="refbox-code" id="refCode">------</div>
+      <div class="refbox-note">When the line asks, enter or read this code so the expert instantly sees your uploaded schematic.</div>
+    </div>
+
     <div class="btnrow">
       <a class="action" id="callBtn" href="#">&#128222;&nbsp; Call the Helpline</a>
     </div>
@@ -170,6 +182,29 @@ var HELPLINE = {
   MIN_MINUTES: 5,
   MAX_FILE_MB: 25
 };
+
+/* ---------- session id + reference code ----------
+   Every visit gets a sessionId (a UUID). It travels with the schematic
+   upload AND with the call, so the backend can join "this call" to
+   "this upload." Persisted in sessionStorage so it survives the
+   upload -> call sequence within the visit.
+
+   REF_CODE is a stable 6-digit code derived from the sessionId. It's the
+   fallback linkage for plain phone (tel:) dialing, where you can't attach
+   data to the call: the IVR/agent asks the caller to read/enter this code,
+   and the backend looks the schematic up by it. For in-browser (WebRTC)
+   calls you pass sessionId directly and never need the caller to read it.  */
+function genSessionId(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return "sess-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+var SESSION_ID = sessionStorage.getItem("bv_helpline_session");
+if (!SESSION_ID){ SESSION_ID = genSessionId(); sessionStorage.setItem("bv_helpline_session", SESSION_ID); }
+function refCodeFrom(id){
+  var h = 0; for (var i = 0; i < id.length; i++){ h = (h * 31 + id.charCodeAt(i)) >>> 0; }
+  return ("000000" + (h % 1000000)).slice(-6);
+}
+var REF_CODE = refCodeFrom(SESSION_ID);
 
 /* ---------- helpers ---------- */
 function $(id){ return document.getElementById(id); }
@@ -252,6 +287,8 @@ uploadBtn.addEventListener("click", function(){
 
   var fd = new FormData();
   selectedFiles.forEach(function(f){ fd.append("schematics", f, f.name); });
+  fd.append("sessionId", SESSION_ID);   // ties this upload to the eventual call
+  fd.append("refCode", REF_CODE);       // human-readable fallback key for phone dialing
   fd.append("callerName", $("callerName").value.trim());
   fd.append("callerPhone", $("callerPhone").value.trim());
   fd.append("faultDesc", $("faultDesc").value.trim());
@@ -284,12 +321,21 @@ refreshCallTarget();
 callBtn.addEventListener("click", function(e){
   var st = $("callStatus");
 
-  // In-browser WebRTC path (once a token endpoint + Twilio SDK are added).
+  // In-browser (WebRTC) path — the tight linkage. Pass SESSION_ID straight
+  // into the call so the agent's webhook gets it with zero caller effort
+  // (no reference code to read out). Works the same whether the voice engine
+  // is a Twilio Voice SDK token, a Vapi web-call, or a Retell web-call.
   if (HELPLINE.VOICE_TOKEN_ENDPOINT){
     e.preventDefault();
-    setStatus(st, "info", "Browser calling isn't finished yet &mdash; use the phone number below.");
-    // TODO: load Twilio Voice SDK, fetch a token from VOICE_TOKEN_ENDPOINT,
-    //       new Device(token), device.connect({ params: {...caller info...} }).
+    setStatus(st, "info", "Browser calling isn't wired up yet &mdash; use the phone number below (have your reference code ready).");
+    // TODO: start the web call with SESSION_ID attached as call metadata, e.g.
+    //   Twilio: device.connect({ params: { sessionId: SESSION_ID, refCode: REF_CODE,
+    //                                       name: $('callerName').value, fault: $('faultDesc').value } })
+    //   Vapi:   vapi.start(ASSISTANT_ID, { metadata: { sessionId: SESSION_ID },
+    //                                      variableValues: { sessionId: SESSION_ID } })
+    //   Retell: retellWebClient.startCall({ accessToken, metadata: { sessionId: SESSION_ID } })
+    // Your voice engine forwards that metadata to your server webhook, which
+    // loads the schematic analysis for SESSION_ID and injects it as context.
     return;
   }
 
@@ -306,6 +352,9 @@ callBtn.addEventListener("click", function(e){
 /* ---------- rate badge from config ---------- */
 $("rateBadge").textContent =
   "$" + HELPLINE.RATE_PER_MIN.toFixed(2) + " / MIN  •  " + HELPLINE.MIN_MINUTES + " MIN MINIMUM";
+
+/* ---------- show the reference code ---------- */
+$("refCode").textContent = REF_CODE;
 </script>
 
 </body>
