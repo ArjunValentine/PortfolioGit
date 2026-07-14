@@ -67,12 +67,18 @@ function (once its own env vars are set, below).
    Devices: {{deviceList}}
    Caller: {{callerName}} — reported: {{faultDesc}}
    ```
-3. **Add the mid-call tool** (optional, for live re-reads): an "API Request"
-   tool in Vapi, POST to `https://<your-site>/.netlify/functions/read-schematic`.
-   In its **Request Body** schema (not "Response Body" — that extracts *from*
-   the reply, not into the request):
-   - `sessionId` (string) — Default Value `{{sessionId}}` (static, pulled from
-     the call's live variables — don't make the LLM supply this)
+3. **Add the mid-call tool**: an "API Request" tool in Vapi, POST to
+   `https://<your-site>/.netlify/functions/read-schematic`. In its **Request
+   Body** schema (not "Response Body" — that extracts *from* the reply, not
+   into the request), add **three** properties:
+   - `sessionId` (string) — Default Value `{{sessionId}}` (static, auto-filled
+     from the call's live variables on browser/CALL ME NOW calls; empty on a
+     raw inbound call — that's fine, see `refCode` below)
+   - `refCode` (string) — leave Default Value **blank**, LLM-supplied. This is
+     the fallback for someone who dialed the number directly: tell the
+     assistant (in its system prompt) to ask for the caller's 6-digit
+     reference code from the website when `sessionId` wasn't pre-attached, and
+     pass whatever the caller says here.
    - `question` (string) — leave Default Value blank; the model writes this
      each time based on the tool's description.
 4. Paste `VAPI_PUBLIC_KEY` + `VAPI_ASSISTANT_ID` into the `HELPLINE` config in
@@ -84,8 +90,27 @@ function (once its own env vars are set, below).
 - **`sessionId`** (UUID, minted on page load) travels with the upload *and*
   both call paths. It's the key the mid-call tool uses to re-open the right
   image from Blobs.
-- **`refCode`** (6 digits, shown on the page) is a human-readable fallback if
-  you ever need to look a session up manually.
+- **`refCode`** (6 digits, shown on the page) is a real, working fallback key
+  for inbound calls: at upload time the function also stores a small
+  `ref:<code> → sessionId` pointer, so a caller who dials in directly (no
+  pre-attached sessionId) can read the code aloud and the tool resolves it
+  back to their stored schematic.
+
+## Testing the full loop without CALL ME NOW
+
+If your Vapi number has hit its native-number daily outbound cap (common on a
+brand-new PAYG account — see Vapi's `call.start.error-vapi-number-outbound-daily-limit`),
+you can still test the *entire* diagnostic quality end-to-end via a plain
+**inbound** call, which isn't subject to that limit:
+
+1. On the splash, upload a real schematic and click "Read my schematic" —
+   note the reference code shown on the page.
+2. Call your Vapi number directly from your own phone (a normal inbound call).
+3. Tell the assistant your reference code and describe the symptom.
+4. The assistant should call its tool with your spoken `refCode`, which
+   resolves to your stored image — this exercises the *live* mid-call vision
+   lookup (the harder, less-tested path), not just the pre-injected report
+   that CALL ME NOW/browser calls get for free.
 
 ## Request shapes
 

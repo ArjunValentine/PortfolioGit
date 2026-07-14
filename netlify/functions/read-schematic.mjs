@@ -10,7 +10,8 @@
  *     -> returns { report, deviceList } which the page injects into the call
  *
  *   Vapi tool call    (called by the assistant DURING the conversation)
- *     -> loads the stored image for the caller's sessionId
+ *     -> loads the stored image for the caller's sessionId, OR by refCode if
+ *        the caller dialed in directly and read their 6-digit code aloud
  *     -> Claude vision answers a specific spatial question about the drawing
  *     -> returns the answer in Vapi's expected tool-result shape
  *
@@ -21,9 +22,14 @@
  *   - Netlify env var  ANTHROPIC_API_KEY   (required)
  *   - Optional         ANTHROPIC_MODEL     (default: claude-sonnet-5)
  *   - Netlify Blobs is auto-provisioned on deploy; no config needed.
- *   - Point your Vapi assistant's custom tool ("inspect_schematic") at:
+ *   - Point your Vapi assistant's custom tool at:
  *       POST https://<your-site>/.netlify/functions/read-schematic
- *     with parameters { sessionId (string), question (string) }.
+ *     with Request Body parameters:
+ *       sessionId (string, Default Value {{sessionId}} - auto-filled on
+ *                  browser/outbound calls, empty on a raw inbound call)
+ *       refCode   (string, no default - LLM-supplied; ask the caller for
+ *                  their 6-digit reference code when sessionId is empty)
+ *       question  (string, no default - LLM-supplied)
  */
 import { getStore } from "@netlify/blobs";
 
@@ -97,15 +103,35 @@ function parseVapiToolCall(body) {
   const c = calls[0];
   let args = (c.function && c.function.arguments) || c.arguments || {};
   if (typeof args === "string") { try { args = JSON.parse(args); } catch { args = {}; } }
-  // sessionId may come via the tool args or the call's variableValues
+  // sessionId may come via the tool args or the call's variableValues (browser/outbound
+  // calls pre-attach it). refCode is the fallback for a caller who dialed in directly
+  // and read their 6-digit code aloud - the agent passes whatever the caller gave it.
   const vv =
     (m.call && m.call.assistantOverrides && m.call.assistantOverrides.variableValues) ||
     (body.call && body.call.assistantOverrides && body.call.assistantOverrides.variableValues) || {};
   return {
     toolCallId: c.id || c.toolCallId,
     sessionId: args.sessionId || vv.sessionId,
+    refCode: args.refCode || vv.refCode,
     question: args.question || args.query || ""
   };
+}
+
+/* Resolve a sessionId directly, or fall back to a 6-digit refCode pointer
+   (stored at upload time) for callers who dialed in without one pre-attached. */
+async function resolveSchematic({ sessionId, refCode }) {
+  if (sessionId) {
+    const raw = await store().get(sessionId, { type: "text" });
+    if (raw) return raw;
+  }
+  if (refCode) {
+    const digits = String(refCode).replace(/\D/g, "");
+    if (digits) {
+      const mappedSessionId = await store().get("ref:" + digits, { type: "text" });
+      if (mappedSessionId) return store().get(mappedSessionId, { type: "text" });
+    }
+  }
+  return null;
 }
 
 export default async (req) => {
@@ -119,9 +145,9 @@ export default async (req) => {
   const tool = parseVapiToolCall(body);
   if (tool) {
     try {
-      if (!tool.sessionId) throw new Error("no sessionId on tool call");
-      const raw = await store().get(tool.sessionId, { type: "text" });
-      if (!raw) throw new Error("no schematic on file for this session");
+      if (!tool.sessionId && !tool.refCode) throw new Error("no sessionId or refCode on tool call");
+      const raw = await resolveSchematic(tool);
+      if (!raw) throw new Error("no schematic on file for that session/reference code");
       const { mediaType, base64 } = JSON.parse(raw);
       const answer = await askVision({ mediaType, base64, prompt: QUERY_PROMPT(tool.question), maxTokens: 600 });
       // Vapi expects { results: [{ toolCallId, result }] }
@@ -132,11 +158,13 @@ export default async (req) => {
   }
 
   // ---- Path B: initial read from the splash page ----
-  const { mode, sessionId, mediaType, imageBase64, faultDesc } = body;
+  const { mode, sessionId, refCode, mediaType, imageBase64, faultDesc } = body;
   if ((mode === "initial" || !mode) && imageBase64 && sessionId) {
     try {
       // stash the image so the live tool can re-open it during the call
       await store().set(sessionId, JSON.stringify({ mediaType, base64: imageBase64 }));
+      // and a small pointer so an inbound caller can find it by reading their refCode aloud
+      if (refCode) await store().set("ref:" + String(refCode).replace(/\D/g, ""), sessionId);
 
       const text = await askVision({ mediaType, base64: imageBase64, prompt: INITIAL_PROMPT(faultDesc) });
       let out = { report: text, deviceList: [] };

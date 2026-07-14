@@ -303,7 +303,7 @@ input[type=file] { display: none; }
 <div class="stage">
   <div class="splash-card">
     <h1>Troubleshoot Your Control Panel</h1>
-    <div class="sub">Upload your schematic, enter your number, and our AI reads the drawing and calls you back to walk the fault &mdash; live.</div>
+    <div class="sub">Upload your schematic, then call the line below. Our AI reads the drawing and walks you through the fault &mdash; live.</div>
     <span class="rate-badge" id="rateBadge">$4.00 / MIN &bull; 5 MIN MINIMUM</span>
 
     <!-- Schematic upload -->
@@ -330,19 +330,19 @@ input[type=file] { display: none; }
       <div><label for="faultDesc">What's the panel doing?</label><input type="text" id="faultDesc" placeholder="e.g. won't start, no click"></div>
     </div>
 
-    <div class="call-label">Enter your number to request a direct call.</div>
-    <div class="call-row">
-      <div class="phone-field">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        <input type="tel" id="phoneInput" placeholder="+1 (555) 0199">
-      </div>
-      <button class="call-btn" id="callMeBtn">CALL ME NOW</button>
+    <div class="call-label">Call the helpline directly:</div>
+    <div class="center">
+      <a class="call-btn" id="dialNumber" href="tel:+18634966714" style="display:inline-flex; align-items:center; gap:10px; text-decoration:none; padding:16px 28px; font-size:1.15rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        (863) 496-6714
+      </a>
     </div>
-    <div class="center" id="hangupWrap" style="display:none;"><button class="hangup-btn" id="hangupBtn">&#9632; End call</button></div>
     <div class="status" id="callStatus"></div>
 
     <div class="refline">Reference code <b id="refCode">------</b></div>
-    <div class="secondary">Prefer to talk through your browser? <a id="browserCallLink">Start a browser call &raquo;</a></div>
+    <div class="secondary">Read this code to the AI so it pulls up your schematic.</div>
+    <div class="secondary">Prefer to talk through your browser instead? <a id="browserCallLink">Start a browser call &raquo;</a></div>
+    <div class="center" id="hangupWrap" style="display:none;"><button class="hangup-btn" id="hangupBtn">&#9632; End call</button></div>
 
     <div class="legal">
       Remote diagnostic guidance only &mdash; not a substitute for a licensed electrician. Follow lock-out/tag-out; de-energize before touching equipment. Calls may be recorded. Per-minute billing applies.
@@ -358,7 +358,7 @@ input[type=file] { display: none; }
    Fill these in to go live; everything degrades gracefully.
    ============================================================ */
 var HELPLINE = {
-  CALLBACK_ENDPOINT: "/.netlify/functions/request-callback",
+  CALLBACK_ENDPOINT: "/.netlify/functions/request-callback", // parked - see the direct-dial note below
   VISION_ENDPOINT:   "/.netlify/functions/read-schematic",
   VAPI_PUBLIC_KEY:   "e96e22b4-55f2-49c2-85f9-7b4a287527a9",
   VAPI_ASSISTANT_ID: "79980b6f-ccc9-4b4d-8ef1-af222b78dea1",
@@ -428,17 +428,11 @@ readBtn.addEventListener("click",function(){
   });
 });
 
-/* CALL ME NOW (real outbound Vapi callback) */
-var callMeBtn=$("callMeBtn");
-callMeBtn.addEventListener("click",function(){
-  var st=$("callStatus"); var phone=$("phoneInput").value.trim();
-  if (phone.replace(/[^\d]/g,"").length < 10){ setStatus(st,"err","Enter a valid phone number so we can call you."); return; }
-  setStatus(st,"info","Requesting your call&hellip;"); callMeBtn.disabled=true;
-  fetch(HELPLINE.CALLBACK_ENDPOINT,{ method:"POST", headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ sessionId:SESSION_ID, refCode:REF_CODE, phone:phone, callerName:$("callerName").value.trim(), faultDesc:$("faultDesc").value.trim(), schematicReport:state.schematicReport||"", deviceList:state.deviceList||[] }) })
-  .then(function(r){ if(!r.ok) return r.json().then(function(j){ throw new Error(j.error||("HTTP "+r.status)); }); return r.json(); })
-  .then(function(){ setStatus(st,"ok","&#128241; Calling you now at "+escapeHtml(phone)+". Answer to connect &mdash; billing starts when you pick up."); callMeBtn.disabled=false; })
-  .catch(function(err){ setStatus(st,"err","&#9888; Couldn't place the call ("+err.message+"). The callback service isn't configured yet (needs your Vapi private key + number)."); callMeBtn.disabled=false; });
+/* Direct dial (WIP): CALL ME NOW is parked while Vapi's native-number daily
+   outbound cap is in place - see PR #20. Tapping the number is a plain
+   inbound call; read the reference code to the agent once connected. */
+$("dialNumber").addEventListener("click",function(){
+  setStatus($("callStatus"),"info","Dialing (863) 496-6714&hellip; read your reference code to the agent once connected.");
 });
 
 /* Browser call (Vapi Web SDK) */
