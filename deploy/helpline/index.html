@@ -136,8 +136,10 @@ input[type=file] { display: none; }
 .readout .chip.more { background: #6b7280; cursor: pointer; }
 .readout .devices { margin-top: 8px; }
 
-.chat-panel { display: none; margin-bottom: 16px; background: #fafbfc; border: 1px solid #d5d9e2; border-radius: 10px; padding: 12px 14px; }
+.chat-panel { display: block; margin-bottom: 16px; background: #fafbfc; border: 1px solid #d5d9e2; border-radius: 10px; padding: 12px 14px; }
+.chat-panel.locked .chat-log { opacity: 0.75; }
 .chat-label { font-size: 0.78rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+.chat-hint { font-size: 0.82rem; color: #6b7280; font-style: italic; }
 .chat-log { max-height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
 .chat-msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 0.87rem; line-height: 1.4; white-space: pre-wrap; }
 .chat-msg.user { align-self: flex-end; background: #1669d6; color: #fff; border-bottom-right-radius: 3px; }
@@ -353,12 +355,12 @@ input[type=file] { display: none; }
     </div>
     <div class="status" id="readStatus"></div>
 
-    <div class="chat-panel" id="chatPanel">
+    <div class="chat-panel locked" id="chatPanel">
       <div class="chat-label">Ask about the panel</div>
-      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-log" id="chatLog"><div class="chat-hint" id="chatHint">Upload your schematic above and hit &ldquo;Read my schematic&rdquo; first &mdash; then ask anything about it here.</div></div>
       <div class="chat-input-row">
-        <input type="text" id="chatInput" placeholder="e.g. why won't the pump start?" autocomplete="off">
-        <button type="button" class="chat-send" id="chatSend">Ask</button>
+        <input type="text" id="chatInput" placeholder="e.g. why won't the pump start?" autocomplete="off" disabled>
+        <button type="button" class="chat-send" id="chatSend" disabled>Ask</button>
       </div>
     </div>
 
@@ -463,7 +465,7 @@ readBtn.addEventListener("click",function(){
     } else { toggle.style.display="none"; }
     renderDeviceChips(state.deviceList);
     setStatus(st,"ok","&#10003; Panel captured. It goes to the expert the moment your call connects."); readBtn.disabled=false;
-    $("chatPanel").style.display="block";
+    unlockChat();
   })
   .catch(function(err){
     ro.className="readout err"; ro.style.display="block"; $("readoutTitle").textContent="Couldn't read it automatically";
@@ -495,7 +497,15 @@ function renderDeviceChips(list){
 }
 
 /* Text chat with the schematic — same vision backend the Vapi call uses,
-   invoked directly so a user can ask about the fault without dialing in. */
+   invoked directly so a user can ask about the fault without dialing in.
+   The panel is always visible but locked until a schematic is on file, so
+   it's never just silently missing from the page. */
+function unlockChat(){
+  var panel=$("chatPanel"), hint=$("chatHint");
+  panel.classList.remove("locked");
+  if (hint) hint.remove();
+  $("chatInput").disabled=false; $("chatSend").disabled=false;
+}
 function appendChatMsg(role,text,cls){
   var log=$("chatLog");
   var div=document.createElement("div");
@@ -507,8 +517,7 @@ function appendChatMsg(role,text,cls){
 }
 function sendChat(){
   var input=$("chatInput"), send=$("chatSend"), q=input.value.trim();
-  if (!q) return;
-  if (!state.schematicReport){ appendChatMsg("assistant","Upload and read a schematic first so I have something to look at.","err"); return; }
+  if (!q || input.disabled) return;
   appendChatMsg("user",q);
   input.value=""; input.disabled=true; send.disabled=true;
   var pending=appendChatMsg("assistant","Looking at the drawing…","pending");
