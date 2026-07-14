@@ -12,13 +12,16 @@ map.
   agent. Stateless: hand it the image + a question, it answers "what's on the
   drawing." Voice agents can't see images — this is how the agent sees.
 
-The agent uses its eyes twice:
+The agent uses its eyes three ways:
 1. **Up front** (at upload) — a thorough structured read of the whole panel,
    injected into the call so the agent opens already knowing the panel.
 2. **Mid-call** (a custom tool, `ClaudeReadSchematic` in Vapi) — spatial
    follow-ups against the *actual image* ("does K1's coil feed through the OL
    contact?"). The drawing is never flattened to lossy text; it's
    re-consulted per question.
+3. **Text chat on the splash page** — the same eyes, called directly (no Vapi
+   involved) so a visitor can type follow-up questions about the panel
+   without placing a call at all.
 
 ## Call model: two ways in, same context
 
@@ -33,8 +36,8 @@ The agent uses its eyes twice:
 
 | File | Role |
 |---|---|
-| `helpline/index.html` | The splash. Upload + client-side downscale, **CALL ME NOW** callback, browser-call fallback (Vapi Web SDK), session/ref-code linkage. |
-| `netlify/functions/read-schematic.mjs` | The eyes. `initial` mode = full read (stores image in Blobs); Vapi tool mode = live Q&A on the stored image. |
+| `helpline/index.html` | The splash. Upload + client-side downscale, **CALL ME NOW** callback, browser-call fallback (Vapi Web SDK), text chat box, session/ref-code linkage. |
+| `netlify/functions/read-schematic.mjs` | The eyes. `initial` mode = full read (stores image in Blobs); `chat` mode = direct text Q&A for the splash-page chat box; Vapi tool mode = live Q&A on the stored image during a call. |
 | `netlify/functions/request-callback.mjs` | The **CALL ME NOW** handler. Triggers a Vapi *outbound* call with the schematic context attached. |
 | `netlify.toml` | Functions-only build config (does **not** touch the site's publish dir). |
 | `package.json` | One dep: `@netlify/blobs` (image storage for the mid-call tool). |
@@ -132,6 +135,18 @@ POST /.netlify/functions/request-callback
 
 Live tool (Vapi → function): standard Vapi tool-call payload in; the function
 replies `{ "results":[{ "toolCallId":"…", "result":"…" }] }`.
+
+Text chat (splash page → function, no Vapi involved):
+```json
+POST /.netlify/functions/read-schematic
+{ "mode":"chat", "sessionId":"…", "refCode":"…", "question":"why won't the pump start?" }
+→ { "answer":"…" }
+```
+Requires a schematic already on file for that `sessionId`/`refCode` (i.e. the
+splash page's "Read my schematic" step must have run first). Same
+`resolveSchematic` + Claude vision path as the Vapi tool, just called
+directly and returning a plain `{ answer }` instead of Vapi's tool-result
+envelope.
 
 ## Notes
 
