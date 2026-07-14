@@ -1,0 +1,7 @@
+# Functions-only config. Intentionally NO [build] publish/base here so the
+# existing static-site publish setting (configured in the Netlify UI) is
+# left exactly as-is. This only tells Netlify where the helpline function
+# lives and how to bundle it.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
