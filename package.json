@@ -1,0 +1,10 @@
+{
+  "name": "bluevector-helpline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Serverless function(s) for the BlueVector control-panel helpline.",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

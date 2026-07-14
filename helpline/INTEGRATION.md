@@ -1,164 +1,95 @@
-# BlueVector Helpline — backend integration notes
+# BlueVector Helpline — how it fits together
 
-The `/helpline` page is intentionally backend-agnostic. This doc explains the
-two problems you have to solve on the server and the design the front end
-already supports:
+The `/helpline` splash does three things: read the caller's schematic with a
+vision model, start a voice call with Vapi, and link the two. This doc is the
+map.
 
-1. **Linking a call to the schematic that was just uploaded.**
-2. **Giving the AI voice agent access to that schematic during the call.**
+## The mental model: one agent, one pair of eyes
 
----
+- **Vapi assistant** = the *agent*. It talks to the caller, reasons about the
+  fault, decides what to ask. It's the only conversational thing.
+- **Claude vision** (via the Netlify function) = a *tool/sense*, not a second
+  agent. Stateless: hand it the image + a question, it answers "what's on the
+  drawing." Voice agents can't see images — this is how the agent sees.
 
-## 1. The linkage problem
+The agent uses its eyes twice:
+1. **Up front** (at upload) — a thorough structured read of the whole panel,
+   injected into the call so the agent opens already knowing the panel.
+2. **Mid-call** (a custom tool) — spatial follow-ups against the *actual image*
+   ("does K1's coil feed through the OL contact?"). The drawing is never
+   flattened to lossy text; it's re-consulted per question.
 
-A phone call and a web upload are two separate events with no shared identity.
-The page solves this with one value generated on page load:
+## Pieces in this repo
 
-- **`sessionId`** — a UUID minted in the browser, stored in `sessionStorage`.
-  It is sent with the schematic upload **and** carried into the call. It is the
-  join key: everything about this visit lives under `sessionId`.
-- **`refCode`** — a stable 6-digit code derived from `sessionId`, shown on the
-  page. It only exists as a **fallback for plain phone (`tel:`) dialing**, where
-  you cannot attach data to the call. The IVR/agent asks the caller to say or
-  key it in; the backend looks up the schematic by it.
+| File | Role |
+|---|---|
+| `helpline/index.html` | The splash. Upload UI + client-side downscale, Vapi web call, session/ref-code linkage. |
+| `netlify/functions/read-schematic.mjs` | The eyes. `initial` mode = full read; Vapi tool mode = live Q&A on the stored image. |
+| `netlify.toml` | Functions-only build config (does **not** touch your publish dir). |
+| `package.json` | One dep: `@netlify/blobs` (image storage for the mid-call tool). |
 
-You get to pick which linkage path you use:
+## Front-end config (`HELPLINE` block in `index.html`)
 
-| Call path | How the call is linked | Caller effort |
-|---|---|---|
-| **In-browser web call (WebRTC)** — best | `sessionId` passed as call metadata directly | none |
-| **Phone dial (`tel:`)** | caller reads/keys the `refCode`; backend joins on it | reads 6 digits |
-| **Caller-ID match** — weakest | match the call's `From` number to the phone entered at upload | none, but fragile (spoofing, shared/withheld numbers, calling from a different phone) |
-
-Recommended: use the **web call** path as primary and keep `refCode` as the
-fallback for anyone who dials the number instead.
-
-### Upload payload the page already sends
-
-`POST` (multipart/form-data) to `HELPLINE.UPLOAD_ENDPOINT`:
-
-```
-schematics   one or more files
-sessionId    UUID  (join key)
-refCode      6-digit fallback key
-callerName   string
-callerPhone  string
-faultDesc    string
+```js
+VAPI_PUBLIC_KEY:   ""   // Vapi *public* key (browser-safe)
+VAPI_ASSISTANT_ID: ""   // your pump-diagnostics assistant
+VISION_ENDPOINT:   "/.netlify/functions/read-schematic"
+HELPLINE_NUMBER:   ""   // optional phone fallback (E.164)
 ```
 
-Your handler should: store the files, create a record keyed by both
-`sessionId` and `refCode`, and (see below) kick off schematic pre-processing.
+Everything degrades gracefully: with all blank the page still works and tells
+the user what isn't wired yet.
 
----
+## Setup checklist
 
-## 2. Giving the agent access to the upload
+1. **Netlify env var:** `ANTHROPIC_API_KEY` (required). Optional
+   `ANTHROPIC_MODEL` (default `claude-sonnet-5`; use `claude-opus-4-8` for the
+   most careful schematic reading, at higher latency/cost).
+2. **Deploy.** Netlify auto-provisions Blobs and bundles the function. The
+   function lives at `/.netlify/functions/read-schematic`.
+3. **Create a Vapi assistant.** Paste the pump-diagnostics system prompt. Have
+   it reference the injected variables, e.g.:
+   ```
+   Panel on file for this caller:
+   {{schematicReport}}
+   Devices: {{deviceList}}
+   Caller: {{callerName}} — reported: {{faultDesc}}
+   ```
+4. **Add a custom tool** on the assistant named `inspect_schematic`, pointed at
+   `POST https://<your-site>/.netlify/functions/read-schematic`, with parameters
+   `sessionId` (string) and `question` (string). Tell the agent in its prompt to
+   pass `{{sessionId}}` and to call this tool whenever it needs to look at the
+   drawing again.
+5. **Paste** `VAPI_PUBLIC_KEY` and `VAPI_ASSISTANT_ID` into the `HELPLINE`
+   config. Optionally set `HELPLINE_NUMBER` for phone-in callers.
 
-Key fact: **voice agents work on text, not images.** The agent can't "look at"
-a PDF mid-call. So convert the schematic to text **at upload time**, then feed
-that text into the call. Two ways to feed it, use both:
+## Linkage (call ↔ upload)
 
-### a) Pre-process at upload (do this once, immediately)
+- **`sessionId`** (UUID, minted on page load) travels with the upload *and* the
+  call (`variableValues.sessionId`). It's the key the mid-call tool uses to
+  re-open the right image from Blobs.
+- **`refCode`** (6 digits, shown on the page) is the fallback for anyone who
+  phones the number instead of using the browser button — they read it out and
+  the expert pulls up the schematic.
 
-When the file lands, run Claude vision over it and store a structured summary:
+## Request shapes
 
-```
-POST /api/upload  ->  save files under sessionId
-                  ->  claude(vision) extracts:
-                        - device list (contactors, thermal OLs, VFD/soft starter, model #s)
-                        - control flow / wiring path
-                        - a short plain-text panel summary
-                  ->  store that text on the sessionId record
-```
-
-This runs while the caller is still dialing, so it's ready by the time the
-call connects. (This is exactly the "semantic device graph" step from the
-diagnostics plan.)
-
-### b) Inject that summary into the specific call
-
-When the call starts and your webhook receives the `sessionId`, load the stored
-summary and put it into the agent's context — as a per-call system-prompt
-variable / assistant override:
-
-```
-call connects (sessionId in metadata)
-  -> webhook loads schematic_summary for sessionId
-  -> start the agent with that text injected, e.g.:
-       "PANEL ON FILE FOR THIS CALLER:
-        {schematic_summary}
-        Devices: {device_list}
-        Use this when diagnosing. Refer to specific devices by their label."
-```
-
-### c) Optional: give the agent a tool to fetch details on demand
-
-For deep dives, register a function the agent can call mid-conversation:
-
-```
-tool  get_schematic_detail(sessionId, query)  ->  your API returns
-      the relevant slice of the analysis (e.g. "what feeds the coil of K1?")
+Initial read (browser → function):
+```json
+POST /.netlify/functions/read-schematic
+{ "mode":"initial", "sessionId":"…", "mediaType":"image/jpeg",
+  "imageBase64":"…", "faultDesc":"pump won't start" }
+→ { "report":"…", "deviceList":["Contactor K1","Thermal OL 10A", …] }
 ```
 
-Platforms below all support custom tools/functions for this.
+Live tool (Vapi → function): standard Vapi tool-call payload in; the function
+replies `{ "results":[{ "toolCallId":"…", "result":"…" }] }`.
 
----
+## Notes / next steps
 
-## 3. Concrete wiring per platform
-
-The front end doesn't care which you pick — you set `HELPLINE.HELPLINE_NUMBER`
-(and optionally `HELPLINE.VOICE_TOKEN_ENDPOINT` for web calls) and point the
-platform's webhook at your server.
-
-### Vapi
-- Create an **assistant**; paste the pump-diagnostic system prompt.
-- Web call: `vapi.start(ASSISTANT_ID, { metadata: { sessionId }, variableValues: { schematic_summary } })`.
-  Inbound phone: set a **server URL**; Vapi sends call events there — read
-  `refCode`/caller ID, load the summary, return **assistant overrides** with the
-  summary injected.
-- Custom tools -> point at your `get_schematic_detail` endpoint.
-
-### Retell AI
-- Create an **agent** with the prompt; supports **dynamic variables** and
-  **custom functions**.
-- Web call: `startCall({ accessToken, metadata: { sessionId } })`.
-  Inbound: agent-level webhook delivers call data; inject the summary via
-  dynamic variables (`retell_llm_dynamic_variables`).
-
-### Bland.ai
-- Most turnkey / no-code pathways. Pass request-level variables and use its
-  tools to hit your API. Least flexible for per-call context injection, but
-  fastest to stand up.
-
-### Raw Twilio (most control, most work)
-- Media Streams + your own STT -> Claude -> TTS. `tel:` can't carry data, so
-  use the `refCode` IVR (`<Gather>` the digits) or caller-ID match to find the
-  `sessionId`, then stream the summary into the model's system prompt.
-
----
-
-## Minimal data model
-
-```
-session
-  id            (uuid)           -- sessionId
-  ref_code      (6-digit)        -- fallback join key
-  caller_name   text
-  caller_phone  text
-  fault_desc    text
-  created_at    timestamp
-
-schematic
-  session_id    -> session.id
-  file_url      text             -- storage location
-  summary       text             -- Claude vision output (what the agent reads)
-  device_list   jsonb
-
-call
-  session_id    -> session.id    -- joined on connect via metadata or ref_code
-  provider_call_id  text
-  duration_sec  int
-  billed_minutes int             -- ceil(duration/60), min = HELPLINE.MIN_MINUTES
-```
-
-Billing then falls out of the `call` row: `ceil(duration_sec/60)` clamped to the
-minimum, times the per-minute rate.
+- **Request size:** Netlify sync functions cap the body ~6 MB; the page
+  downscales images to `MAX_IMG_DIM` (1600px) before sending to stay well under.
+- **Persistence:** Blobs entries are keyed by `sessionId`. Add a TTL/cleanup job
+  if you want them to expire.
+- **Billing** falls out of the Vapi call record: `ceil(duration/60)` clamped to
+  `MIN_MINUTES`, times `RATE_PER_MIN`.

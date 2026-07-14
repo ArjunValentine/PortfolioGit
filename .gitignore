@@ -23,5 +23,8 @@ bvlogo.svg
 .DS_Store
 Thumbs.db
 
+# Node / Netlify Functions
+node_modules/
+
 # Local Netlify folder
 .netlify
