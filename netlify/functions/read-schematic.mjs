@@ -168,7 +168,23 @@ export default async (req) => {
   }
 
   // ---- Path B: initial read from the splash page ----
-  const { mode, sessionId, refCode, mediaType, imageBase64, faultDesc } = body;
+  const { mode, sessionId, refCode, mediaType, imageBase64, faultDesc, question } = body;
+
+  // ---- Path B1: direct text chat (splash-page chat box, no phone call) ----
+  if (mode === "chat") {
+    if (!sessionId && !refCode) return json({ error: "no sessionId or refCode" }, 400);
+    if (!question || !question.trim()) return json({ error: "no question" }, 400);
+    try {
+      const raw = await resolveSchematic({ sessionId, refCode });
+      if (!raw) return json({ error: "no schematic on file for that session/reference code" }, 404);
+      const { mediaType: storedMediaType, base64 } = JSON.parse(raw);
+      const answer = await askVision({ mediaType: storedMediaType, base64, prompt: QUERY_PROMPT(question), maxTokens: 600 });
+      return json({ answer });
+    } catch (err) {
+      return json({ error: err.message }, 500);
+    }
+  }
+
   if ((mode === "initial" || !mode) && imageBase64 && sessionId) {
     try {
       // stash the image so the live tool can re-open it during the call

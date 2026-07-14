@@ -136,6 +136,26 @@ input[type=file] { display: none; }
 .readout .chip.more { background: #6b7280; cursor: pointer; }
 .readout .devices { margin-top: 8px; }
 
+.chat-panel { display: none; margin-bottom: 16px; background: #fafbfc; border: 1px solid #d5d9e2; border-radius: 10px; padding: 12px 14px; }
+.chat-label { font-size: 0.78rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+.chat-log { max-height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.chat-msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 0.87rem; line-height: 1.4; white-space: pre-wrap; }
+.chat-msg.user { align-self: flex-end; background: #1669d6; color: #fff; border-bottom-right-radius: 3px; }
+.chat-msg.assistant { align-self: flex-start; background: #eef1f6; color: #1a1a2e; border-bottom-left-radius: 3px; }
+.chat-msg.assistant.err { background: #fdf1f0; color: #b23122; }
+.chat-msg.pending { align-self: flex-start; background: #eef1f6; color: #6b7280; font-style: italic; }
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input-row input {
+  flex: 1; padding: 10px 12px; border: 1px solid #d5d9e2; background: #fff; color: #1a1a2e;
+  font-size: 0.9rem; font-family: inherit; border-radius: 8px;
+}
+.chat-send {
+  background: #1669d6; color: #fff; border: none; border-radius: 8px; padding: 0 18px;
+  font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.chat-send:hover { background: #0f52ac; }
+.chat-send:disabled { opacity: 0.55; cursor: not-allowed; }
+
 .optrow { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
 .optrow > div { flex: 1 1 200px; }
 .optrow label { display: block; font-size: 0.72rem; font-weight: 600; color: #6b7280; margin: 0 0 5px; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -333,6 +353,15 @@ input[type=file] { display: none; }
     </div>
     <div class="status" id="readStatus"></div>
 
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-label">Ask about the panel</div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="e.g. why won't the pump start?" autocomplete="off">
+        <button type="button" class="chat-send" id="chatSend">Ask</button>
+      </div>
+    </div>
+
     <div class="optrow">
       <div><label for="callerName">Your name</label><input type="text" id="callerName" placeholder="Full name" autocomplete="name"></div>
       <div><label for="faultDesc">What's the panel doing?</label><input type="text" id="faultDesc" placeholder="e.g. won't start, no click"></div>
@@ -434,6 +463,7 @@ readBtn.addEventListener("click",function(){
     } else { toggle.style.display="none"; }
     renderDeviceChips(state.deviceList);
     setStatus(st,"ok","&#10003; Panel captured. It goes to the expert the moment your call connects."); readBtn.disabled=false;
+    $("chatPanel").style.display="block";
   })
   .catch(function(err){
     ro.className="readout err"; ro.style.display="block"; $("readoutTitle").textContent="Couldn't read it automatically";
@@ -463,6 +493,41 @@ function renderDeviceChips(list){
     wrap.appendChild(more);
   }
 }
+
+/* Text chat with the schematic — same vision backend the Vapi call uses,
+   invoked directly so a user can ask about the fault without dialing in. */
+function appendChatMsg(role,text,cls){
+  var log=$("chatLog");
+  var div=document.createElement("div");
+  div.className="chat-msg "+role+(cls?" "+cls:"");
+  div.textContent=text;
+  log.appendChild(div);
+  log.scrollTop=log.scrollHeight;
+  return div;
+}
+function sendChat(){
+  var input=$("chatInput"), send=$("chatSend"), q=input.value.trim();
+  if (!q) return;
+  if (!state.schematicReport){ appendChatMsg("assistant","Upload and read a schematic first so I have something to look at.","err"); return; }
+  appendChatMsg("user",q);
+  input.value=""; input.disabled=true; send.disabled=true;
+  var pending=appendChatMsg("assistant","Looking at the drawing…","pending");
+  fetch(HELPLINE.VISION_ENDPOINT,{ method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ mode:"chat", sessionId:SESSION_ID, refCode:REF_CODE, question:q }) })
+  .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); })
+  .then(function(res){
+    pending.remove();
+    if (!res.ok || res.d.error) throw new Error((res.d && res.d.error) || "request failed");
+    appendChatMsg("assistant",res.d.answer||"(no answer returned)");
+  })
+  .catch(function(err){
+    pending.remove();
+    appendChatMsg("assistant","Couldn't get an answer ("+err.message+").","err");
+  })
+  .finally(function(){ input.disabled=false; send.disabled=false; input.focus(); });
+}
+$("chatSend").addEventListener("click",sendChat);
+$("chatInput").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); sendChat(); } });
 
 /* Direct dial (WIP): CALL ME NOW is parked while Vapi's native-number daily
    outbound cap is in place - see PR #20. Tapping the number is a plain
