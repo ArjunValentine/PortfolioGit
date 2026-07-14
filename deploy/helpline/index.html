@@ -127,8 +127,14 @@ input[type=file] { display: none; }
 .readout.err { background: #fdf1f0; border-color: #f0c4bf; }
 .readout .rt { font-weight: 700; color: #12805c; font-size: 0.85rem; margin-bottom: 6px; }
 .readout.err .rt { color: #c0392b; }
-.readout .rb { font-size: 0.88rem; white-space: pre-wrap; color: #26303c; }
+.readout .rs { font-size: 0.9rem; color: #1a1a2e; line-height: 1.4; }
+.readout .rb { display: none; font-size: 0.85rem; white-space: pre-wrap; color: #26303c; margin-top: 10px; padding-top: 10px; border-top: 1px solid #d7ecdc; line-height: 1.5; }
+.readout .rb.open { display: block; }
+.readout .rtoggle { display: inline-block; margin-top: 8px; font-size: 0.78rem; font-weight: 600; color: #12805c; cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; text-decoration: underline; }
+.readout.err .rtoggle { color: #c0392b; }
 .readout .chip { display: inline-block; font-family: "Courier New", Courier, monospace; font-size: 0.7rem; color: #fff; background: #1669d6; padding: 2px 8px; margin: 6px 4px 0 0; border-radius: 20px; }
+.readout .chip.more { background: #6b7280; cursor: pointer; }
+.readout .devices { margin-top: 8px; }
 
 .optrow { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
 .optrow > div { flex: 1 1 200px; }
@@ -320,8 +326,10 @@ input[type=file] { display: none; }
     <div class="center"><button class="readbtn" id="readBtn" disabled>&#128064; Read my schematic</button></div>
     <div class="readout" id="readout">
       <div class="rt" id="readoutTitle">&#10003; The AI read your panel:</div>
+      <div class="rs" id="readoutSummary"></div>
       <div class="rb" id="readoutBody"></div>
-      <div id="readoutDevices"></div>
+      <button type="button" class="rtoggle" id="readoutToggle" style="display:none;">Show full analysis &#9662;</button>
+      <div class="devices" id="readoutDevices"></div>
     </div>
     <div class="status" id="readStatus"></div>
 
@@ -415,18 +423,46 @@ readBtn.addEventListener("click",function(){
     body:JSON.stringify({ mode:"initial", sessionId:SESSION_ID, refCode:REF_CODE, mediaType:state.mediaType, imageBase64:state.base64, faultDesc:$("faultDesc").value.trim() }) })
   .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
   .then(function(d){
-    state.schematicReport=d.report||d.summary||""; state.deviceList=d.deviceList||[];
+    state.schematicReport=d.report||""; state.deviceList=d.deviceList||[];
+    var summary=d.summary||state.schematicReport||"(no summary returned)";
     ro.className="readout"; ro.style.display="block"; $("readoutTitle").innerHTML="&#10003; The AI read your panel:";
-    $("readoutBody").textContent=state.schematicReport||"(no summary returned)";
-    $("readoutDevices").innerHTML=state.deviceList.map(function(x){ return '<span class="chip">'+escapeHtml(x)+'</span>'; }).join("");
+    $("readoutSummary").textContent=summary;
+    var body=$("readoutBody"), toggle=$("readoutToggle");
+    body.textContent=state.schematicReport||""; body.classList.remove("open");
+    if (state.schematicReport && state.schematicReport!==summary){
+      toggle.style.display="inline-block"; toggle.textContent="Show full analysis ▾";
+    } else { toggle.style.display="none"; }
+    renderDeviceChips(state.deviceList);
     setStatus(st,"ok","&#10003; Panel captured. It goes to the expert the moment your call connects."); readBtn.disabled=false;
   })
   .catch(function(err){
     ro.className="readout err"; ro.style.display="block"; $("readoutTitle").textContent="Couldn't read it automatically";
-    $("readoutBody").textContent="The vision service isn't wired up yet ("+err.message+"). Your schematic is still tied to reference code "+REF_CODE+" — bring it up on the call.";
+    $("readoutSummary").textContent="The vision service isn't wired up yet ("+err.message+"). Your schematic is still tied to reference code "+REF_CODE+" — bring it up on the call.";
+    $("readoutBody").textContent=""; $("readoutToggle").style.display="none";
     $("readoutDevices").innerHTML=""; setStatus(st,"err","&#9888; Vision read failed. You can still request the call."); readBtn.disabled=false;
   });
 });
+
+$("readoutToggle").addEventListener("click",function(){
+  var body=$("readoutBody"), open=body.classList.toggle("open");
+  this.textContent = open ? "Hide full analysis ▴" : "Show full analysis ▾";
+});
+
+var DEVICE_CAP=6;
+function renderDeviceChips(list){
+  var wrap=$("readoutDevices"); wrap.innerHTML=""; wrap.dataset.expanded="";
+  var shown=list.slice(0,DEVICE_CAP), rest=list.slice(DEVICE_CAP);
+  shown.forEach(function(x){ wrap.insertAdjacentHTML("beforeend",'<span class="chip">'+escapeHtml(x)+'</span>'); });
+  if (rest.length){
+    var more=document.createElement("span");
+    more.className="chip more"; more.textContent="+"+rest.length+" more";
+    more.addEventListener("click",function(){
+      rest.forEach(function(x){ wrap.insertAdjacentHTML("beforeend",'<span class="chip">'+escapeHtml(x)+'</span>'); });
+      more.remove();
+    });
+    wrap.appendChild(more);
+  }
+}
 
 /* Direct dial (WIP): CALL ME NOW is parked while Vapi's native-number daily
    outbound cap is in place - see PR #20. Tapping the number is a plain
