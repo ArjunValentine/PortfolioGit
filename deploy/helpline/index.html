@@ -3,411 +3,336 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BlueVector Helpline &mdash; Control Panel Diagnostics Hotline</title>
-<meta name="description" content="Panel down? Upload your schematic and get an AI-assisted diagnostics expert on the line. Control panel troubleshooting hotline.">
+<title>Troubleshoot Your Control Panel &mdash; BlueVector Helpline</title>
+<meta name="description" content="Panel down? Upload your schematic and request a direct call. Our AI reads your control panel drawing and diagnoses the fault, live on the phone.">
 <link rel="icon" type="image/png" href="../bvlogo.png">
 <style>
 @charset "utf-8";
-body { background: #c0c0c0; }
-body, p, input, textarea, td, li { font-family: Verdana, Tahoma, Geneva, sans-serif; font-size: 18px; margin: 0px; padding: 0px; text-align: left; }
-h1 { font-size: 46px; font-weight: 600; font-style: italic; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0, 0, 128); -webkit-text-stroke: 1px black; margin: 0px; text-align: center; }
-h2 { font-size: 26px; font-weight: 600; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0,0,128); -webkit-text-stroke: 1px black; margin: 0 0 10px; }
-a { color: rgb(0, 0, 128); }
+:root{
+  --bp:#0a1f4c;         /* blueprint navy */
+  --bp2:#0c2559;
+  --line:rgba(150,195,255,0.16);
+  --line2:rgba(150,195,255,0.28);
+  --ink:#eaf2ff;
+  --muted:#9fb6de;
+  --cyan:#7fd3ff;
+  --amber:#ff9d2e;
+  --panel:rgba(255,255,255,0.05);
+  --edge:rgba(150,195,255,0.40);
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--bp);
+  color:var(--ink);
+  font-family:Verdana,Tahoma,Geneva,sans-serif;
+  /* blueprint grid */
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    linear-gradient(var(--line2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line2) 1px, transparent 1px),
+    radial-gradient(circle at 50% -10%, #12327a 0%, var(--bp) 55%);
+  background-size:28px 28px, 28px 28px, 140px 140px, 140px 140px, 100% 100%;
+}
+a{ color:var(--cyan); }
+.mono{ font-family:"Courier New",Courier,monospace; }
 
-/* caution bars */
-.caution-bar { height: 20px; margin: 0; padding: 0; background: repeating-linear-gradient(45deg, #000 0, #000 17px, #ffcc00 17px, #ffcc00 34px); background-size: 48px 48px; animation: barberpole 0.8s linear infinite; }
-@keyframes barberpole { from { background-position: 0 0; } to { background-position: 48px 0; } }
+/* faint schematic motif behind the hero */
+.bp-motif{ position:absolute; inset:0; z-index:0; opacity:0.10; pointer-events:none; overflow:hidden; }
+.bp-motif svg{ width:100%; height:100%; }
 
-/* marquee ticker */
-.ticker { background: #000080; color: #ffff00; font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 16px; padding: 6px 0; margin: 0; border-top: 2px solid #ffff00; border-bottom: 2px solid #ffff00; overflow: hidden; white-space: nowrap; }
-.ticker marquee { color: #ffff00; }
+.shell{ position:relative; z-index:1; max-width:960px; margin:0 auto; padding:0 18px 40px; }
 
-.masthead { text-align: center; padding: 18px 10px 2px; background: #c0c0c0; }
-.masthead img.logo { height: 84px; width: auto; max-width: 92%; display: inline-block; }
+/* brand bar */
+.brandbar{ display:flex; align-items:center; justify-content:space-between; padding:16px 4px 8px; }
+.brandbar .logoplate{ background:rgba(255,255,255,0.92); border:1px solid var(--edge); padding:8px 14px; border-radius:2px; }
+.brandbar .logoplate img{ height:44px; display:block; }
+.brandbar .rev{ font-family:"Courier New",Courier,monospace; font-size:12px; color:var(--muted); text-align:right; line-height:1.5; }
 
-.wrap { max-width: 900px; margin: 0 auto; padding: 8px 3% 26px; background-color: rgb(192,192,192); background-image: repeating-linear-gradient(45deg, rgba(0,0,128,0.05) 0px, rgba(0,0,128,0.05) 1px, transparent 1px, transparent 6px); }
+/* hero */
+.hero{ text-align:center; padding:26px 10px 6px; }
+.hero .kicker{ font-family:"Courier New",Courier,monospace; letter-spacing:0.35em; font-size:13px; color:var(--cyan); text-transform:uppercase; }
+.hero h1{ font-size:52px; line-height:1.05; margin:10px 0 0; font-weight:800; letter-spacing:-0.5px; color:#fff; text-shadow:0 1px 0 rgba(0,0,0,0.4); }
+.hero .sub{ font-size:19px; color:var(--muted); max-width:640px; margin:14px auto 0; }
+.rate{ display:inline-block; margin-top:18px; font-family:"Courier New",Courier,monospace; font-weight:bold; font-size:14px; color:var(--bp); background:var(--cyan); padding:6px 14px; border-radius:2px; letter-spacing:0.05em; }
 
-.hero { text-align: center; padding: 10px 8px 4px; }
-.hero .sub { font-size: 19px; font-style: italic; color: rgb(0,0,128); margin: 8px auto 0; max-width: 700px; }
-.rate { display: inline-block; margin-top: 14px; background: #000080; color: #ffff00; font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 16px; padding: 6px 14px; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #000; border-right: 2px solid #000; }
+/* line status */
+.linebar{ margin:22px 0 0; text-align:center; font-family:"Courier New",Courier,monospace; font-size:14px; color:var(--cyan); border:1px solid var(--edge); background:rgba(10,25,60,0.6); padding:9px; letter-spacing:0.05em; }
+.led{ display:inline-block; width:11px; height:11px; border-radius:50%; background:#0a3; box-shadow:0 0 6px #0f6; margin-right:8px; vertical-align:middle; }
+.led.dialing{ background:var(--amber); box-shadow:0 0 8px var(--amber); animation:blink .5s steps(1) infinite; }
+.led.live{ background:#3dff87; box-shadow:0 0 9px #3dff87; animation:blink 1s steps(1) infinite; }
+@keyframes blink{ 50%{ opacity:.3; } }
 
-/* status LED strip */
-.linebar { text-align: center; background: #111; color: #33ff33; font-family: "Courier New", Courier, monospace; font-weight: bold; padding: 10px; margin: 16px 0 0; border-top: 3px solid #000; border-left: 3px solid #000; border-bottom: 3px solid #555; border-right: 3px solid #555; }
-.led { display: inline-block; width: 13px; height: 13px; border-radius: 50%; background: #500; box-shadow: 0 0 3px #000 inset; margin-right: 8px; vertical-align: middle; }
-.led.live { background: #33ff33; box-shadow: 0 0 8px #33ff33; animation: blink 1s steps(1) infinite; }
-.led.dialing { background: #ffcc00; box-shadow: 0 0 8px #ffcc00; animation: blink 0.5s steps(1) infinite; }
-@keyframes blink { 50% { opacity: 0.25; } }
+/* drafting panels */
+.panel{ position:relative; border:1px solid var(--edge); background:var(--panel); margin:20px 0; padding:22px; border-radius:3px; backdrop-filter:blur(1px); }
+.panel::before{ content:attr(data-tag); position:absolute; top:-10px; left:16px; background:var(--bp); color:var(--cyan); font-family:"Courier New",Courier,monospace; font-size:12px; letter-spacing:0.15em; padding:0 8px; }
+.panel h2{ margin:0 0 14px; font-size:24px; color:#fff; font-weight:700; }
 
-/* step panels */
-.panel { border: 3px solid rgb(0, 0, 128); background: #fff; margin: 16px 0; padding: 18px 20px; }
-.panel .step { display: inline-block; background: rgb(0,0,128); color: #fff; font-weight: bold; font-size: 15px; padding: 3px 12px; margin-bottom: 10px; letter-spacing: 0.05em; font-family: "Courier New", Courier, monospace; }
-.panel h2 .n { font-family: "Courier New", Courier, monospace; }
+/* dropzone as a drawing frame */
+.dropzone{ border:2px dashed var(--edge); background:rgba(127,211,255,0.05); padding:30px 16px; text-align:center; cursor:pointer; border-radius:2px; }
+.dropzone.dragover{ background:rgba(127,211,255,0.14); border-color:var(--cyan); }
+.dropzone .dz-icon{ font-size:34px; }
+.dropzone .dz-main{ font-size:17px; font-weight:600; color:var(--ink); margin-top:6px; }
+.dropzone .dz-sub{ font-size:13px; color:var(--muted); margin-top:5px; }
+input[type=file]{ display:none; }
+.preview{ margin-top:14px; display:none; text-align:center; }
+.preview img{ max-width:100%; max-height:240px; border:1px solid var(--edge); }
+.preview .fname{ font-family:"Courier New",Courier,monospace; font-size:12px; color:var(--muted); margin-top:6px; word-break:break-all; }
 
-/* dropzone */
-.dropzone { border: 3px dashed #7878dc; background: #f4f4fb; padding: 26px 16px; text-align: center; cursor: pointer; }
-.dropzone.dragover { background: #e4e4ff; border-color: rgb(0,0,128); }
-.dropzone .dz-icon { font-size: 38px; line-height: 1; }
-.dropzone .dz-main { font-size: 18px; font-weight: 600; color: rgb(0,0,128); margin-top: 6px; }
-.dropzone .dz-sub { font-size: 13px; color: #555; margin-top: 4px; }
-input[type=file] { display: none; }
+.readout{ margin-top:14px; border-left:3px solid var(--cyan); background:rgba(127,211,255,0.07); padding:12px 14px; display:none; }
+.readout.err{ border-left-color:var(--amber); }
+.readout .ro-title{ font-family:"Courier New",Courier,monospace; color:var(--cyan); margin-bottom:6px; font-size:14px; }
+.readout.err .ro-title{ color:var(--amber); }
+.readout .ro-body{ font-size:15px; white-space:pre-wrap; color:var(--ink); }
+.readout .chip{ display:inline-block; font-family:"Courier New",Courier,monospace; font-size:12px; color:var(--bp); background:var(--cyan); padding:2px 8px; margin:6px 4px 0 0; border-radius:2px; }
 
-.preview { margin-top: 14px; display: none; }
-.preview img { max-width: 100%; max-height: 260px; border: 2px solid #333; display: block; margin: 0 auto; }
-.preview .fname { font-family: "Courier New", Courier, monospace; font-size: 13px; color: #333; text-align: center; margin-top: 6px; word-break: break-all; }
+label{ display:block; font-family:"Courier New",Courier,monospace; font-size:12px; color:var(--cyan); margin:14px 0 5px; text-transform:uppercase; letter-spacing:0.08em; }
+input[type=text],input[type=tel],textarea{ width:100%; padding:12px; border:1px solid var(--edge); background:rgba(4,14,40,0.7); color:var(--ink); font-size:16px; font-family:Verdana,sans-serif; border-radius:2px; }
+input::placeholder,textarea::placeholder{ color:#6f86b3; }
+textarea{ min-height:70px; resize:vertical; }
 
-/* the vision readout — proof the AI SAW the drawing */
-.readout { margin-top: 14px; border: 2px solid #060; background: #eaffea; padding: 12px 14px; display: none; }
-.readout.err { border-color: #900; background: #ffecec; }
-.readout .ro-title { font-weight: bold; color: #060; font-family: "Courier New", Courier, monospace; margin-bottom: 6px; }
-.readout.err .ro-title { color: #900; }
-.readout .ro-body { font-size: 15px; white-space: pre-wrap; color: #123; }
-.readout .ro-devices { margin-top: 8px; }
-.readout .ro-devices .chip { display: inline-block; background: #000080; color: #fff; font-family: "Courier New", Courier, monospace; font-size: 12px; padding: 2px 8px; margin: 3px 3px 0 0; }
+/* the CALL ME NOW row */
+.callrow{ display:flex; gap:10px; margin-top:6px; flex-wrap:wrap; }
+.callrow input{ flex:1 1 220px; font-size:20px; font-family:"Courier New",Courier,monospace; letter-spacing:1px; }
+.btn{ border:none; cursor:pointer; font-weight:800; border-radius:2px; font-family:Verdana,sans-serif; }
+.btn.callme{ background:var(--amber); color:#241000; font-size:20px; padding:0 30px; flex:0 0 auto; box-shadow:0 3px 0 #b96700; }
+.btn.callme:hover{ background:#ffb257; }
+.btn.callme:disabled{ background:#6b5a3a; color:#3a2f1a; box-shadow:0 3px 0 #4a3d24; cursor:not-allowed; }
+.btn.callme.big{ width:100%; padding:16px; margin-top:8px; }
+.btn.hangup{ background:#7a1414; color:#ffd9d9; box-shadow:0 3px 0 #480a0a; padding:14px 26px; font-size:18px; }
+.readbtn{ background:var(--cyan); color:var(--bp); padding:12px 26px; font-size:17px; box-shadow:0 3px 0 #2f7ba0; margin-top:14px; }
+.readbtn:hover{ background:#a6e2ff; }
+.readbtn:disabled{ background:#3a5a6e; color:#1b2b34; box-shadow:0 3px 0 #24404e; cursor:not-allowed; }
+.center{ text-align:center; }
 
-/* labels/inputs */
-label { display: block; font-size: 13px; font-weight: 600; color: rgb(0, 0, 128); margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-input[type=text], input[type=tel], textarea { width: 100%; padding: 9px 10px; border: 1px solid #999; font-size: 16px; box-sizing: border-box; }
-textarea { min-height: 70px; resize: vertical; }
+.refbox{ margin-top:16px; border:1px dashed var(--edge); padding:10px 14px; text-align:center; }
+.refbox .l{ font-family:"Courier New",Courier,monospace; font-size:12px; color:var(--cyan); letter-spacing:0.08em; text-transform:uppercase; }
+.refbox .c{ font-family:"Courier New",Courier,monospace; font-size:28px; font-weight:bold; letter-spacing:8px; color:#fff; margin:2px 0; }
+.refbox .n{ font-size:12px; color:var(--muted); }
 
-/* reference code */
-.refbox { margin-top: 14px; border: 2px solid rgb(0,0,128); background: #f4f4fb; padding: 10px 14px; text-align: center; }
-.refbox-label { font-size: 12px; font-weight: 600; color: rgb(0,0,128); text-transform: uppercase; letter-spacing: 0.06em; }
-.refbox-code { font-family: "Courier New", Courier, monospace; font-size: 30px; font-weight: bold; letter-spacing: 8px; color: #000080; margin: 2px 0; }
-.refbox-note { font-size: 12px; color: #555; }
+.secondary{ text-align:center; margin-top:14px; font-size:14px; color:var(--muted); }
+.secondary a{ cursor:pointer; text-decoration:underline; }
 
-/* buttons */
-.btnrow { text-align: center; margin: 8px 0 2px; }
-button.action, a.action { display: inline-block; background: rgb(0, 0, 128); color: #fff; padding: 14px 32px; margin: 8px; font-size: 20px; font-weight: bold; text-decoration: none; cursor: pointer; border-top: 3px solid rgb(120, 120, 220); border-left: 3px solid rgb(120, 120, 220); border-bottom: 3px solid rgb(0, 0, 60); border-right: 3px solid rgb(0, 0, 60); font-family: Verdana, sans-serif; }
-button.action.big { font-size: 24px; padding: 18px 40px; }
-button.action:hover, a.action:hover { background: #fff; color: rgb(0, 0, 128); border-top: 3px solid rgb(0, 0, 60); border-left: 3px solid rgb(0, 0, 60); border-bottom: 3px solid rgb(120, 120, 220); border-right: 3px solid rgb(120, 120, 220); }
-button.action:disabled { background: #888; color: #ddd; cursor: not-allowed; border-color: #666 #444 #aaa #aaa; }
-button.hangup { background: #800000; border-top-color: #d06; border-left-color: #d06; }
-.call-note { text-align: center; font-size: 14px; color: #333; margin-top: 4px; }
-.phonecta { text-align: center; margin-top: 6px; font-size: 15px; }
-.phonecta a { font-family: "Courier New", Courier, monospace; font-weight: bold; }
+.status{ margin-top:12px; padding:10px 12px; font-family:"Courier New",Courier,monospace; font-size:14px; display:none; border-radius:2px; }
+.status.info{ display:block; background:rgba(127,211,255,0.10); border:1px solid var(--edge); color:var(--cyan); }
+.status.ok{ display:block; background:rgba(61,255,135,0.10); border:1px solid #2c7; color:#8f9; }
+.status.err{ display:block; background:rgba(255,120,120,0.10); border:1px solid #c66; color:#ffb3b3; }
 
-.status { margin-top: 12px; padding: 10px 12px; font-family: "Courier New", Courier, monospace; font-size: 14px; display: none; }
-.status.info { display: block; background: #eef; border: 1px solid #99c; color: #003; }
-.status.ok { display: block; background: #e7ffe7; border: 1px solid #4a4; color: #060; }
-.status.err { display: block; background: #ffecec; border: 1px solid #c66; color: #900; }
+.disclaimer{ font-size:12px; color:var(--muted); margin-top:20px; line-height:1.6; }
+.foot{ text-align:center; color:var(--muted); font-size:13px; margin-top:24px; border-top:1px solid var(--line2); padding-top:16px; }
+.foot a{ color:var(--cyan); }
 
-.disclaimer { font-size: 12px; color: #444; margin-top: 18px; line-height: 1.5; }
-.footer { background-color: rgb(0, 0, 128); margin: 0; padding: 14px; font-size: 15px; color: white; text-align: center; line-height: 1.6; }
-.footer a { color: rgb(200, 210, 255); }
-
-.badgebar { text-align: center; padding: 10px 8px; background: rgb(0,0,128); }
-.badge { display: inline-block; font-family: "Courier New", Courier, monospace; font-size: 11px; font-weight: bold; line-height: 1.15; padding: 3px 6px; margin: 4px; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #000; border-right: 2px solid #000; text-transform: uppercase; }
-.badge.b1 { background: #c0c0c0; color: #000080; }
-.badge.b2 { background: #000; color: #33ff33; }
-.badge.b3 { background: #800000; color: #ffff00; }
+@media (max-width:560px){ .hero h1{ font-size:38px; } }
 </style>
 </head>
 <body>
 
-<div class="caution-bar"></div>
-<div class="ticker"><marquee scrollamount="6">&#9888; PANEL DOWN? &nbsp; UPLOAD YOUR SCHEMATIC &nbsp;&bull;&nbsp; GET AN AI-ASSISTED EXPERT ON THE LINE IN SECONDS &nbsp;&bull;&nbsp; WON'T START &nbsp;&bull;&nbsp; TRIPS OUT &nbsp;&bull;&nbsp; RUNS BUT NO FLOW &nbsp;&bull;&nbsp; MOST PANELS DIAGNOSED IN 5-10 MINUTES &nbsp;&bull;&nbsp; &#9888;</marquee></div>
-
-<div class="masthead">
-  <a href="../"><img class="logo" src="../bvlogo.png" alt="BlueVector"></a>
+<div class="bp-motif" aria-hidden="true">
+  <svg viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" stroke="#bcd8ff" fill="none" stroke-width="1.5">
+    <!-- enclosure -->
+    <rect x="40" y="40" width="300" height="520" rx="4"/>
+    <rect x="60" y="70" width="120" height="60" rx="2"/><rect x="200" y="70" width="120" height="60" rx="2"/>
+    <circle cx="120" cy="180" r="26"/><circle cx="260" cy="180" r="26"/>
+    <rect x="70" y="240" width="240" height="30"/><rect x="70" y="290" width="240" height="30"/>
+    <rect x="70" y="360" width="100" height="120"/><rect x="200" y="360" width="110" height="120"/>
+    <!-- ladder diagram -->
+    <line x1="470" y1="60" x2="470" y2="540"/><line x1="860" y1="60" x2="860" y2="540"/>
+    <line x1="470" y1="110" x2="860" y2="110"/><circle cx="560" cy="110" r="10"/><rect x="700" y="98" width="40" height="24"/>
+    <line x1="470" y1="180" x2="860" y2="180"/><path d="M560 168 l20 24"/><rect x="700" y="168" width="40" height="24"/>
+    <line x1="470" y1="250" x2="860" y2="250"/><circle cx="620" cy="250" r="14"/>
+    <line x1="470" y1="330" x2="860" y2="330"/><rect x="590" y="315" width="60" height="30"/>
+    <line x1="470" y1="410" x2="860" y2="410"/><path d="M600 398 a14 14 0 1 0 0 24"/>
+    <line x1="470" y1="480" x2="860" y2="480"/><circle cx="640" cy="480" r="16"/><path d="M632 480 l16 0 M640 472 l0 16"/>
+  </svg>
 </div>
 
-<div class="wrap">
+<div class="shell">
+
+  <div class="brandbar">
+    <a href="../" class="logoplate"><img src="../bvlogo.png" alt="BlueVector"></a>
+    <div class="rev mono">CONTROL PANEL HELPLINE<br>REV. 2026-07 &bull; SHEET 1 OF 1</div>
+  </div>
 
   <div class="hero">
-    <h1>The Control Panel Hotline</h1>
-    <div class="sub">Show us the drawing. Tell us the symptom. Our AI reads your
-    schematic and walks you through the fault &mdash; live, on the phone.</div>
+    <div class="kicker">BlueVector Diagnostics</div>
+    <h1>Troubleshoot Your<br>Control Panel</h1>
+    <div class="sub">Upload the drawing. Enter your number. Our AI reads your
+    schematic and calls you back to walk the fault &mdash; live.</div>
     <div class="rate" id="rateBadge">$4.00 / MIN &bull; 5 MIN MINIMUM</div>
   </div>
 
-  <div class="linebar">
-    <span class="led" id="led"></span><span id="lineText">LINE STATUS: READY &mdash; UPLOAD A SCHEMATIC OR START THE CALL</span>
-  </div>
+  <div class="linebar"><span class="led" id="led"></span><span id="lineText">LINE READY &mdash; UPLOAD A SCHEMATIC, THEN REQUEST YOUR CALL</span></div>
 
-  <!-- STEP 1: SCHEMATIC -->
-  <div class="panel">
-    <span class="step">STEP 1</span>
+  <!-- STEP 1 -->
+  <div class="panel" data-tag="[ STEP 1 · SCHEMATIC ]">
     <h2>Show the AI your panel</h2>
     <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload schematic">
       <div class="dz-icon">&#128444;&#65039;</div>
       <div class="dz-main">Drop a photo of the panel or schematic &mdash; or click to browse</div>
-      <div class="dz-sub">JPG, PNG, or PDF &nbsp;&bull;&nbsp; the AI reads the actual drawing, wiring and all</div>
+      <div class="dz-sub">JPG, PNG, or PDF &bull; the AI reads the actual drawing, wiring and all</div>
     </div>
     <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf">
-    <div class="preview" id="preview">
-      <img id="previewImg" alt="schematic preview">
-      <div class="fname" id="previewName"></div>
-    </div>
-    <div class="btnrow">
-      <button class="action" id="readBtn" disabled>&#128064;&nbsp; Read My Schematic</button>
-    </div>
+    <div class="preview" id="preview"><img id="previewImg" alt="schematic preview"><div class="fname" id="previewName"></div></div>
+    <div class="center"><button class="btn readbtn" id="readBtn" disabled>&#128064;&nbsp; Read My Schematic</button></div>
     <div class="readout" id="readout">
       <div class="ro-title" id="readoutTitle">&#10003; The AI read your panel:</div>
       <div class="ro-body" id="readoutBody"></div>
-      <div class="ro-devices" id="readoutDevices"></div>
+      <div id="readoutDevices"></div>
     </div>
     <div class="status" id="readStatus"></div>
   </div>
 
-  <!-- STEP 2: CALL -->
-  <div class="panel">
-    <span class="step">STEP 2</span>
-    <h2>Get on the line</h2>
+  <!-- STEP 2 -->
+  <div class="panel" data-tag="[ STEP 2 · REQUEST A DIRECT CALL ]">
+    <h2>Enter your number &mdash; we'll call you</h2>
     <label for="callerName">Your name</label>
     <input type="text" id="callerName" placeholder="Full name" autocomplete="name">
     <label for="faultDesc">What's the panel doing?</label>
     <textarea id="faultDesc" placeholder="e.g. Pump won't start. No fault code. Contactor doesn't click when I press start."></textarea>
 
-    <div class="refbox">
-      <div class="refbox-label">Your reference code</div>
-      <div class="refbox-code" id="refCode">------</div>
-      <div class="refbox-note">If you phone in instead of using the button, read this code so the expert pulls up your schematic.</div>
+    <label for="callerPhone">Your phone number</label>
+    <div class="callrow">
+      <input type="tel" id="callerPhone" placeholder="+1 (555) 0199" autocomplete="tel">
+      <button class="btn callme" id="callMeBtn">&#128222; CALL ME NOW</button>
     </div>
 
-    <div class="btnrow">
-      <button class="action big" id="callBtn">&#128222;&nbsp; Start Diagnostic Call</button>
-      <button class="action hangup" id="hangupBtn" style="display:none;">&#9632;&nbsp; End Call</button>
+    <div class="refbox">
+      <div class="l">Reference code</div>
+      <div class="c" id="refCode">------</div>
+      <div class="n">Ties your schematic to your call. Keep it handy.</div>
     </div>
-    <div class="call-note" id="callNote">Talk to the AI right here in your browser. Mic access required. Billing starts when the call connects.</div>
-    <div class="phonecta" id="phoneCta" style="display:none;"></div>
+
+    <div class="secondary" id="secondary">
+      Prefer to talk through your browser instead? <a id="browserCallLink">Start a browser call &raquo;</a>
+    </div>
+    <div class="center" id="hangupWrap" style="display:none;"><button class="btn hangup" id="hangupBtn">&#9632; End Call</button></div>
     <div class="status" id="callStatus"></div>
   </div>
 
   <p class="disclaimer">
-    <strong>Safety &amp; liability:</strong> BlueVector Helpline provides remote
-    diagnostic guidance only and is not a substitute for a licensed electrician.
-    Always follow lock-out/tag-out and de-energize before touching live equipment.
-    Calls may be recorded for quality and training. By starting a call you agree
-    to per-minute billing at the posted rate.
+    <strong>Safety &amp; liability:</strong> BlueVector Helpline provides remote diagnostic
+    guidance only and is not a substitute for a licensed electrician. Always follow
+    lock-out/tag-out and de-energize before touching live equipment. Calls may be
+    recorded for quality and training. By requesting a call you agree to per-minute
+    billing at the posted rate.
   </p>
-</div>
 
-<div class="badgebar">
-  <span class="badge b2">AI Vision<br>Reads Schematics</span>
-  <span class="badge b1">Live Expert<br>Escalation</span>
-  <span class="badge b3">24/7<br>Line Open</span>
-</div>
-<div class="caution-bar"></div>
-<div class="footer">
-  Copyright 2026 by BlueVector &nbsp;&bull;&nbsp; 2655 Ulmerton Rd, Suite 243, Clearwater, FL 33762
-  <br><a href="../">&larr; Back to BlueVector home</a>
+  <div class="foot">
+    BlueVector &bull; 2655 Ulmerton Rd, Suite 243, Clearwater, FL 33762 &nbsp;|&nbsp; <a href="../">&larr; Back to home</a>
+  </div>
 </div>
 
 <script>
 /* ============================================================
-   BlueVector Helpline — splash + Vapi wiring
-   ------------------------------------------------------------
-   Fill these in to go live. Everything degrades gracefully:
-   with all blank, the UI works and explains what's not wired yet.
-   VAPI_PUBLIC_KEY is the browser-safe *public* key (never the private one).
+   BlueVector Helpline — blueprint splash + Vapi wiring
+   Fill these in to go live. Everything degrades gracefully.
    ============================================================ */
 var HELPLINE = {
-  VAPI_PUBLIC_KEY:   "",   // Vapi public key (safe in the browser)
-  VAPI_ASSISTANT_ID: "",   // Vapi assistant id (your pump-diagnostics agent)
-  VISION_ENDPOINT:   "/.netlify/functions/read-schematic", // Claude-vision bridge
-  HELPLINE_NUMBER:   "",   // optional E.164 phone fallback, e.g. "+17275551234"
+  CALLBACK_ENDPOINT: "/.netlify/functions/request-callback", // outbound "call me now"
+  VISION_ENDPOINT:   "/.netlify/functions/read-schematic",   // Claude-vision bridge
+  VAPI_PUBLIC_KEY:   "",   // optional: enables the in-browser fallback call
+  VAPI_ASSISTANT_ID: "",
   RATE_PER_MIN: 4.00, MIN_MINUTES: 5, MAX_FILE_MB: 25, MAX_IMG_DIM: 1600
 };
 
 /* ---------- session id + reference code ---------- */
-function genSessionId(){
-  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-  return "sess-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
-}
+function genSessionId(){ if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); return "sess-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10); }
 var SESSION_ID = sessionStorage.getItem("bv_helpline_session");
 if (!SESSION_ID){ SESSION_ID = genSessionId(); sessionStorage.setItem("bv_helpline_session", SESSION_ID); }
-function refCodeFrom(id){ var h = 0; for (var i=0;i<id.length;i++){ h=(h*31+id.charCodeAt(i))>>>0; } return ("000000"+(h%1000000)).slice(-6); }
+function refCodeFrom(id){ var h=0; for (var i=0;i<id.length;i++){ h=(h*31+id.charCodeAt(i))>>>0; } return ("000000"+(h%1000000)).slice(-6); }
 var REF_CODE = refCodeFrom(SESSION_ID);
 
-/* ---------- state ---------- */
-var state = { file: null, mediaType: null, base64: null, schematicReport: null, deviceList: [], vapi: null, inCall: false };
+var state = { file:null, mediaType:null, base64:null, schematicReport:null, deviceList:[], vapi:null };
 
-/* ---------- helpers ---------- */
 function $(id){ return document.getElementById(id); }
-function setStatus(el, kind, msg){ el.className = "status " + kind; el.innerHTML = msg; }
-function setLine(kind, text){
-  var led = $("led");
-  led.className = "led" + (kind === "live" ? " live" : kind === "dialing" ? " dialing" : "");
-  $("lineText").textContent = text;
-}
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function setStatus(el,kind,msg){ el.className="status "+kind; el.innerHTML=msg; }
+function setLine(kind,text){ var l=$("led"); l.className="led"+(kind==="live"?" live":kind==="dialing"?" dialing":""); $("lineText").textContent=text; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
 
-$("rateBadge").textContent = "$" + HELPLINE.RATE_PER_MIN.toFixed(2) + " / MIN • " + HELPLINE.MIN_MINUTES + " MIN MINIMUM";
-$("refCode").textContent = REF_CODE;
+$("rateBadge").textContent="$"+HELPLINE.RATE_PER_MIN.toFixed(2)+" / MIN • "+HELPLINE.MIN_MINUTES+" MIN MINIMUM";
+$("refCode").textContent=REF_CODE;
 
-/* ---------- file selection + client-side downscale ----------
-   Downscale large photos before sending so we stay under the
-   function's request-size limit while keeping the drawing legible. */
-var dz = $("dropzone"), fileInput = $("fileInput"), readBtn = $("readBtn");
-dz.addEventListener("click", function(){ fileInput.click(); });
-dz.addEventListener("keydown", function(e){ if (e.key==="Enter"||e.key===" "){ e.preventDefault(); fileInput.click(); } });
-dz.addEventListener("dragover", function(e){ e.preventDefault(); dz.classList.add("dragover"); });
-dz.addEventListener("dragleave", function(){ dz.classList.remove("dragover"); });
-dz.addEventListener("drop", function(e){ e.preventDefault(); dz.classList.remove("dragover"); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
-fileInput.addEventListener("change", function(){ if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+/* ---------- file selection + downscale ---------- */
+var dz=$("dropzone"), fileInput=$("fileInput"), readBtn=$("readBtn");
+dz.addEventListener("click",function(){ fileInput.click(); });
+dz.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fileInput.click(); } });
+dz.addEventListener("dragover",function(e){ e.preventDefault(); dz.classList.add("dragover"); });
+dz.addEventListener("dragleave",function(){ dz.classList.remove("dragover"); });
+dz.addEventListener("drop",function(e){ e.preventDefault(); dz.classList.remove("dragover"); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener("change",function(){ if(fileInput.files[0]) handleFile(fileInput.files[0]); });
 
 function handleFile(f){
-  var st = $("readStatus");
-  if (f.size > HELPLINE.MAX_FILE_MB * 1048576){
-    setStatus(st, "err", "&#9888; That file is over " + HELPLINE.MAX_FILE_MB + " MB. Try a smaller photo.");
-    return;
-  }
-  state.file = f; state.mediaType = f.type || "application/octet-stream";
-  $("previewName").textContent = f.name + "  (" + (f.size/1048576).toFixed(1) + " MB)";
-  var isImage = /^image\//.test(f.type);
-  if (isImage){
-    var url = URL.createObjectURL(f);
-    $("previewImg").src = url; $("previewImg").style.display = "block";
-    downscaleImage(f).then(function(res){ state.base64 = res.base64; state.mediaType = res.mediaType; });
-  } else {
-    $("previewImg").style.display = "none"; // PDFs: no thumbnail
-    fileToBase64(f).then(function(b64){ state.base64 = b64; });
-  }
-  $("preview").style.display = "block";
-  readBtn.disabled = false;
-  $("readout").style.display = "none";
-  setStatus(st, "info", "&#10003; " + escapeHtml(f.name) + " ready. Hit &ldquo;Read My Schematic.&rdquo;");
+  var st=$("readStatus");
+  if (f.size > HELPLINE.MAX_FILE_MB*1048576){ setStatus(st,"err","&#9888; That file is over "+HELPLINE.MAX_FILE_MB+" MB. Try a smaller photo."); return; }
+  state.file=f; state.mediaType=f.type||"application/octet-stream";
+  $("previewName").textContent=f.name+"  ("+(f.size/1048576).toFixed(1)+" MB)";
+  if (/^image\//.test(f.type)){
+    $("previewImg").src=URL.createObjectURL(f); $("previewImg").style.display="block";
+    downscaleImage(f).then(function(r){ state.base64=r.base64; state.mediaType=r.mediaType; });
+  } else { $("previewImg").style.display="none"; fileToBase64(f).then(function(b){ state.base64=b; }); }
+  $("preview").style.display="block"; readBtn.disabled=false; $("readout").style.display="none";
+  setStatus(st,"info","&#10003; "+escapeHtml(f.name)+" ready. Hit &ldquo;Read My Schematic.&rdquo;");
 }
-
-function fileToBase64(f){
-  return new Promise(function(resolve, reject){
-    var r = new FileReader();
-    r.onload = function(){ resolve(String(r.result).split(",")[1]); };
-    r.onerror = reject; r.readAsDataURL(f);
-  });
-}
-function downscaleImage(f){
-  return new Promise(function(resolve){
-    var img = new Image(), url = URL.createObjectURL(f);
-    img.onload = function(){
-      var max = HELPLINE.MAX_IMG_DIM, w = img.width, h = img.height;
-      if (Math.max(w, h) > max){ var s = max / Math.max(w, h); w = Math.round(w*s); h = Math.round(h*s); }
-      var c = document.createElement("canvas"); c.width = w; c.height = h;
-      c.getContext("2d").drawImage(img, 0, 0, w, h);
-      var data = c.toDataURL("image/jpeg", 0.85);
-      URL.revokeObjectURL(url);
-      resolve({ base64: data.split(",")[1], mediaType: "image/jpeg" });
-    };
-    img.onerror = function(){ fileToBase64(f).then(function(b64){ resolve({ base64: b64, mediaType: f.type }); }); };
-    img.src = url;
-  });
-}
+function fileToBase64(f){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ res(String(r.result).split(",")[1]); }; r.onerror=rej; r.readAsDataURL(f); }); }
+function downscaleImage(f){ return new Promise(function(res){ var img=new Image(), url=URL.createObjectURL(f);
+  img.onload=function(){ var m=HELPLINE.MAX_IMG_DIM,w=img.width,h=img.height; if(Math.max(w,h)>m){ var s=m/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+    var c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(img,0,0,w,h);
+    var d=c.toDataURL("image/jpeg",0.85); URL.revokeObjectURL(url); res({base64:d.split(",")[1],mediaType:"image/jpeg"}); };
+  img.onerror=function(){ fileToBase64(f).then(function(b){ res({base64:b,mediaType:f.type}); }); };
+  img.src=url; }); }
 
 /* ---------- STEP 1: read the schematic with Claude vision ---------- */
-readBtn.addEventListener("click", function(){
-  var st = $("readStatus"), ro = $("readout");
-  if (!state.base64){ setStatus(st, "err", "Still processing the file&hellip; try again in a second."); return; }
-
-  setStatus(st, "info", "Sending the drawing to the AI&hellip;");
-  setLine("dialing", "READING SCHEMATIC…");
-  readBtn.disabled = true;
-
-  fetch(HELPLINE.VISION_ENDPOINT, {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      mode: "initial", sessionId: SESSION_ID, refCode: REF_CODE,
-      mediaType: state.mediaType, imageBase64: state.base64,
-      faultDesc: $("faultDesc").value.trim()
-    })
-  })
-  .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-  .then(function(data){
-    state.schematicReport = data.report || data.summary || "";
-    state.deviceList = data.deviceList || [];
-    ro.className = "readout"; ro.style.display = "block";
-    $("readoutTitle").innerHTML = "&#10003; The AI read your panel:";
-    $("readoutBody").textContent = state.schematicReport || "(no summary returned)";
-    $("readoutDevices").innerHTML = state.deviceList.map(function(d){ return '<span class="chip">' + escapeHtml(d) + '</span>'; }).join("");
-    setStatus(st, "ok", "&#10003; Panel captured. This goes to the expert the moment your call connects.");
-    setLine("ready", "SCHEMATIC ON FILE — READY TO CONNECT");
-    readBtn.disabled = false;
+readBtn.addEventListener("click",function(){
+  var st=$("readStatus"), ro=$("readout");
+  if (!state.base64){ setStatus(st,"err","Still processing the file&hellip; try again in a second."); return; }
+  setStatus(st,"info","Sending the drawing to the AI&hellip;"); setLine("dialing","READING SCHEMATIC…"); readBtn.disabled=true;
+  fetch(HELPLINE.VISION_ENDPOINT,{ method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ mode:"initial", sessionId:SESSION_ID, refCode:REF_CODE, mediaType:state.mediaType, imageBase64:state.base64, faultDesc:$("faultDesc").value.trim() }) })
+  .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+  .then(function(d){
+    state.schematicReport=d.report||d.summary||""; state.deviceList=d.deviceList||[];
+    ro.className="readout"; ro.style.display="block"; $("readoutTitle").innerHTML="&#10003; The AI read your panel:";
+    $("readoutBody").textContent=state.schematicReport||"(no summary returned)";
+    $("readoutDevices").innerHTML=state.deviceList.map(function(x){ return '<span class="chip">'+escapeHtml(x)+'</span>'; }).join("");
+    setStatus(st,"ok","&#10003; Panel captured. It goes to the expert the moment your call connects."); setLine("ready","SCHEMATIC ON FILE — READY TO CALL"); readBtn.disabled=false;
   })
   .catch(function(err){
-    ro.className = "readout err"; ro.style.display = "block";
-    $("readoutTitle").textContent = "Couldn't read it automatically";
-    $("readoutBody").textContent = "The vision service isn't wired up yet (" + err.message + "). Your schematic is still attached to reference code " + REF_CODE + " — bring it up on the call.";
-    $("readoutDevices").innerHTML = "";
-    setStatus(st, "err", "&#9888; Vision read failed. You can still start the call.");
-    setLine("ready", "LINE STATUS: READY");
-    readBtn.disabled = false;
+    ro.className="readout err"; ro.style.display="block"; $("readoutTitle").textContent="Couldn't read it automatically";
+    $("readoutBody").textContent="The vision service isn't wired up yet ("+err.message+"). Your schematic is still tied to reference code "+REF_CODE+" — bring it up on the call.";
+    $("readoutDevices").innerHTML=""; setStatus(st,"err","&#9888; Vision read failed. You can still request the call."); setLine("ready","LINE READY"); readBtn.disabled=false;
   });
 });
 
-/* ---------- STEP 2: start the Vapi call in-browser ---------- */
-var callBtn = $("callBtn"), hangupBtn = $("hangupBtn");
+/* ---------- STEP 2a: CALL ME NOW (outbound callback) ---------- */
+var callMeBtn=$("callMeBtn");
+callMeBtn.addEventListener("click",function(){
+  var st=$("callStatus"); var phone=$("callerPhone").value.trim();
+  if (phone.replace(/[^\d]/g,"").length < 10){ setStatus(st,"err","Enter a valid phone number so we can call you."); return; }
+  setStatus(st,"info","Requesting your call&hellip;"); setLine("dialing","PLACING CALL…"); callMeBtn.disabled=true;
+  fetch(HELPLINE.CALLBACK_ENDPOINT,{ method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ sessionId:SESSION_ID, refCode:REF_CODE, phone:phone, callerName:$("callerName").value.trim(), faultDesc:$("faultDesc").value.trim(), schematicReport:state.schematicReport||"", deviceList:state.deviceList||[] }) })
+  .then(function(r){ if(!r.ok) return r.json().then(function(j){ throw new Error(j.error||("HTTP "+r.status)); }); return r.json(); })
+  .then(function(){ setStatus(st,"ok","&#128241; Calling you now at "+escapeHtml(phone)+". Answer to connect &mdash; billing starts when you pick up."); setLine("live","CALL PLACED — YOUR PHONE IS RINGING"); callMeBtn.disabled=false; })
+  .catch(function(err){ setStatus(st,"err","&#9888; Couldn't place the call ("+err.message+"). The callback service isn't configured yet (needs your Vapi private key + number)."); setLine("ready","LINE READY"); callMeBtn.disabled=false; });
+});
 
-function showPhoneFallback(reason){
-  var cta = $("phoneCta");
-  if (HELPLINE.HELPLINE_NUMBER){
-    cta.innerHTML = "Or call us: <a href='tel:" + encodeURIComponent(HELPLINE.HELPLINE_NUMBER) + "'>" + escapeHtml(HELPLINE.HELPLINE_NUMBER) + "</a> (read reference code " + REF_CODE + ")";
-  } else {
-    cta.innerHTML = "Phone line being provisioned. <a href='../'>Reach BlueVector here</a> in the meantime.";
-  }
-  cta.style.display = "block";
-  if (reason) setStatus($("callStatus"), "info", reason);
+/* ---------- STEP 2b: optional in-browser call fallback ---------- */
+$("browserCallLink").addEventListener("click", async function(){
+  var st=$("callStatus");
+  if (!HELPLINE.VAPI_PUBLIC_KEY || !HELPLINE.VAPI_ASSISTANT_ID){ setStatus(st,"info","Browser calling isn't configured yet. Use CALL ME NOW above."); return; }
+  setStatus(st,"info","Connecting&hellip; allow microphone access when prompted."); setLine("dialing","DIALING…");
+  try{
+    if (!state.vapi){ var mod=await import("https://esm.sh/@vapi-ai/web@2"); var Vapi=mod.default||mod.Vapi||mod; state.vapi=new Vapi(HELPLINE.VAPI_PUBLIC_KEY); wireVapi(state.vapi); }
+    await state.vapi.start(HELPLINE.VAPI_ASSISTANT_ID,{ variableValues:{ sessionId:SESSION_ID, refCode:REF_CODE, callerName:$("callerName").value.trim(), faultDesc:$("faultDesc").value.trim(), schematicReport:state.schematicReport||"(no schematic uploaded)", deviceList:(state.deviceList||[]).join(", ") } });
+  }catch(err){ setStatus(st,"err","Couldn't start the browser call ("+err.message+"). Use CALL ME NOW above."); setLine("ready","LINE READY"); }
+});
+function wireVapi(vapi){
+  vapi.on("call-start",function(){ $("hangupWrap").style.display="block"; setStatus($("callStatus"),"ok","&#128308; Connected. Billing is running at $"+HELPLINE.RATE_PER_MIN.toFixed(2)+"/min."); setLine("live","LIVE — YOU ARE CONNECTED"); });
+  vapi.on("call-end",function(){ $("hangupWrap").style.display="none"; setStatus($("callStatus"),"info","Call ended. Thanks for calling the BlueVector Helpline."); setLine("ready","LINE READY"); });
+  vapi.on("error",function(e){ setStatus($("callStatus"),"err","Call error: "+((e&&e.message)||"unknown")); setLine("ready","LINE READY"); });
 }
-
-async function startCall(){
-  var st = $("callStatus");
-  if (!HELPLINE.VAPI_PUBLIC_KEY || !HELPLINE.VAPI_ASSISTANT_ID){
-    showPhoneFallback("Browser calling isn't configured yet (add your Vapi public key + assistant id). Use the phone number below.");
-    setLine("ready", "LINE STATUS: READY (browser call not configured)");
-    return;
-  }
-  setStatus(st, "info", "Connecting&hellip; allow microphone access when prompted.");
-  setLine("dialing", "DIALING…");
-  callBtn.disabled = true;
-
-  try {
-    if (!state.vapi){
-      var mod = await import("https://esm.sh/@vapi-ai/web@2");
-      var Vapi = mod.default || mod.Vapi || mod;
-      state.vapi = new Vapi(HELPLINE.VAPI_PUBLIC_KEY);
-      wireVapiEvents(state.vapi);
-    }
-    // Hand the agent everything it needs for THIS caller's panel.
-    await state.vapi.start(HELPLINE.VAPI_ASSISTANT_ID, {
-      variableValues: {
-        sessionId: SESSION_ID,
-        refCode: REF_CODE,
-        callerName: $("callerName").value.trim(),
-        faultDesc: $("faultDesc").value.trim(),
-        schematicReport: state.schematicReport || "(no schematic uploaded)",
-        deviceList: (state.deviceList || []).join(", ")
-      }
-    });
-  } catch (err){
-    callBtn.disabled = false;
-    showPhoneFallback("Couldn't start the browser call (" + err.message + "). Use the phone number below.");
-    setLine("ready", "LINE STATUS: READY");
-  }
-}
-
-function wireVapiEvents(vapi){
-  vapi.on("call-start", function(){
-    state.inCall = true;
-    callBtn.style.display = "none"; hangupBtn.style.display = "inline-block";
-    setStatus($("callStatus"), "ok", "&#128308; Connected. Billing is running at $" + HELPLINE.RATE_PER_MIN.toFixed(2) + "/min.");
-    setLine("live", "LINE STATUS: LIVE — YOU ARE CONNECTED");
-  });
-  vapi.on("call-end", function(){
-    state.inCall = false;
-    callBtn.style.display = "inline-block"; callBtn.disabled = false; hangupBtn.style.display = "none";
-    setStatus($("callStatus"), "info", "Call ended. Thanks for calling the BlueVector Helpline.");
-    setLine("ready", "LINE STATUS: READY");
-  });
-  vapi.on("error", function(e){
-    callBtn.disabled = false;
-    showPhoneFallback("Call error: " + ((e && e.message) || "unknown") + ". Try the phone number below.");
-    setLine("ready", "LINE STATUS: READY");
-  });
-}
-
-callBtn.addEventListener("click", startCall);
-hangupBtn.addEventListener("click", function(){ if (state.vapi) state.vapi.stop(); });
-
-/* If no browser-call keys are set, surface the phone option up front. */
-if (!HELPLINE.VAPI_PUBLIC_KEY || !HELPLINE.VAPI_ASSISTANT_ID){ showPhoneFallback(); }
+$("hangupBtn").addEventListener("click",function(){ if(state.vapi) state.vapi.stop(); });
 </script>
 
 </body>

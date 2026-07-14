@@ -23,10 +23,18 @@ The agent uses its eyes twice:
 
 | File | Role |
 |---|---|
-| `helpline/index.html` | The splash. Upload UI + client-side downscale, Vapi web call, session/ref-code linkage. |
+| `helpline/index.html` | The splash (blueprint look). Upload + client-side downscale, **CALL ME NOW** callback, session/ref-code linkage, optional browser-call fallback. |
 | `netlify/functions/read-schematic.mjs` | The eyes. `initial` mode = full read; Vapi tool mode = live Q&A on the stored image. |
+| `netlify/functions/request-callback.mjs` | The **CALL ME NOW** handler. Triggers a Vapi *outbound* call to the caller with the schematic context attached. |
 | `netlify.toml` | Functions-only build config (does **not** touch your publish dir). |
 | `package.json` | One dep: `@netlify/blobs` (image storage for the mid-call tool). |
+
+## Call model: callback-primary
+
+The hero action is **CALL ME NOW** — the caller types their number and Vapi
+dials *them* (outbound). This works from any phone, no mic/permissions. A
+secondary "browser call" link uses the Vapi Web SDK (WebRTC) for anyone who'd
+rather talk through the page. Both hand the agent the same schematic context.
 
 ## Front-end config (`HELPLINE` block in `index.html`)
 
@@ -42,9 +50,12 @@ the user what isn't wired yet.
 
 ## Setup checklist
 
-1. **Netlify env var:** `ANTHROPIC_API_KEY` (required). Optional
-   `ANTHROPIC_MODEL` (default `claude-sonnet-5`; use `claude-opus-4-8` for the
-   most careful schematic reading, at higher latency/cost).
+1. **Netlify env vars:**
+   - `ANTHROPIC_API_KEY` (required — the vision reads). Optional
+     `ANTHROPIC_MODEL` (default `claude-sonnet-5`; use `claude-opus-4-8` for the
+     most careful schematic reading, at higher latency/cost).
+   - For **CALL ME NOW**: `VAPI_PRIVATE_KEY`, `VAPI_PHONE_NUMBER_ID`,
+     `VAPI_ASSISTANT_ID`. (Buy/import a number in Vapi to get the phone-number id.)
 2. **Deploy.** Netlify auto-provisions Blobs and bundles the function. The
    function lives at `/.netlify/functions/read-schematic`.
 3. **Create a Vapi assistant.** Paste the pump-diagnostics system prompt. Have
