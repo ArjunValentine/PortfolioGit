@@ -85,6 +85,7 @@ Caller's reported symptom: ${fault || "(not provided)"}
 
 Return ONLY a JSON object, no prose, in this exact shape:
 {
+  "summary": "<ONE sentence, ~20 words max: what kind of panel this is and the single most likely fault cause given the reported symptom>",
   "report": "<6-10 sentence plain-spoken briefing for a phone technician: what this panel is, the key devices and their ratings, how power flows (supply -> protection -> switching -> load) and the control path (start/stop -> coil), anything unusual, and the 1-2 most likely causes of the reported symptom given what you can SEE in the drawing>",
   "deviceList": ["<short device labels, e.g. 'Contactor K1', 'Thermal OL 10A', 'Soft starter ABB PSE', 'VFD', '3HP pump motor'>"]
 }
@@ -141,6 +142,15 @@ export default async (req) => {
   let body;
   try { body = await req.json(); } catch { return json({ error: "invalid JSON" }, 400); }
 
+  // ---- Path A0: Vapi "assistant-request" (this endpoint is sitting as a
+  // phone number's Server URL, not just the tool's). Vapi sends this when a
+  // number has no assistant statically assigned and needs one within 7.5s,
+  // or it aborts the call. Answer it so an inbound call never dies here. ----
+  if (body && body.message && body.message.type === "assistant-request") {
+    const assistantId = process.env.VAPI_ASSISTANT_ID;
+    return assistantId ? json({ assistantId }) : json({ error: "VAPI_ASSISTANT_ID not set" }, 500);
+  }
+
   // ---- Path A: Vapi tool call (live, mid-conversation) ----
   const tool = parseVapiToolCall(body);
   if (tool) {
@@ -167,19 +177,26 @@ export default async (req) => {
       if (refCode) await store().set("ref:" + String(refCode).replace(/\D/g, ""), sessionId);
 
       const text = await askVision({ mediaType, base64: imageBase64, prompt: INITIAL_PROMPT(faultDesc) });
-      let out = { report: text, deviceList: [] };
+      let out = { summary: "", report: text, deviceList: [] };
       const start = text.indexOf("{"), end = text.lastIndexOf("}");
       if (start !== -1 && end !== -1) {
         try {
           const parsed = JSON.parse(text.slice(start, end + 1));
-          out = { report: parsed.report || text, deviceList: parsed.deviceList || [] };
+          out = { summary: parsed.summary || "", report: parsed.report || text, deviceList: parsed.deviceList || [] };
         } catch { /* keep raw text as report */ }
       }
+      if (!out.summary) out.summary = (out.report.split(/(?<=[.!?])\s/)[0] || out.report).slice(0, 160);
       return json(out);
     } catch (err) {
       return json({ error: err.message }, 500);
     }
   }
+
+  // ---- Any other Vapi call-lifecycle event this endpoint wasn't meant to
+  // receive (status-update, end-of-call-report, transcript, etc. - this
+  // happens if this URL is ever left as a phone number's Server URL instead
+  // of only the tool's). Acknowledge harmlessly rather than error the call. ----
+  if (body && body.message && body.message.type) return json({});
 
   return json({ error: "unrecognized request; expected an initial read or a Vapi tool call" }, 400);
 };
