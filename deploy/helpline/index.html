@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlueVector Helpline &mdash; Control Panel Diagnostics</title>
+<meta name="description" content="On-demand control panel diagnostics. Upload your schematic and start a call with a BlueVector diagnostics expert.">
+<link rel="icon" type="image/png" href="../bvlogo.png">
+<style>
+@charset "utf-8";
+
+body { background: white; }
+body, p, input, textarea, td, li { font-family: Verdana, Tahoma, Geneva, sans-serif; font-size: 18px; margin: 0px; padding: 0px; text-align: left; }
+
+h1 { font-size: 44px; font-weight: 600; font-style: italic; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0, 0, 128); -webkit-text-stroke: 1px black; margin: 0px; text-align: center; }
+h2 { font-size: 30px; font-weight: 600; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0, 0, 128); -webkit-text-stroke: 1px black; margin: 0px 0px 12px 0px; text-align: left; }
+h3 { font-size: 24px; font-weight: 600; color: rgb(0, 0, 128); margin: 0px 0px 8px; text-align: left; }
+a { color: rgb(0, 0, 128); }
+
+.masthead { text-align: center; padding: 22px 10px 4px; background: white; }
+.masthead img.logo { height: 96px; width: auto; max-width: 92%; display: inline-block; }
+.tagline { text-align: center; font-size: 20px; font-style: italic; color: rgb(0, 0, 128); padding: 0 10px 14px; }
+
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 3% 30px; }
+
+/* caution bar (house style) */
+.caution-bar { height: 18px; margin: 0; padding: 0; background: repeating-linear-gradient(45deg, #000 0, #000 15px, #ffcc00 15px, #ffcc00 30px); background-size: 42px 42px; animation: barberpole 0.8s linear infinite; }
+@keyframes barberpole { from { background-position: 0 0; } to { background-position: 42px 0; } }
+
+.hero { background-color: rgb(208, 208, 208); background-image: repeating-linear-gradient(45deg, rgba(0,0,128,0.05) 0px, rgba(0,0,128,0.05) 1px, transparent 1px, transparent 6px); padding: 22px 3% 26px; text-align: center; }
+.hero p { max-width: 720px; margin: 12px auto 0; color: #222; font-size: 18px; }
+.rate { display: inline-block; margin-top: 16px; background: #000080; color: #ffff00; font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 17px; padding: 6px 14px; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #000; border-right: 2px solid #000; }
+
+/* step panels */
+.panel { border: 3px solid rgb(0, 0, 128); background: #fff; margin: 24px 0; padding: 20px 22px; }
+.panel .step { display: inline-block; background: rgb(0,0,128); color: #fff; font-weight: bold; font-size: 16px; padding: 3px 12px; margin-bottom: 10px; letter-spacing: 0.05em; }
+
+/* dropzone */
+.dropzone { border: 3px dashed #7878dc; background: #f4f4fb; padding: 30px 18px; text-align: center; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.dropzone.dragover { background: #e4e4ff; border-color: rgb(0,0,128); }
+.dropzone .dz-icon { font-size: 40px; line-height: 1; }
+.dropzone .dz-main { font-size: 18px; font-weight: 600; color: rgb(0,0,128); margin-top: 8px; }
+.dropzone .dz-sub { font-size: 14px; color: #555; margin-top: 4px; }
+input[type=file] { display: none; }
+.filelist { margin-top: 14px; }
+.filelist .fileitem { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f0f0f0; border: 1px solid #bbb; padding: 8px 12px; margin-top: 8px; font-size: 15px; }
+.filelist .fileitem .fname { font-family: "Courier New", Courier, monospace; word-break: break-all; }
+.filelist .fileitem .fsize { color: #666; font-size: 13px; white-space: nowrap; }
+.filelist .fileitem .fremove { background: none; border: none; color: #b00; font-size: 22px; line-height: 1; cursor: pointer; padding: 0 4px; }
+
+/* buttons */
+.btnrow { text-align: center; margin: 6px 0 2px; }
+button.action, a.action { display: inline-block; background: rgb(0, 0, 128); color: #fff; padding: 13px 30px; margin: 8px; font-size: 19px; font-weight: bold; text-decoration: none; cursor: pointer; border-top: 3px solid rgb(120, 120, 220); border-left: 3px solid rgb(120, 120, 220); border-bottom: 3px solid rgb(0, 0, 60); border-right: 3px solid rgb(0, 0, 60); }
+button.action:hover, a.action:hover { background: #fff; color: rgb(0, 0, 128); border-top: 3px solid rgb(0, 0, 60); border-left: 3px solid rgb(0, 0, 60); border-bottom: 3px solid rgb(120, 120, 220); border-right: 3px solid rgb(120, 120, 220); }
+button.action:disabled { background: #999; color: #ddd; cursor: not-allowed; border-color: #777 #555 #bbb #bbb; }
+.call-note { text-align: center; font-size: 14px; color: #555; margin-top: 6px; }
+
+/* labels/inputs */
+label { display: block; font-size: 14px; font-weight: 600; color: rgb(0, 0, 128); margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+input[type=text], input[type=tel], textarea { width: 100%; padding: 9px 10px; border: 1px solid #999; font-size: 16px; box-sizing: border-box; }
+textarea { min-height: 80px; resize: vertical; }
+
+/* status line */
+.status { margin-top: 14px; padding: 10px 12px; font-family: "Courier New", Courier, monospace; font-size: 15px; display: none; }
+.status.info { display: block; background: #eef; border: 1px solid #99c; color: #003; }
+.status.ok { display: block; background: #e7ffe7; border: 1px solid #4a4; color: #060; }
+.status.err { display: block; background: #ffecec; border: 1px solid #c66; color: #900; }
+
+.disclaimer { font-size: 13px; color: #666; margin-top: 22px; line-height: 1.5; }
+.footer { background-color: rgb(0, 0, 128); margin: 0; padding: 14px; font-size: 15px; color: white; text-align: center; line-height: 1.6; }
+.footer a { color: rgb(200, 210, 255); }
+</style>
+</head>
+<body>
+
+<div class="caution-bar"></div>
+
+<div class="masthead">
+  <a href="../"><img class="logo" src="../bvlogo.png" alt="BlueVector"></a>
+</div>
+<div class="tagline">Control Panel Diagnostics Helpline</div>
+
+<div class="hero">
+  <h1>Panel Down? Get an Expert on the Line.</h1>
+  <p>Upload your control panel schematic, then start a call. A diagnostics
+  expert &mdash; backed by AI triage &mdash; walks you through the fault:
+  won't start, trips out, runs but no flow. Most panels diagnosed in
+  5&ndash;10 minutes.</p>
+  <div class="rate" id="rateBadge">$4.00 / MIN &nbsp;&bull;&nbsp; 5 MIN MINIMUM</div>
+</div>
+
+<div class="wrap">
+
+  <!-- STEP 1: SCHEMATIC UPLOAD -->
+  <div class="panel">
+    <span class="step">STEP 1</span>
+    <h3>Upload your schematic <span style="font-weight:normal;font-size:15px;color:#666;">(optional, but speeds diagnosis)</span></h3>
+    <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload schematic">
+      <div class="dz-icon">&#128228;</div>
+      <div class="dz-main">Drop a file here or click to browse</div>
+      <div class="dz-sub">Photo of the panel, wiring diagram, or PDF &nbsp;&bull;&nbsp; JPG, PNG, PDF, up to 25&nbsp;MB</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" multiple>
+    <div class="filelist" id="fileList"></div>
+    <div class="btnrow">
+      <button class="action" id="uploadBtn" disabled>Send Schematic</button>
+    </div>
+    <div class="status" id="uploadStatus"></div>
+  </div>
+
+  <!-- STEP 2: START A CALL -->
+  <div class="panel">
+    <span class="step">STEP 2</span>
+    <h3>Start your call</h3>
+    <label for="callerName">Your name</label>
+    <input type="text" id="callerName" placeholder="Full name" autocomplete="name">
+    <label for="callerPhone">Callback number</label>
+    <input type="tel" id="callerPhone" placeholder="(555) 123-4567" autocomplete="tel">
+    <label for="faultDesc">What's the panel doing?</label>
+    <textarea id="faultDesc" placeholder="e.g. Pump won't start. No fault code. Contactor doesn't click when I press start."></textarea>
+
+    <div class="btnrow">
+      <a class="action" id="callBtn" href="#">&#128222;&nbsp; Call the Helpline</a>
+    </div>
+    <div class="call-note" id="callNote">You'll be connected to a diagnostics expert. Billing starts when the call connects.</div>
+    <div class="status" id="callStatus"></div>
+  </div>
+
+  <p class="disclaimer">
+    <strong>Safety &amp; liability:</strong> BlueVector Helpline provides remote
+    diagnostic guidance only and is not a substitute for a licensed
+    electrician. Always follow lock-out/tag-out and de-energize before touching
+    live equipment. Calls may be recorded for quality and training. By starting
+    a call you agree to per-minute billing at the posted rate.
+  </p>
+</div>
+
+<div class="caution-bar"></div>
+<div class="footer">
+  Copyright 2026 by BlueVector &nbsp;&bull;&nbsp; 2655 Ulmerton Rd, Suite 243, Clearwater, FL 33762
+  <br>
+  <a href="../">&larr; Back to BlueVector home</a>
+</div>
+
+<script>
+/* ============================================================
+   BlueVector Helpline — front-end config
+   ------------------------------------------------------------
+   This page is intentionally backend-agnostic. Fill these in
+   as you build out the Twilio + upload pieces. Everything below
+   degrades gracefully: with only HELPLINE_NUMBER set, the page
+   works today as a click-to-call, and uploads queue locally
+   with a clear "not yet connected" message.
+   ============================================================ */
+var HELPLINE = {
+  // E.164 Twilio number callers dial. Enables the tel: click-to-call today.
+  // e.g. "+17275551234"
+  HELPLINE_NUMBER: "",
+
+  // POST endpoint that accepts multipart/form-data schematic uploads.
+  // Leave "" until your backend exists. e.g. "/api/upload" or a Netlify Function.
+  UPLOAD_ENDPOINT: "",
+
+  // Optional: endpoint that mints a Twilio Voice SDK access token for
+  // in-browser (WebRTC) calling. Leave "" to use plain tel: dialing.
+  // e.g. "/api/voice-token"
+  VOICE_TOKEN_ENDPOINT: "",
+
+  RATE_PER_MIN: 4.00,
+  MIN_MINUTES: 5,
+  MAX_FILE_MB: 25
+};
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function setStatus(el, kind, msg){ el.className = "status " + kind; el.innerHTML = msg; }
+function fmtSize(b){
+  if (b < 1024) return b + " B";
+  if (b < 1048576) return (b/1024).toFixed(1) + " KB";
+  return (b/1048576).toFixed(1) + " MB";
+}
+
+/* ---------- file selection ---------- */
+var selectedFiles = [];
+var dz = $("dropzone"), fileInput = $("fileInput"),
+    fileList = $("fileList"), uploadBtn = $("uploadBtn");
+
+dz.addEventListener("click", function(){ fileInput.click(); });
+dz.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+dz.addEventListener("dragover", function(e){ e.preventDefault(); dz.classList.add("dragover"); });
+dz.addEventListener("dragleave", function(){ dz.classList.remove("dragover"); });
+dz.addEventListener("drop", function(e){
+  e.preventDefault(); dz.classList.remove("dragover");
+  addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener("change", function(){ addFiles(fileInput.files); });
+
+function addFiles(fl){
+  var maxBytes = HELPLINE.MAX_FILE_MB * 1048576;
+  for (var i = 0; i < fl.length; i++){
+    var f = fl[i];
+    if (f.size > maxBytes){
+      setStatus($("uploadStatus"), "err", "&#9888; " + f.name + " is larger than " + HELPLINE.MAX_FILE_MB + " MB and was skipped.");
+      continue;
+    }
+    selectedFiles.push(f);
+  }
+  fileInput.value = "";
+  renderFiles();
+}
+
+function renderFiles(){
+  fileList.innerHTML = "";
+  selectedFiles.forEach(function(f, idx){
+    var row = document.createElement("div");
+    row.className = "fileitem";
+    row.innerHTML =
+      '<span class="fname">' + escapeHtml(f.name) + '</span>' +
+      '<span class="fsize">' + fmtSize(f.size) + '</span>' +
+      '<button class="fremove" title="Remove" data-idx="' + idx + '">&times;</button>';
+    fileList.appendChild(row);
+  });
+  fileList.querySelectorAll(".fremove").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      selectedFiles.splice(parseInt(btn.getAttribute("data-idx"),10), 1);
+      renderFiles();
+    });
+  });
+  uploadBtn.disabled = selectedFiles.length === 0;
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, function(c){
+    return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+  });
+}
+
+/* ---------- upload ---------- */
+uploadBtn.addEventListener("click", function(){
+  if (selectedFiles.length === 0) return;
+  var st = $("uploadStatus");
+
+  if (!HELPLINE.UPLOAD_ENDPOINT){
+    setStatus(st, "info",
+      "&#10003; " + selectedFiles.length + " file(s) ready. Online upload isn't wired up yet &mdash; " +
+      "for now, bring the schematic to your call or text it to the helpline number once you're connected.");
+    return;
+  }
+
+  setStatus(st, "info", "Uploading&hellip;");
+  uploadBtn.disabled = true;
+
+  var fd = new FormData();
+  selectedFiles.forEach(function(f){ fd.append("schematics", f, f.name); });
+  fd.append("callerName", $("callerName").value.trim());
+  fd.append("callerPhone", $("callerPhone").value.trim());
+  fd.append("faultDesc", $("faultDesc").value.trim());
+
+  fetch(HELPLINE.UPLOAD_ENDPOINT, { method: "POST", body: fd })
+    .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json().catch(function(){ return {}; }); })
+    .then(function(){
+      setStatus(st, "ok", "&#10003; Schematic received. Reference it when you start your call.");
+    })
+    .catch(function(err){
+      setStatus(st, "err", "&#9888; Upload failed (" + err.message + "). Try again, or bring the schematic to your call.");
+      uploadBtn.disabled = false;
+    });
+});
+
+/* ---------- start a call ---------- */
+var callBtn = $("callBtn");
+
+function refreshCallTarget(){
+  if (HELPLINE.HELPLINE_NUMBER){
+    callBtn.setAttribute("href", "tel:" + HELPLINE.HELPLINE_NUMBER);
+    var pretty = HELPLINE.HELPLINE_NUMBER;
+    $("callNote").innerHTML = "Dialing <strong>" + escapeHtml(pretty) + "</strong>. Billing starts when the call connects.";
+  } else {
+    callBtn.setAttribute("href", "#");
+  }
+}
+refreshCallTarget();
+
+callBtn.addEventListener("click", function(e){
+  var st = $("callStatus");
+
+  // In-browser WebRTC path (once a token endpoint + Twilio SDK are added).
+  if (HELPLINE.VOICE_TOKEN_ENDPOINT){
+    e.preventDefault();
+    setStatus(st, "info", "Browser calling isn't finished yet &mdash; use the phone number below.");
+    // TODO: load Twilio Voice SDK, fetch a token from VOICE_TOKEN_ENDPOINT,
+    //       new Device(token), device.connect({ params: {...caller info...} }).
+    return;
+  }
+
+  if (!HELPLINE.HELPLINE_NUMBER){
+    e.preventDefault();
+    setStatus(st, "info",
+      "&#128241; The helpline number is being provisioned. Check back shortly, or " +
+      "<a href='../'>reach BlueVector from the homepage</a> in the meantime.");
+    return;
+  }
+  // else: tel: href handles the dial natively.
+});
+
+/* ---------- rate badge from config ---------- */
+$("rateBadge").textContent =
+  "$" + HELPLINE.RATE_PER_MIN.toFixed(2) + " / MIN  •  " + HELPLINE.MIN_MINUTES + " MIN MINIMUM";
+</script>
+
+</body>
+</html>
