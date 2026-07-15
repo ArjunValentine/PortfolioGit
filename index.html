@@ -158,6 +158,18 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
     <li><a href="#services">Services</a></li>
     <li><a href="#projects">Sample Projects</a></li>
     <li><a href="#resources">Resources</a></li>
+    <li><a href="about/">About Our Team</a></li>
+    <li>
+      <label for="drop-3" class="toggle">Live Systems</label>
+      <a href="#live-systems">Live Systems</a>
+      <input type="checkbox" id="drop-3">
+      <ul>
+        <li><a href="scada/">Hydro SCADA</a></li>
+        <li><a href="dcsketch/">DCSketch</a></li>
+        <li><a href="traffic-oracle/">Traffic Oracle</a></li>
+        <li><a href="combined-cycle-sim/">Combined-Cycle Sim</a></li>
+      </ul>
+    </li>
     <li><a href="helpline/">Helpline</a></li>
     <li><a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;">Contact Us</a></li>
   </ul>
@@ -166,7 +178,7 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
 <!-- Scrolling news ticker (webmaster classic) -->
 <div class="caution-bar"></div>
 <div class="ticker">
-  <marquee scrollamount="6" behavior="scroll" direction="left">&#9733;&nbsp; WELCOME TO BLUEVECTOR &nbsp;&#9733;&nbsp; NOW BOOKING Q3 2026 CAD, DRAFTING &amp; GD&amp;T PROJECTS &nbsp;&#9733;&nbsp; SITE LAST UPDATED 07/11/2026 &nbsp;&#9733;&nbsp; ALL WORK UNDER NDA &nbsp;&#9733;&nbsp; BEST VIEWED IN NETSCAPE NAVIGATOR AT 800&times;600 &nbsp;&#9733;&nbsp; HAND-CODED IN NOTEPAD, NO ROBOTS &nbsp;&#9733;</marquee>
+  <marquee scrollamount="6" behavior="scroll" direction="left">&#9733;&nbsp; WELCOME TO BLUEVECTOR &nbsp;&#9733;&nbsp; NOW BOOKING Q3 2026 CAD, DRAFTING &amp; GD&amp;T PROJECTS &nbsp;&#9733;&nbsp; SITE LAST UPDATED 07/15/2026 &nbsp;&#9733;&nbsp; ALL WORK UNDER NDA &nbsp;&#9733;&nbsp; BEST VIEWED IN NETSCAPE NAVIGATOR AT 800&times;600 &nbsp;&#9733;&nbsp; HAND-CODED IN NOTEPAD, NO ROBOTS &nbsp;&#9733;</marquee>
 </div>
 <div class="caution-bar"></div>
 
@@ -292,6 +304,70 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
   <p><b>Obsolete Part, Reverse Engineered.</b> A worn sample, no drawing, became a fully parametric model the client can re-source from any shop.</p>
   <p><b>Sheet-Metal Enclosure to Production.</b> A rough concept became a manufacturable design, handed straight to fab for a clean first article.</p>
   <p style="font-size:16px; color:#555;">Details generalized for confidentiality. More on request under NDA.</p>
+</div>
+
+<!-- Live Systems -->
+<div class="section" id="live-systems">
+  <h2>Live Systems</h2>
+  <p>Working demos of the controls, SCADA, and simulation engineering behind BlueVector &mdash; live data, not screenshots.</p>
+  <table class="cards" align="center" width="94%" cellpadding="5px">
+    <tbody>
+      <tr>
+        <td class="rounded" width="31%">
+          <h3>Hydro SCADA</h3>
+          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+            <path d="M14 60 Q30 44 46 60 T78 60 T110 60" stroke-linecap="round"/>
+            <path d="M14 76 Q30 60 46 76 T78 76 T110 76" stroke-linecap="round" opacity="0.55"/>
+            <circle cx="60" cy="30" r="10"/>
+            <path d="M60 40 L60 52" stroke-dasharray="4 4"/>
+          </svg>
+          <p>Live USGS gauge passability map for the Winter Haven Chain of Lakes</p>
+          <div class="btnrow" style="margin:6px 0 0"><a href="scada/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
+        </td>
+        <td class="spacer"></td>
+        <td class="rounded" width="31%">
+          <h3>DCSketch</h3>
+          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+            <rect x="18" y="16" width="84" height="68"/>
+            <path d="M18 34 L102 34"/>
+            <circle cx="40" cy="55" r="7"/>
+            <path d="M40 62 L40 78 M60 34 L60 84 M80 46 L96 46"/>
+          </svg>
+          <p>SCADA/DCS architecture &amp; estimation workbench &mdash; I/O, panels, and line-item costing</p>
+          <div class="btnrow" style="margin:6px 0 0"><a href="dcsketch/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
+        </td>
+        <td class="spacer"></td>
+        <td class="rounded" width="31%">
+          <h3>Traffic Oracle</h3>
+          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+            <path d="M20 84 L48 16 L72 16 L100 84" />
+            <path d="M32 56 L88 56" stroke-dasharray="6 6"/>
+            <circle cx="48" cy="70" r="5" fill="#000080"/>
+            <circle cx="72" cy="70" r="5" fill="#000080"/>
+          </svg>
+          <p>Live corridor-speed modelling for Pinellas County, St. Petersburg FL</p>
+          <div class="btnrow" style="margin:6px 0 0"><a href="traffic-oracle/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rounded" width="31%">
+          <h3>Combined-Cycle Sim</h3>
+          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+            <polygon points="24,50 54,58 54,78 24,86"/>
+            <circle cx="66" cy="64" r="8"/>
+            <rect x="80" y="30" width="26" height="50"/>
+            <rect x="88" y="14" width="10" height="18"/>
+          </svg>
+          <p>Voltage Falls Power &mdash; an operator simulator for a gas + steam combined-cycle plant</p>
+          <div class="btnrow" style="margin:6px 0 0"><a href="combined-cycle-sim/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
+        </td>
+        <td class="spacer"></td>
+        <td width="31%"></td>
+        <td class="spacer"></td>
+        <td width="31%"></td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- Resources -->

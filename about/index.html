@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Our Team — BlueVector</title>
+<meta name="description" content="The engineering team behind BlueVector: UL 508A panel design, PLC/HMI/VFD programming, Modbus TCP data systems, continuous improvement, and manufacturing engineering — a decade of documented floor work.">
+<link rel="icon" type="image/png" href="../bvlogo.png">
+<style>
+@charset "utf-8";
+
+body { background: white; }
+
+body, p, input, textarea, td, li { font-family: Verdana, Tahoma, Geneva, sans-serif; font-size: 18px; margin: 0px; padding: 0px; text-align: left; }
+
+h1 { font-size: 60px; font-weight: 600; font-style: italic; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0, 0, 128); -webkit-text-stroke: 1px black; margin: 0px; text-align: center; }
+
+h2 { font-size: 35px; font-weight: 600; color: rgb(0,0,128); -webkit-text-fill-color: rgb(0, 0, 128); -webkit-text-stroke: 1px black; margin: 0px 0px 12px 0px; text-align: left; }
+
+h3 { font-size: 28px; font-weight: 600; color: rgb(0, 0, 128); margin: 0px; text-align: center; }
+
+a { color: rgb(0, 0, 128); }
+
+.masthead { text-align: center; padding: 26px 10px 6px; background: white; }
+.masthead img.logo { height: 112px; width: auto; max-width: 92%; display: inline-block; }
+.tagline { text-align: center; font-size: 22px; font-style: italic; color: rgb(0, 0, 128); padding: 0 10px 16px; }
+
+div { margin-left: 2%; margin-right: 2%; padding: 5px; font-size: 20px; }
+
+div.mainpage { margin-left: 0%; margin-right: 0%; padding: 0px 0px 18px; font-size: 20px; background-color: rgb(192, 192, 192); background-image: repeating-linear-gradient(45deg, rgba(0,0,128,0.05) 0px, rgba(0,0,128,0.05) 1px, transparent 1px, transparent 6px); }
+
+div.section { margin-left: 0%; margin-right: 0%; padding: 18px 2% 6px; background-color: rgb(208, 208, 208); }
+div.section p { margin-left: 2%; margin-right: 2%; }
+
+div.footer { background-color: rgb(0, 0, 128); margin-left: 0px; margin-right: 0px; padding: 14px; font-size: 18px; color: white; text-align: center; line-height: 1.5; }
+div.footer a { color: rgb(200, 210, 255); }
+
+ul.list { margin: 6px 2% 12px; padding-left: 26px; }
+ul.list li { margin: 4px 0; }
+
+/* ── NAV (Coastal-style navy bar) ── */
+nav { margin: 0px; padding: 0px; background-color: rgb(0, 0, 128); }
+nav::after { content: ""; display: table; clear: both; }
+nav ul { float: left; padding: 0px; margin: 0px; list-style: none; position: relative; }
+nav ul li { margin: 0px; display: inline-block; float: left; background-color: rgb(0, 0, 128); }
+nav a { display: block; padding: 0px 20px; color: rgb(255, 255, 255); font-size: 18px; font-weight: bold; line-height: 46px; text-decoration: none; cursor: pointer; border-top: 2px solid rgb(120, 120, 220); border-left: 2px solid rgb(120, 120, 220); border-bottom: 2px solid rgb(0, 0, 60); border-right: 2px solid rgb(0, 0, 60); }
+.toggle, [id^="drop"] { display: none; }
+nav ul li ul li:hover { color: rgb(0, 0, 0); background: rgb(240, 240, 255); }
+nav a:hover { color: rgb(0, 0, 0); background-color: rgb(240, 240, 255); border-top: 2px solid rgb(0, 0, 60); border-left: 2px solid rgb(0, 0, 60); border-bottom: 2px solid rgb(255, 255, 255); border-right: 2px solid rgb(255, 255, 255); }
+nav ul ul { display: none; position: absolute; top: 50px; z-index: 20; }
+nav ul li:hover > ul { display: inherit; }
+nav ul ul li { width: 300px; float: none; display: list-item; position: relative; }
+
+/* ── Home cards table ── */
+table.cards { border-collapse: separate; }
+td.rounded { border: 2px solid rgb(0, 0, 128); background-color: rgb(255, 255, 255); margin: 25px; text-align: center; vertical-align: top; padding: 18px 14px; }
+td.rounded h3 { margin-bottom: 10px; }
+td.rounded svg { width: 170px; height: 140px; }
+td.rounded p { font-size: 17px; text-align: center; color: #333; margin-top: 8px; }
+td.spacer { width: 3%; }
+
+/* ── Stat tiles ── */
+td.stat { border: 2px solid rgb(0, 0, 128); background-color: rgb(255, 255, 255); text-align: center; vertical-align: top; padding: 18px 14px; }
+td.stat .num { font-size: 40px; font-weight: 700; color: rgb(0, 0, 128); }
+td.stat .lbl { font-size: 15px; color: #333; margin-top: 4px; }
+td.stat .src { font-size: 13px; color: #777; font-style: italic; margin-top: 6px; }
+
+/* ── Credentials ── */
+.cred-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 2% 16px; }
+.cred { border: 2px solid rgb(0, 0, 128); background: #fff; padding: 10px 16px; min-width: 220px; flex: 1 1 220px; }
+.cred .cn { font-weight: bold; color: rgb(0, 0, 128); font-size: 16px; }
+.cred .cb { font-size: 14px; color: #555; margin-top: 2px; }
+
+/* ── Buttons / CTA ── */
+.btnrow { text-align: center; margin: 8px 0 14px; }
+a.button { display: inline-block; background: rgb(0, 0, 128); color: #fff; padding: 12px 30px; margin: 8px; font-size: 20px; font-weight: bold; text-decoration: none; border-top: 3px solid rgb(120, 120, 220); border-left: 3px solid rgb(120, 120, 220); border-bottom: 3px solid rgb(0, 0, 60); border-right: 3px solid rgb(0, 0, 60); }
+a.button:hover { background: #fff; color: rgb(0, 0, 128); border-top: 3px solid rgb(0, 0, 60); border-left: 3px solid rgb(0, 0, 60); border-bottom: 3px solid rgb(120, 120, 220); border-right: 3px solid rgb(120, 120, 220); }
+
+/* ── Contact modal ── */
+.contact-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.contact-modal { background: #fff; max-width: 520px; width: 100%; padding: 26px 28px; position: relative; border: 3px solid rgb(0, 0, 128); }
+.contact-modal h3 { text-align: left; font-style: italic; margin-bottom: 6px; }
+.contact-modal .modal-sub { font-size: 16px; color: #555; margin-bottom: 16px; }
+.contact-modal label { display: block; font-size: 15px; font-weight: 600; color: rgb(0, 0, 128); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.contact-modal input, .contact-modal textarea { width: 100%; padding: 9px 10px; border: 1px solid #999; font-size: 17px; margin-bottom: 12px; box-sizing: border-box; }
+.contact-modal textarea { min-height: 110px; resize: vertical; }
+.contact-modal .modal-send-btn { background: rgb(0, 0, 128); color: #fff; padding: 11px 26px; border: none; font-size: 18px; font-weight: 600; cursor: pointer; }
+.contact-modal .modal-send-btn:hover { background: #000; }
+.contact-modal .modal-close { position: absolute; top: 8px; right: 14px; background: none; border: none; font-size: 30px; color: #888; cursor: pointer; line-height: 1; }
+.contact-modal .modal-close:hover { color: rgb(0, 0, 128); }
+.contact-modal .modal-success { display: none; text-align: center; padding: 24px 0; }
+
+/* ── 90s webmaster maximalism ── */
+.caution-bar { height: 20px; margin: 0; padding: 0; background: repeating-linear-gradient(45deg, #000 0, #000 17px, #ffcc00 17px, #ffcc00 34px); background-size: 48px 48px; animation: barberpole 0.8s linear infinite; }
+@keyframes barberpole { from { background-position: 0 0; } to { background-position: 48px 0; } }
+
+.ticker { background: #000080; color: #ffff00; font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 16px; padding: 6px 0; margin: 0; border-top: 2px solid #ffff00; border-bottom: 2px solid #ffff00; overflow: hidden; white-space: nowrap; }
+.ticker marquee { color: #ffff00; }
+
+.badgebar { text-align: center; padding: 12px 8px 4px; background: rgb(0, 0, 128); }
+.badge { display: inline-block; font-family: "Courier New", Courier, monospace; font-size: 11px; font-weight: bold; line-height: 1.15; padding: 3px 6px; margin: 4px; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #000; border-right: 2px solid #000; text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle; }
+.badge.b1 { background: #c0c0c0; color: #000080; }
+.badge.b2 { background: #000; color: #33ff33; }
+.badge.b3 { background: #800000; color: #ffff00; }
+.badge.b4 { background: #008080; color: #fff; }
+
+/* ── Mobile nav (Coastal-style checkbox toggle) ── */
+@media (max-width: 800px) {
+  nav { margin: 0px; }
+  .toggle + a, .menu { display: none; }
+  .toggle { display: block; background-color: rgb(0, 0, 128); padding: 0px 20px; color: rgb(255, 255, 255); font-size: 20px; line-height: 50px; text-decoration: none; border-style: none; }
+  .toggle:hover { color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); }
+  [id^="drop"]:checked + ul { display: block; }
+  nav ul li { display: block; width: 100%; }
+  nav ul ul .toggle, nav ul ul a { padding: 0px 40px; }
+  nav a:hover { color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); }
+  nav ul ul { float: none; position: static; color: rgb(255, 255, 255); }
+  nav ul ul li:hover > ul, nav ul li:hover > ul { display: none; }
+  nav ul ul li { display: block; width: 100%; }
+  td.rounded, td.spacer, td.stat { display: block; width: auto; margin: 10px 0; }
+  h1 { font-size: 44px; }
+  h2 { font-size: 28px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Masthead -->
+<div class="masthead" id="top">
+  <img class="logo" src="../bvlogo.png" alt="BlueVector">
+</div>
+<div class="tagline">About Our Team</div>
+
+<!-- Navigation -->
+<nav>
+  <label for="drop" class="toggle">Menu</label>
+  <input type="checkbox" id="drop">
+  <ul class="menu">
+    <li><a href="../#top">Home</a></li>
+    <li><a href="../#engineering">Engineering</a></li>
+    <li><a href="../#services">Services</a></li>
+    <li><a href="../#projects">Sample Projects</a></li>
+    <li><a href="../#resources">Resources</a></li>
+    <li><a href="./">About Our Team</a></li>
+    <li>
+      <label for="drop-3" class="toggle">Live Systems</label>
+      <a href="../#live-systems">Live Systems</a>
+      <input type="checkbox" id="drop-3">
+      <ul>
+        <li><a href="../scada/">Hydro SCADA</a></li>
+        <li><a href="../dcsketch/">DCSketch</a></li>
+        <li><a href="../traffic-oracle/">Traffic Oracle</a></li>
+        <li><a href="../combined-cycle-sim/">Combined-Cycle Sim</a></li>
+      </ul>
+    </li>
+    <li><a href="../helpline/">Helpline</a></li>
+    <li><a href="#" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;">Contact Us</a></li>
+  </ul>
+</nav>
+
+<!-- Scrolling news ticker (webmaster classic) -->
+<div class="caution-bar"></div>
+<div class="ticker">
+  <marquee scrollamount="6" behavior="scroll" direction="left">&#9733;&nbsp; ABOUT OUR TEAM &nbsp;&#9733;&nbsp; A DECADE OF DOCUMENTED FLOOR WORK &nbsp;&#9733;&nbsp; UL 508A &middot; PLC/HMI/VFD &middot; MODBUS TCP &middot; CI &amp; QUALITY SYSTEMS &nbsp;&#9733;&nbsp; ALL WORK UNDER NDA &nbsp;&#9733;</marquee>
+</div>
+<div class="caution-bar"></div>
+
+<div class="mainpage">
+<br>
+<div>
+  <h2>Our Team</h2>
+  <p>
+    BlueVector's engineering team brings a decade of hands-on floor experience to every
+    engagement — control cabinets built and commissioned, production lines programmed, and
+    the quality systems that keep them honest. UL 508A panel design, PLC/HMI/VFD programming,
+    Modbus TCP data systems, continuous improvement, and manufacturing engineering, all under
+    one roof, all NDA by default.
+  </p>
+  <br>
+  <p>
+    We've taken panels from a blank schematic sheet through factory acceptance testing and
+    field commissioning, stood up ISO 9001:2015 quality systems from scratch, and designed the
+    tooling and production plans that keep a molding floor running. The <a href="../#live-systems">Live Systems</a>
+    on the BlueVector homepage are real working software built with the same engineering
+    discipline — SCADA, traffic, hydrology, and combined-cycle plant modelling.
+  </p>
+</div>
+</div>
+
+<!-- Documented Impact -->
+<div class="section" id="impact">
+  <h2>Documented Impact</h2>
+  <table class="cards" align="center" width="94%" cellpadding="5px">
+    <tbody>
+      <tr>
+        <td class="stat" width="22%">
+          <div class="num">41.6%</div>
+          <div class="lbl">Service cycle-time reduction</div>
+          <div class="src">SnapSerts — mold-servicing redesign</div>
+        </td>
+        <td class="spacer"></td>
+        <td class="stat" width="22%">
+          <div class="num">28%</div>
+          <div class="lbl">Direct labor eliminated</div>
+          <div class="src">Secondary-operation automation</div>
+        </td>
+        <td class="spacer"></td>
+        <td class="stat" width="22%">
+          <div class="num">37%</div>
+          <div class="lbl">Resin-handling labor reduced</div>
+          <div class="src">RotoLoad — automated dispensing</div>
+        </td>
+        <td class="spacer"></td>
+        <td class="stat" width="22%">
+          <div class="num">50%</div>
+          <div class="lbl">Prototyping cost savings</div>
+          <div class="src">Custom 3D-printer build · university lab</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Controls & Automation -->
+<div class="section" id="controls">
+  <h2>Controls &amp; Automation</h2>
+  <p>From RFQ to a panel that ships and runs — schematics drawn from scratch, BOMs built, software written, and factory-acceptance-tested before it ever reaches the field.</p>
+  <ul class="list">
+    <li><b>Municipal &amp; industrial pump controls</b> — panel schematics from a blank sheet, BOMs, AutoCAD layouts to UL 508A, PLC/HMI programming, VFD configuration, and factory acceptance testing before field commissioning.</li>
+    <li><b>Modbus TCP OEE system</b> — a networked data-collection system deployed across a production floor for real-time machine OEE, KPI dashboards, and root-cause data for unplanned downtime, over existing plant infrastructure.</li>
+    <li><b>Computer-vision &amp; automation integration</b> — OpenCV + depth-camera in-line defect detection and robotic path simulation; wirelessly-controlled pump &amp; filtration arrays for vertical water storage; off-grid remote-worksite design for UAV operations.</li>
+  </ul>
+</div>
+
+<!-- Continuous Improvement & Quality -->
+<div class="section" id="improvement">
+  <h2>Continuous Improvement &amp; Quality Systems</h2>
+  <p>A plant rebuilt around measurement — lean events, corrective-action systems, and ISO 9001:2015 readiness, scoped across production, blending, shipping, fab shop, and stocking.</p>
+  <ul class="list">
+    <li><b>8D / DMAIC CAPA system</b> — designed and implemented a closed-loop corrective-and-preventive-action procedure; every nonconformance travels Define &rarr; Measure &rarr; Analyze &rarr; Improve &rarr; Control, with zero recurrence on closed corrective-action reports.</li>
+    <li><b>RotoLoad automated resin dispensing</b> — integrated a gravimetric weigh-and-dispense system into an existing powder network, cutting resin-handling labor 37% and eliminating manual weigh-out and ladder charging entirely.</li>
+    <li><b>5S / Kaizen rapid-improvement events</b> — 24-hour events across multiple work areas: new work centers fabricated, clutter removed, standardized tool stations and floor lanes.</li>
+    <li><b>Systems &amp; standardization</b> — machine processing parameters standardized by key variable, ERP BOM verification against machine usage, value-stream mapping, and OSHA-compliant chemical storage &amp; labeling.</li>
+  </ul>
+</div>
+
+<!-- Manufacturing Engineering -->
+<div class="section" id="manufacturing">
+  <h2>Manufacturing &amp; Mechanical Engineering</h2>
+  <p>Where the parts and tooling come from.</p>
+  <ul class="list">
+    <li><b>Tooling &amp; production engineering</b> — quoting, designing, and releasing tooling and production plans in SolidEdge and SolidWorks across rotational molding, injection molding, and 3D-printing processes, with GD&amp;T-compliant drafting and weldment detailing.</li>
+    <li><b>QMS stewardship</b> — progressed through design, quality, and QA/QC roles on the way to owning an ISO 9001:2015 quality management system.</li>
+    <li><b>Rapid prototyping</b> — designed and built a custom FFF 3D printer from scratch, cutting departmental prototyping cost 50%, and produced printing filament on-site for material independence.</li>
+  </ul>
+</div>
+
+<!-- Credentials -->
+<div class="section" id="credentials">
+  <h2>Credentials</h2>
+  <div class="cred-grid">
+    <div class="cred"><div class="cn">Certified Quality Auditor (CQA)</div><div class="cb">ASQ — American Society for Quality</div></div>
+    <div class="cred"><div class="cn">UL 508A — Industrial Control Panels</div><div class="cb">UL, MTR designation</div></div>
+    <div class="cred"><div class="cn">OSHA 30-Hour Safety</div><div class="cb">OSHA, construction / general industry</div></div>
+    <div class="cred"><div class="cn">FAA Part 107 — sUAS</div><div class="cb">FAA remote pilot certificate</div></div>
+    <div class="cred"><div class="cn">Certified SolidWorks Associate (CSWA)</div><div class="cb">Dassault Systèmes / SolidWorks</div></div>
+    <div class="cred"><div class="cn">SolidWorks Sustainable Design</div><div class="cb">Dassault Systèmes / SolidWorks</div></div>
+    <div class="cred"><div class="cn">Scissor Lift Certified</div><div class="cb">Aerial work platform operator</div></div>
+    <div class="cred"><div class="cn">B.S. Engineering Technology — Plastics</div><div class="cb">Pittsburg State University, President's List</div></div>
+  </div>
+</div>
+
+<!-- Contact / CTA -->
+<div class="section" id="contact">
+  <h2>Contact Us</h2>
+  <p>Send a sketch or sample. You'll get a clear scope and a fixed quote.</p>
+  <div class="btnrow">
+    <a href="#" class="button" onclick="document.getElementById('contactModal').style.display='flex'; document.getElementById('contactSubject').value='Project Quote Request'; return false;">Request a Quote</a>
+    <a href="https://buy.stripe.com/aFa6oH0nx34I5DL4SN6J200" class="button" target="_blank" rel="noopener noreferrer">Book Consulting</a>
+  </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="contact-modal-overlay" id="contactModal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="contact-modal">
+    <button class="modal-close" onclick="document.getElementById('contactModal').style.display='none'">&times;</button>
+    <div id="contactForm">
+      <h3>Get in Touch</h3>
+      <p class="modal-sub">Tell us about your part or project. We'll respond within 24 hours &mdash; and everything you share stays confidential.</p>
+      <label for="contactName">Your Name</label>
+      <input type="text" id="contactName" placeholder="Full name" required>
+      <label for="contactEmail">Your Email</label>
+      <input type="email" id="contactEmail" placeholder="you@company.com" required>
+      <label for="contactSubject">Subject</label>
+      <input type="text" id="contactSubject" placeholder="What can we help with?">
+      <label for="contactMessage">Message</label>
+      <textarea id="contactMessage" placeholder="Describe the part or assembly, the manufacturing process you're targeting, and what you already have (sketch, sample, old drawing)..."></textarea>
+      <button class="modal-send-btn" onclick="sendContactEmail()">Send Message</button>
+    </div>
+    <div class="modal-success" id="contactSuccess">
+      <h3>Message Sent</h3>
+      <p class="modal-sub">Thank you for reaching out. We'll get back to you shortly.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Badges -->
+<div class="badgebar">
+  <span class="badge b1">Best Viewed<br>800&times;600</span>
+  <span class="badge b2">Made With<br>Notepad</span>
+  <span class="badge b3">Netscape<br>Now!</span>
+  <span class="badge b4">Valid<br>HTML 4.01</span>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  Copyright 2026 by BlueVector &nbsp;&bull;&nbsp; 2655 Ulmerton Rd, Suite 243, Clearwater, FL 33762
+  <br>
+  <a href="../">&larr; Back to BlueVector</a>
+</div>
+
+<script>
+  function sendContactEmail() {
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const subject = document.getElementById('contactSubject').value.trim() || 'BlueVector Inquiry';
+    const message = document.getElementById('contactMessage').value.trim();
+
+    if (!name || !email) {
+      alert('Please fill in your name and email.');
+      return;
+    }
+
+    const body = 'Name: ' + name + '\nEmail: ' + email + '\n\n' + message;
+    const mailtoLink = 'mailto:hello@peterjamesvilla.com'
+      + '?subject=' + encodeURIComponent(subject)
+      + '&body=' + encodeURIComponent(body);
+
+    window.location.href = mailtoLink;
+
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'block';
+
+    setTimeout(function() {
+      document.getElementById('contactModal').style.display = 'none';
+      document.getElementById('contactForm').style.display = 'block';
+      document.getElementById('contactSuccess').style.display = 'none';
+      document.getElementById('contactName').value = '';
+      document.getElementById('contactEmail').value = '';
+      document.getElementById('contactSubject').value = '';
+      document.getElementById('contactMessage').value = '';
+    }, 3000);
+  }
+</script>
+
+</body>
+</html>
