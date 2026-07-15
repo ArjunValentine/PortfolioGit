@@ -22,6 +22,16 @@ The agent uses its eyes three ways:
 3. **Text chat on the splash page** — the same eyes, called directly (no Vapi
    involved) so a visitor can type follow-up questions about the panel
    without placing a call at all.
+4. **Live Vision capture on the splash page** — a second way to feed the eyes:
+   instead of uploading a photo, the visitor points their camera at the panel
+   and captures a single frame in-browser. Same Claude-vision call, same
+   Blobs storage under the same `sessionId`, but the prompt asks for
+   spatially-located "steps" (bounding boxes) instead of a free-text report,
+   driving an on-page AR-style overlay that highlights the suspected fault
+   and, if relevant, the breaker/disconnect to switch off first. Everything
+   downstream (chat, both call paths) is unaffected — they only care about
+   `schematicReport`/`deviceList`, which both capture paths populate
+   identically.
 
 ## Call model: two ways in, same context
 
@@ -37,7 +47,7 @@ The agent uses its eyes three ways:
 | File | Role |
 |---|---|
 | `helpline/index.html` | The splash. Upload + client-side downscale, **CALL ME NOW** callback, browser-call fallback (Vapi Web SDK), text chat box, session/ref-code linkage. |
-| `netlify/functions/read-schematic.mjs` | The eyes. `initial` mode = full read (stores image in Blobs); `chat` mode = direct text Q&A for the splash-page chat box; Vapi tool mode = live Q&A on the stored image during a call. |
+| `netlify/functions/read-schematic.mjs` | The eyes. `initial` mode = full read (stores image in Blobs); `livevision` mode = live-camera-frame read that returns ordered, spatially-located steps for the AR overlay (also stores image in Blobs, same sessionId); `chat` mode = direct text Q&A for the splash-page chat box; Vapi tool mode = live Q&A on the stored image during a call. |
 | `netlify/functions/request-callback.mjs` | The **CALL ME NOW** handler. Triggers a Vapi *outbound* call with the schematic context attached. |
 | `netlify.toml` | Functions-only build config (does **not** touch the site's publish dir). |
 | `package.json` | One dep: `@netlify/blobs` (image storage for the mid-call tool). |
@@ -124,6 +134,26 @@ POST /.netlify/functions/read-schematic
   "imageBase64":"…", "faultDesc":"pump won't start" }
 → { "report":"…", "deviceList":["Contactor K1","Thermal OL 10A", …] }
 ```
+
+Live Vision capture (browser → function, camera frame instead of an upload):
+```json
+POST /.netlify/functions/read-schematic
+{ "mode":"livevision", "sessionId":"…", "refCode":"…", "mediaType":"image/jpeg",
+  "imageBase64":"…", "faultDesc":"pump won't start" }
+→ { "summary":"…",
+    "steps":[{ "label":"Starter contactor K1", "role":"suspected-fault",
+               "boundingBox":{"x":0.32,"y":0.41,"w":0.14,"h":0.10},
+               "note":"Contact points look pitted." },
+             { "label":"Main disconnect DS1", "role":"safety-action",
+               "boundingBox":{"x":0.05,"y":0.08,"w":0.10,"h":0.18},
+               "note":"Switch OFF here before touching K1." }],
+    "deviceList":["Starter contactor K1","Main disconnect DS1"] }
+```
+Stores the frame in Blobs the same way `initial` does, under the same
+`sessionId` — the two capture modes are interchangeable entry points into the
+same downstream chat/call flow. `boundingBox` fields are normalized 0–1
+fractions of the captured frame (top-left origin), so the frontend can draw
+the overlay with a `viewBox="0 0 1 1"` SVG without any pixel math.
 
 CALL ME NOW (browser → function → Vapi outbound call):
 ```json

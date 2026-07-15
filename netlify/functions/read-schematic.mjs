@@ -49,6 +49,7 @@ function json(obj, status = 200) {
 }
 
 function store() { return getStore("helpline-schematics"); }
+function clamp01(n) { n = Number(n); return isFinite(n) ? Math.min(1, Math.max(0, n)) : 0; }
 
 /* ---- Claude vision call ---- */
 async function askVision({ mediaType, base64, prompt, maxTokens = 1200 }) {
@@ -90,6 +91,29 @@ Return ONLY a JSON object, no prose, in this exact shape:
   "deviceList": ["<short device labels, e.g. 'Contactor K1', 'Thermal OL 10A', 'Soft starter ABB PSE', 'VFD', '3HP pump motor'>"]
 }
 If something is illegible, say so in the report rather than guessing.`;
+
+const LIVEVISION_PROMPT = (fault) => `You are a control-panel diagnostics expert looking at a single live camera frame of a control panel (not a clean schematic scan — it may have glare, angle distortion, or partial framing; do your best with what's visible).
+
+Caller's reported symptom: ${fault || "(not provided)"}
+
+Identify the physical locations of the devices most relevant to diagnosing this fault, and return an ORDERED, numbered sequence of "steps" a technician should look at in order:
+1. Start with the device(s) you suspect are the actual fault (role "suspected-fault") — the thing most likely causing the reported symptom, based on what you can see.
+2. THEN, if and only if reaching or testing that suspected component requires the technician to touch, open, or come near energized equipment, add a step (role "safety-action") pointing at the breaker, disconnect, or fuse that must be switched OFF FIRST, before physically touching the suspected-fault component. Always order safety-action steps AFTER the fault they protect against, so the reading order is "here's what's likely wrong" -> "here's what to shut off before you touch it."
+3. You may include additional supporting steps (role "reference") if useful, but keep the total to 5 steps or fewer, ordered by priority.
+
+For each step give a bounding box as normalized fractions of the FULL image, top-left origin (0,0) to bottom-right (1,1): x = left edge / image width, y = top edge / image height, w = box width / image width, h = box height / image height. Be as tight and accurate as you can to the actual device's visible location in the frame.
+
+Return ONLY a JSON object, no prose, in this exact shape:
+{
+  "summary": "<ONE sentence, ~20 words max: what you see and the single most likely fault>",
+  "steps": [
+    { "label": "<short device label, e.g. 'Starter contactor K1'>",
+      "role": "suspected-fault" | "safety-action" | "reference",
+      "boundingBox": { "x":0.0, "y":0.0, "w":0.0, "h":0.0 },
+      "note": "<one sentence: why this step matters / what to check or do>" }
+  ]
+}
+If you cannot confidently locate any device in this frame (too blurry, wrong subject, etc.), return an empty "steps" array and explain why in "summary" rather than guessing at coordinates.`;
 
 const QUERY_PROMPT = (q) => `You are the EYES for a diagnostician who is on a live phone call and cannot see this drawing. Answer their question by looking at the schematic/photo. Be specific and concise (1-4 sentences). Refer to devices by their exact labels. If the drawing doesn't show enough to answer, say exactly what's missing.
 
@@ -180,6 +204,43 @@ export default async (req) => {
       const { mediaType: storedMediaType, base64 } = JSON.parse(raw);
       const answer = await askVision({ mediaType: storedMediaType, base64, prompt: QUERY_PROMPT(question), maxTokens: 600 });
       return json({ answer });
+    } catch (err) {
+      return json({ error: err.message }, 500);
+    }
+  }
+
+  // ---- Path B2: Live Vision capture (splash-page camera tab) — same idea as
+  // "initial" but the prompt asks for spatially-located steps (bounding boxes)
+  // instead of a free-text report, to drive the on-page AR overlay. ----
+  if (mode === "livevision" && imageBase64 && sessionId) {
+    try {
+      await store().set(sessionId, JSON.stringify({ mediaType, base64: imageBase64 }));
+      if (refCode) await store().set("ref:" + String(refCode).replace(/\D/g, ""), sessionId);
+
+      const text = await askVision({ mediaType, base64: imageBase64, prompt: LIVEVISION_PROMPT(faultDesc), maxTokens: 1200 });
+      let out = { summary: "", steps: [] };
+      const start = text.indexOf("{"), end = text.lastIndexOf("}");
+      if (start !== -1 && end !== -1) {
+        try {
+          const parsed = JSON.parse(text.slice(start, end + 1));
+          out = { summary: parsed.summary || "", steps: Array.isArray(parsed.steps) ? parsed.steps : [] };
+        } catch { /* keep steps empty, summary falls back below */ }
+      }
+      if (!out.summary) out.summary = text.slice(0, 160) || "Couldn't parse a structured read of this frame.";
+      // sanitize/clamp bounding boxes defensively so a malformed value can't break the overlay
+      out.steps = out.steps
+        .filter((s) => s && s.boundingBox)
+        .map((s) => ({
+          label: String(s.label || "Unlabeled"),
+          role: ["suspected-fault", "safety-action", "reference"].includes(s.role) ? s.role : "reference",
+          boundingBox: {
+            x: clamp01(s.boundingBox.x), y: clamp01(s.boundingBox.y),
+            w: clamp01(s.boundingBox.w), h: clamp01(s.boundingBox.h)
+          },
+          note: String(s.note || "")
+        }));
+      const deviceList = out.steps.map((s) => s.label);
+      return json({ summary: out.summary, steps: out.steps, deviceList });
     } catch (err) {
       return json({ error: err.message }, 500);
     }

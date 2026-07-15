@@ -136,6 +136,38 @@ input[type=file] { display: none; }
 .readout .chip.more { background: #6b7280; cursor: pointer; }
 .readout .devices { margin-top: 8px; }
 
+/* ── Capture tabs (Upload photo / Live Vision) ── */
+.capture-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.capture-tab { flex: 1; padding: 10px; border: 1px solid #d5d9e2; background: #fafbfc; border-radius: 10px; font-weight: 700; font-size: 0.85rem; color: #6b7280; cursor: pointer; font-family: inherit; }
+.capture-tab:hover { background: #eef4ff; }
+.capture-tab.active { background: #1669d6; color: #fff; border-color: #1669d6; }
+.capture-panel { }
+
+/* ── Live Vision: camera + frozen-frame AR overlay ── */
+.live-stage { position: relative; border-radius: 12px; overflow: hidden; background: #0d1117; margin-bottom: 14px; min-height: 200px; }
+.live-stage video, .live-stage img { display: block; width: 100%; height: auto; }
+.live-hint { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px; text-align: center; font-size: 0.78rem; color: #fff; background: rgba(0,0,0,0.45); }
+#overlaySvg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.step-box { fill: none; stroke-width: 2; opacity: 0.85; }
+.step-box.fault { stroke: #e67e22; }
+.step-box.safety { stroke: #b83232; }
+.step-box.reference { stroke: #1669d6; }
+.step-box.active { opacity: 1; animation: stepPulse 1.4s ease-in-out infinite; }
+@keyframes stepPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.conductor-path { fill: none; stroke: #1669d6; stroke-width: 2; stroke-dasharray: 6 5; animation: pathMarch 0.9s linear infinite; }
+@keyframes pathMarch { to { stroke-dashoffset: -22; } }
+.live-controls { margin-bottom: 16px; }
+.step-caption { background: #fafbfc; border: 1px solid #d5d9e2; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.step-counter { font-size: 0.72rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 4px; }
+.step-role-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 20px; color: #fff; background: #e67e22; margin-bottom: 6px; }
+.step-role-badge.safety { background: #b83232; }
+.step-role-badge.reference { background: #1669d6; }
+.step-label { font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+.step-note { font-size: 0.88rem; color: #26303c; line-height: 1.4; }
+.step-nav { display: flex; gap: 8px; margin-bottom: 10px; }
+.step-nav .readbtn { flex: 1; margin-bottom: 0; }
+.live-fallback-msg { font-size: 0.9rem; color: #6b7280; text-align: center; margin-bottom: 12px; }
+
 .chat-panel { display: none; margin-bottom: 16px; background: #fafbfc; border: 1px solid #d5d9e2; border-radius: 10px; padding: 12px 14px; }
 .chat-label { font-size: 0.78rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
 .chat-log { max-height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
@@ -332,26 +364,73 @@ input[type=file] { display: none; }
     <div class="sub">Upload your schematic, then call the line below. Our AI reads the drawing and walks you through the fault &mdash; live.</div>
     <span class="rate-badge" id="rateBadge">$4.00 / MIN &bull; 5 MIN MINIMUM</span>
 
+    <div class="capture-tabs" id="captureTabs" role="tablist">
+      <button type="button" class="capture-tab active" id="tabUpload" role="tab" aria-selected="true" aria-controls="uploadPanel">Upload photo</button>
+      <button type="button" class="capture-tab" id="tabLive" role="tab" aria-selected="false" aria-controls="livePanel">Live Vision</button>
+    </div>
+
     <!-- Schematic upload -->
-    <div class="doc-well" id="dropzone" role="button" tabindex="0" aria-label="Upload schematic">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#9aa4bb" stroke-width="1.5" stroke-linejoin="round">
-        <path d="M6 2 L14 2 L18 6 L18 22 L6 22 Z"/>
-        <path d="M14 2 L14 6 L18 6"/>
-      </svg>
-      <div class="dw-main">Drop your schematic or photo here &mdash; or click to upload</div>
-      <div class="dw-sub">JPG, PNG, or PDF &bull; the AI reads the actual drawing, wiring and all</div>
+    <div class="capture-panel" id="uploadPanel" role="tabpanel">
+      <div class="doc-well" id="dropzone" role="button" tabindex="0" aria-label="Upload schematic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9aa4bb" stroke-width="1.5" stroke-linejoin="round">
+          <path d="M6 2 L14 2 L18 6 L18 22 L6 22 Z"/>
+          <path d="M14 2 L14 6 L18 6"/>
+        </svg>
+        <div class="dw-main">Drop your schematic or photo here &mdash; or click to upload</div>
+        <div class="dw-sub">JPG, PNG, or PDF &bull; the AI reads the actual drawing, wiring and all</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf">
+      <div class="preview" id="preview"><img id="previewImg" alt="schematic preview"><div class="fname" id="previewName"></div></div>
+      <div class="center"><button class="readbtn" id="readBtn" disabled>&#128064; Read my schematic</button></div>
+      <div class="readout" id="readout">
+        <div class="rt" id="readoutTitle">&#10003; The AI read your panel:</div>
+        <div class="rs" id="readoutSummary"></div>
+        <div class="rb" id="readoutBody"></div>
+        <button type="button" class="rtoggle" id="readoutToggle" style="display:none;">Show full analysis &#9662;</button>
+        <div class="devices" id="readoutDevices"></div>
+      </div>
+      <div class="status" id="readStatus"></div>
     </div>
-    <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf">
-    <div class="preview" id="preview"><img id="previewImg" alt="schematic preview"><div class="fname" id="previewName"></div></div>
-    <div class="center"><button class="readbtn" id="readBtn" disabled>&#128064; Read my schematic</button></div>
-    <div class="readout" id="readout">
-      <div class="rt" id="readoutTitle">&#10003; The AI read your panel:</div>
-      <div class="rs" id="readoutSummary"></div>
-      <div class="rb" id="readoutBody"></div>
-      <button type="button" class="rtoggle" id="readoutToggle" style="display:none;">Show full analysis &#9662;</button>
-      <div class="devices" id="readoutDevices"></div>
+
+    <!-- Live camera + AI-cued AR overlay -->
+    <div class="capture-panel" id="livePanel" role="tabpanel" style="display:none;">
+      <div class="live-stage" id="liveStage">
+        <video id="liveVideo" playsinline muted autoplay></video>
+        <div class="live-hint" id="liveHint">Point the camera at the panel, then tap Scan.</div>
+      </div>
+      <div class="live-stage frozen" id="frozenStage" style="display:none;">
+        <img id="frozenImg" alt="Captured control panel frame">
+        <svg id="overlaySvg" viewBox="0 0 1 1" preserveAspectRatio="none"></svg>
+      </div>
+      <canvas id="captureCanvas" style="display:none;"></canvas>
+
+      <div class="center live-controls" id="liveControlsLive">
+        <button type="button" class="readbtn" id="scanBtn" disabled>&#128247; Scan Panel</button>
+      </div>
+
+      <div class="live-controls" id="liveControlsFrozen" style="display:none;">
+        <div class="step-caption" id="stepCaption">
+          <div class="step-counter" id="stepCounter"></div>
+          <div class="step-role-badge" id="stepRoleBadge"></div>
+          <div class="step-label" id="stepLabel"></div>
+          <div class="step-note" id="stepNote"></div>
+        </div>
+        <div class="center step-nav" id="stepNavRow">
+          <button type="button" class="readbtn" id="stepPrev">&#8592; Prev</button>
+          <button type="button" class="readbtn" id="stepShowAll">Show all steps</button>
+          <button type="button" class="readbtn" id="stepNext">Next &#8594;</button>
+        </div>
+        <div class="devices" id="stepLegend"></div>
+        <div class="center"><button type="button" class="readbtn" id="rescanBtn">&#8635; Rescan</button></div>
+      </div>
+
+      <div class="status" id="liveStatus"></div>
+
+      <div class="live-fallback" id="liveFallback" style="display:none;">
+        <div class="live-fallback-msg" id="liveFallbackMsg"></div>
+        <div class="center"><button type="button" class="readbtn" id="liveFallbackBackBtn">Use photo upload instead</button></div>
+      </div>
     </div>
-    <div class="status" id="readStatus"></div>
 
     <div class="chat-panel" id="chatPanel">
       <div class="chat-label">Ask about the panel</div>
@@ -408,7 +487,8 @@ if (!SESSION_ID){ SESSION_ID = genSessionId(); sessionStorage.setItem("bv_helpli
 function refCodeFrom(id){ var h=0; for (var i=0;i<id.length;i++){ h=(h*31+id.charCodeAt(i))>>>0; } return ("000000"+(h%1000000)).slice(-6); }
 var REF_CODE = refCodeFrom(SESSION_ID);
 
-var state = { file:null, mediaType:null, base64:null, schematicReport:null, deviceList:[], vapi:null };
+var state = { file:null, mediaType:null, base64:null, schematicReport:null, deviceList:[], vapi:null,
+  liveStream:null, liveSteps:[], liveStepIdx:0, liveShowAll:false, liveCapturedBase64:null, liveCapturedMediaType:null };
 function $(id){ return document.getElementById(id); }
 function setStatus(el,kind,msg){ if(!el) return; el.className="status "+kind; el.innerHTML=msg; }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
@@ -436,10 +516,13 @@ function handleFile(f){
   setStatus(st,"info","&#10003; "+escapeHtml(f.name)+" ready. Hit &ldquo;Read my schematic.&rdquo;");
 }
 function fileToBase64(f){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ res(String(r.result).split(",")[1]); }; r.onerror=rej; r.readAsDataURL(f); }); }
+function downscaleCanvasToJpeg(source, sw, sh, maxDim){
+  var w=sw, h=sh; if (Math.max(w,h)>maxDim){ var s=maxDim/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+  var c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(source,0,0,w,h);
+  var d=c.toDataURL("image/jpeg",0.85); return { base64:d.split(",")[1], mediaType:"image/jpeg" };
+}
 function downscaleImage(f){ return new Promise(function(res){ var img=new Image(), url=URL.createObjectURL(f);
-  img.onload=function(){ var m=HELPLINE.MAX_IMG_DIM,w=img.width,h=img.height; if(Math.max(w,h)>m){ var s=m/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
-    var c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(img,0,0,w,h);
-    var d=c.toDataURL("image/jpeg",0.85); URL.revokeObjectURL(url); res({base64:d.split(",")[1],mediaType:"image/jpeg"}); };
+  img.onload=function(){ var r=downscaleCanvasToJpeg(img,img.width,img.height,HELPLINE.MAX_IMG_DIM); URL.revokeObjectURL(url); res(r); };
   img.onerror=function(){ fileToBase64(f).then(function(b){ res({base64:b,mediaType:f.type}); }); };
   img.src=url; }); }
 
@@ -479,8 +562,8 @@ $("readoutToggle").addEventListener("click",function(){
 });
 
 var DEVICE_CAP=6;
-function renderDeviceChips(list){
-  var wrap=$("readoutDevices"); wrap.innerHTML=""; wrap.dataset.expanded="";
+function renderDeviceChips(list,targetId){
+  var wrap=$(targetId||"readoutDevices"); wrap.innerHTML=""; wrap.dataset.expanded="";
   var shown=list.slice(0,DEVICE_CAP), rest=list.slice(DEVICE_CAP);
   shown.forEach(function(x){ wrap.insertAdjacentHTML("beforeend",'<span class="chip">'+escapeHtml(x)+'</span>'); });
   if (rest.length){
@@ -528,6 +611,156 @@ function sendChat(){
 }
 $("chatSend").addEventListener("click",sendChat);
 $("chatInput").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); sendChat(); } });
+
+/* ============================================================
+   Live Vision — camera capture + AI-cued AR overlay.
+   Freeze-frame model: user scans one frame, the AI returns an
+   ordered list of localized "steps" (normalized 0-1 bounding
+   boxes) which are drawn as highlight boxes + a conductor-path
+   connector directly on top of that frozen frame. Populates the
+   same shared state (schematicReport/deviceList) the upload path
+   does, so chat and calling work the same regardless of which
+   tab captured the panel.
+   ============================================================ */
+var ROLE_CLASS = { "suspected-fault":"fault", "safety-action":"safety", "reference":"reference" };
+
+$("tabUpload").addEventListener("click",function(){ switchTab("upload"); });
+$("tabLive").addEventListener("click",function(){ switchTab("live"); });
+function switchTab(which){
+  var toUpload = which==="upload";
+  $("tabUpload").classList.toggle("active",toUpload);
+  $("tabLive").classList.toggle("active",!toUpload);
+  $("tabUpload").setAttribute("aria-selected",toUpload);
+  $("tabLive").setAttribute("aria-selected",!toUpload);
+  $("uploadPanel").style.display = toUpload ? "block" : "none";
+  $("livePanel").style.display = toUpload ? "none" : "block";
+  if (toUpload) stopLiveStream(); else startLiveCamera();
+}
+
+function startLiveCamera(){
+  $("liveFallback").style.display="none";
+  $("liveStage").style.display="block"; $("frozenStage").style.display="none";
+  $("liveControlsLive").style.display="block"; $("liveControlsFrozen").style.display="none";
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    showLiveFallback("Camera access isn't supported in this browser.");
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment" }, audio:false })
+    .then(function(stream){
+      state.liveStream = stream;
+      var v=$("liveVideo"); v.srcObject = stream; v.play();
+      $("scanBtn").disabled = false;
+      setStatus($("liveStatus"),"info","Camera ready. Frame the panel and tap Scan.");
+    })
+    .catch(function(err){
+      showLiveFallback("Couldn't access the camera (" + err.message + "). You can still upload a photo instead.");
+    });
+}
+function showLiveFallback(msg){
+  $("liveStage").style.display="none"; $("liveControlsLive").style.display="none";
+  $("liveFallback").style.display="block"; $("liveFallbackMsg").textContent=msg;
+}
+function stopLiveStream(){
+  if (state.liveStream){ state.liveStream.getTracks().forEach(function(t){ t.stop(); }); state.liveStream=null; }
+  var v=$("liveVideo"); if (v) v.srcObject=null;
+}
+$("liveFallbackBackBtn").addEventListener("click",function(){ switchTab("upload"); });
+window.addEventListener("pagehide", stopLiveStream);
+
+$("scanBtn").addEventListener("click",function(){
+  var v=$("liveVideo"), c=$("captureCanvas");
+  c.width=v.videoWidth; c.height=v.videoHeight;
+  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  var r=downscaleCanvasToJpeg(c,c.width,c.height,HELPLINE.MAX_IMG_DIM);
+  state.liveCapturedBase64=r.base64; state.liveCapturedMediaType=r.mediaType;
+  $("frozenImg").src="data:"+r.mediaType+";base64,"+r.base64;
+  stopLiveStream();
+  $("liveStage").style.display="none"; $("frozenStage").style.display="block";
+  $("liveControlsLive").style.display="none";
+  submitLiveVision();
+});
+
+function submitLiveVision(){
+  var st=$("liveStatus");
+  setStatus(st,"info","Sending the frame to the AI&hellip;");
+  fetch(HELPLINE.VISION_ENDPOINT,{ method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ mode:"livevision", sessionId:SESSION_ID, refCode:REF_CODE,
+      mediaType:state.liveCapturedMediaType, imageBase64:state.liveCapturedBase64,
+      faultDesc:$("faultDesc").value.trim() }) })
+  .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+  .then(function(d){
+    if (d.error) throw new Error(d.error);
+    state.schematicReport = d.summary || "";
+    state.deviceList = d.deviceList || [];
+    state.liveSteps = d.steps || [];
+    state.liveStepIdx = 0; state.liveShowAll = false;
+    if (!state.liveSteps.length){
+      setStatus(st,"err","&#9888; "+(d.summary||"Couldn't confidently locate any devices in that frame.")+" Try Rescan with a clearer angle.");
+      $("liveControlsFrozen").style.display="block";
+      $("stepCaption").style.display="none"; $("stepNavRow").style.display="none";
+      $("stepLegend").innerHTML="";
+      return;
+    }
+    $("stepCaption").style.display="block"; $("stepNavRow").style.display="flex";
+    renderStepOverlay(); renderStepCaption(); renderDeviceChips(state.deviceList,"stepLegend");
+    $("liveControlsFrozen").style.display="block";
+    $("chatPanel").style.display="block";
+    setStatus(st,"ok","&#10003; Panel captured. Chat and calling are ready.");
+  })
+  .catch(function(err){
+    setStatus(st,"err","&#9888; Live read failed (" + err.message + "). Try Rescan, or switch to photo upload.");
+    $("liveControlsFrozen").style.display="block";
+  });
+}
+
+function renderStepOverlay(){
+  var svg=$("overlaySvg"); svg.innerHTML="";
+  var steps=state.liveSteps;
+  if (steps.length>1){
+    var visible = steps.filter(function(s,i){ return state.liveShowAll || i===state.liveStepIdx; });
+    if (visible.length>1 || state.liveShowAll){
+      var d = steps.map(function(s,i){
+        var cx=s.boundingBox.x+s.boundingBox.w/2, cy=s.boundingBox.y+s.boundingBox.h/2;
+        return (i===0?"M":"L")+cx+","+cy;
+      }).join(" ");
+      svg.insertAdjacentHTML("beforeend",'<path class="conductor-path" vector-effect="non-scaling-stroke" d="'+d+'"/>');
+    }
+  }
+  steps.forEach(function(s,i){
+    var roleCls = ROLE_CLASS[s.role]||"reference";
+    var active = state.liveShowAll || i===state.liveStepIdx;
+    var cls = "step-box "+roleCls+(active?" active":"");
+    svg.insertAdjacentHTML("beforeend",
+      '<rect class="'+cls+'" vector-effect="non-scaling-stroke" style="display:'+(active?"block":"none")+'" '+
+      'x="'+s.boundingBox.x+'" y="'+s.boundingBox.y+'" width="'+s.boundingBox.w+'" height="'+s.boundingBox.h+'"/>');
+  });
+}
+function renderStepCaption(){
+  var steps=state.liveSteps; if (!steps.length) return;
+  var s=steps[state.liveStepIdx];
+  var roleCls = ROLE_CLASS[s.role]||"reference";
+  $("stepCounter").textContent = "Step "+(state.liveStepIdx+1)+" of "+steps.length;
+  var badge=$("stepRoleBadge");
+  badge.textContent = s.role==="safety-action" ? "⚠ SAFETY ACTION" : (s.role==="suspected-fault" ? "SUSPECTED FAULT" : "REFERENCE");
+  badge.className = "step-role-badge "+roleCls;
+  $("stepLabel").textContent = s.label;
+  $("stepNote").textContent = s.note + (s.role==="safety-action" ? " Always verify de-energized before touching." : "");
+  $("stepPrev").disabled = state.liveStepIdx===0;
+  $("stepNext").disabled = state.liveStepIdx===steps.length-1;
+}
+$("stepPrev").addEventListener("click",function(){ if(state.liveStepIdx>0){ state.liveStepIdx--; state.liveShowAll=false; renderStepOverlay(); renderStepCaption(); } });
+$("stepNext").addEventListener("click",function(){ if(state.liveStepIdx<state.liveSteps.length-1){ state.liveStepIdx++; state.liveShowAll=false; renderStepOverlay(); renderStepCaption(); } });
+$("stepShowAll").addEventListener("click",function(){
+  state.liveShowAll = !state.liveShowAll;
+  this.textContent = state.liveShowAll ? "Show one at a time" : "Show all steps";
+  renderStepOverlay();
+});
+$("rescanBtn").addEventListener("click",function(){
+  $("frozenStage").style.display="none"; $("liveControlsFrozen").style.display="none";
+  state.liveSteps=[]; state.liveStepIdx=0; state.liveShowAll=false;
+  $("stepShowAll").textContent="Show all steps";
+  startLiveCamera();
+});
 
 /* Direct dial (WIP): CALL ME NOW is parked while Vapi's native-number daily
    outbound cap is in place - see PR #20. Tapping the number is a plain
