@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voltage Falls Power — Combined Cycle Plant Simulator</title>
+<meta name="description" content="An educational combined-cycle power plant operator simulator: start up a gas turbine, warm the HRSG, roll the steam turbine, and keep the city of Voltage Falls lit.">
+<link rel="stylesheet" href="styles.css">
+<link rel="preload" as="image" href="assets/boot-splash.webp">
+</head>
+<body>
+
+<!-- ================= BOOT SPLASH (brief, auto-dismisses) ================= -->
+<div id="boot-splash">
+  <img class="boot-art" src="assets/boot-splash.webp" alt="SIM CombCycle 2600 box art — a retro combined-cycle power station overlooking a city">
+  <div class="boot-bar"><div class="boot-bar-fill" id="boot-bar-fill"></div></div>
+  <div class="boot-label">Loading combined-cycle simulator…</div>
+  <div class="boot-skip">click, tap, or press any key to skip</div>
+</div>
+
+<!-- ================= TITLE SPLASH ================= -->
+<div id="splash" role="dialog" aria-label="Voltage Falls Power Station — title screen">
+  <div class="splash-frame">
+
+    <div class="splash-scene" aria-hidden="true">
+      <svg viewBox="0 0 800 260" preserveAspectRatio="xMidYMax slice" class="splash-art">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#bfe3f7"/>
+            <stop offset="65%" stop-color="#e8f4ee"/>
+            <stop offset="100%" stop-color="#f3ecc9"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="800" height="260" fill="url(#sky)"/>
+        <circle cx="694" cy="46" r="30" fill="#ffd45b"/>
+        <g fill="#93a7c9" opacity="0.55">
+          <rect x="20"  y="150" width="46" height="90"/>
+          <rect x="72"  y="120" width="34" height="120"/>
+          <rect x="112" y="165" width="52" height="75"/>
+          <rect x="640" y="140" width="40" height="100"/>
+          <rect x="686" y="110" width="30" height="130"/>
+          <rect x="722" y="158" width="44" height="82"/>
+        </g>
+        <rect x="0" y="236" width="800" height="24" fill="#cdbf8f"/>
+        <!-- gas turbine -->
+        <g fill="#e7e2d6" stroke="#1c1c1a" stroke-width="3" stroke-linejoin="round">
+          <polygon points="230,178 300,192 300,222 230,236"/>
+          <circle cx="316" cy="205" r="15" fill="#f4c95d"/>
+          <polygon points="333,192 400,176 400,234 333,218"/>
+        </g>
+        <!-- HRSG + stack -->
+        <g fill="#e7e2d6" stroke="#1c1c1a" stroke-width="3" stroke-linejoin="round">
+          <rect x="420" y="118" width="78" height="120"/>
+          <rect x="442" y="70" width="34" height="50"/>
+        </g>
+        <g class="splash-steam" opacity="0.8">
+          <ellipse cx="459" cy="58" rx="12" ry="8" fill="#fff"/>
+          <ellipse cx="452" cy="42" rx="16" ry="10" fill="#fff"/>
+          <ellipse cx="466" cy="30" rx="20" ry="12" fill="#fff"/>
+        </g>
+        <!-- steam turbine -->
+        <g fill="#e7e2d6" stroke="#1c1c1a" stroke-width="3" stroke-linejoin="round">
+          <polygon points="510,160 570,148 570,196 510,184"/>
+          <circle cx="590" cy="172" r="15" fill="#7fb87b"/>
+        </g>
+        <!-- cooling tower -->
+        <g fill="#dfe6e2" stroke="#1c1c1a" stroke-width="3" stroke-linejoin="round">
+          <path d="M614 236 C626 200 626 182 614 152 L668 152 C656 182 656 200 668 236 Z"/>
+        </g>
+        <g class="splash-steam" opacity="0.65">
+          <ellipse cx="628" cy="140" rx="10" ry="14" fill="#fff"/>
+          <ellipse cx="652" cy="132" rx="12" ry="16" fill="#fff"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="splash-plaque">
+      <div class="splash-title">
+        <span class="st-block st-red">VOLTAGE</span><span class="st-block st-blue">FALLS</span>
+      </div>
+      <div class="splash-subtitle">Combined-Cycle Generator Simulation</div>
+    </div>
+
+    <p class="splash-tag">Fire up a gas turbine, recover the waste heat, roll a steam turbine —
+      and keep a whole city lit. An educational plant-operator sim with real formulas underneath.</p>
+
+    <div class="splash-actions">
+      <button class="btn primary splash-btn" id="splash-continue" hidden>▶ Continue simulation</button>
+      <button class="btn primary splash-btn" id="splash-new">▶ New simulation</button>
+      <button class="btn splash-btn" id="splash-learn">How it works</button>
+    </div>
+    <div class="splash-meta" id="splash-meta"></div>
+
+    <div class="splash-badge">Runs free, right in your browser · no install · no account</div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <h1>Voltage Falls Power Station</h1>
+      <div class="sub">Combined-cycle plant simulator · 1×1 · 265 MW class</div>
+    </div>
+    <div class="top-stat"><span class="k">Sim time</span><span class="v" id="tb-clock">Day 1 · 06:00</span></div>
+    <div class="top-stat"><span class="k">Weather</span><span class="v" id="tb-weather">15 °C</span></div>
+    <div class="top-stat"><span class="k">Net output</span><span class="v" id="tb-net">0 MW</span></div>
+    <div class="top-stat"><span class="k">City demand</span><span class="v" id="tb-demand">— MW</span></div>
+    <div class="top-stat"><span class="k">Power price</span><span class="v" id="tb-price">$— /MWh</span></div>
+    <div class="top-stat"><span class="k">Budget</span><span class="v" id="tb-budget">$—</span></div>
+    <div class="time-controls" role="group" aria-label="Simulation speed">
+      <button class="speed-btn" data-speed="0" aria-pressed="false">⏸ Pause</button>
+      <button class="speed-btn" data-speed="1" aria-pressed="true">▶ 1×</button>
+      <button class="speed-btn" data-speed="10" aria-pressed="false">10×</button>
+      <button class="speed-btn" data-speed="60" aria-pressed="false">60×</button>
+    </div>
+    <div class="audio-controls" role="group" aria-label="Audio">
+      <button class="speed-btn" id="btn-music" aria-pressed="false">🎵 Music</button>
+      <button class="speed-btn" id="btn-sfx" aria-pressed="true">🔊 Sound</button>
+    </div>
+  </div>
+</header>
+<audio id="bg-music" src="assets/theme.mp3" loop preload="auto"></audio>
+
+<div class="wrap">
+
+  <div class="alarm-banner" id="alarm-banner" role="alert">
+    <span class="glyph" id="alarm-glyph">!</span>
+    <span id="alarm-text"></span>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true"  data-tab="operate">Operate</button>
+    <button role="tab" aria-selected="false" data-tab="maintain">Maintenance</button>
+    <button role="tab" aria-selected="false" data-tab="market">City &amp; market</button>
+    <button role="tab" aria-selected="false" data-tab="learn">Learn</button>
+  </nav>
+
+  <!-- ================= OPERATE ================= -->
+  <section class="tab-page active" id="tab-operate">
+    <div class="operate-grid">
+
+      <div class="col-left"><!-- left column -->
+
+        <div class="panel panel-schematic">
+          <div class="schematic-head">
+            <h2 style="margin:0">Plant overview</h2>
+            <div class="schematic-head-right">
+              <button class="btn" id="btn-reset-alarms" disabled>Reset alarms</button>
+              <div class="health-ring">
+                <div class="ring-text">
+                  <div class="pct" id="ring-pct">100%</div>
+                  <div class="desc" id="ring-desc">✓ Plant health — good</div>
+                </div>
+                <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+                  <circle cx="32" cy="32" r="26" fill="none" stroke="#ddcda0" stroke-width="8"/>
+                  <circle id="ring-arc" cx="32" cy="32" r="26" fill="none" stroke="#0ca30c" stroke-width="8"
+                          stroke-linecap="round" stroke-dasharray="163.4 163.4"
+                          transform="rotate(-90 32 32)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- ======= Plant gestalt schematic ======= -->
+          <svg class="plant" viewBox="0 0 960 430" role="img"
+               aria-label="Plant schematic: air enters the gas turbine; hot exhaust heats the HRSG; steam drives the steam turbine; the condenser and cooling tower reject waste heat.">
+            <defs>
+              <linearGradient id="g-filter" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e7edf3"/><stop offset="100%" stop-color="#9db0c2"/>
+              </linearGradient>
+              <linearGradient id="g-compressor" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#cfe7f5"/><stop offset="100%" stop-color="#3d7ea6"/>
+              </linearGradient>
+              <radialGradient id="g-flame" cx="35%" cy="30%" r="75%">
+                <stop offset="0%" stop-color="#fff3b0"/><stop offset="50%" stop-color="#ff9d3d"/><stop offset="100%" stop-color="#d94f1e"/>
+              </radialGradient>
+              <linearGradient id="g-turbine" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffe9a8"/><stop offset="100%" stop-color="#c98a2e"/>
+              </linearGradient>
+              <linearGradient id="g-gen" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#e8c27a"/><stop offset="100%" stop-color="#8f5a1c"/>
+              </linearGradient>
+              <linearGradient id="g-hrsg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#dff1f6"/><stop offset="100%" stop-color="#8fc0d3"/>
+              </linearGradient>
+              <linearGradient id="g-cond" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e2f0f7"/><stop offset="100%" stop-color="#a9cfe0"/>
+              </linearGradient>
+              <linearGradient id="g-ct" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#d3ecdf"/><stop offset="100%" stop-color="#5f9c82"/>
+              </linearGradient>
+            </defs>
+
+            <!-- pipes (drawn first, under components) -->
+            <path id="p-air"     class="pipe"         d="M92 185 H128"/>
+            <path id="p-fuel"    class="pipe fuel"    d="M225 108 V146"/>
+            <path id="p-exhaust" class="pipe exhaust" d="M310 148 V118 H428"/>
+            <path id="p-stack"   class="pipe exhaust" d="M475 88 V52"/>
+            <path id="p-steam"   class="pipe steam"   d="M522 130 H598"/>
+            <path id="p-stcond"  class="pipe steam"   d="M640 168 V188"/>
+            <path id="p-cw-out"  class="pipe water"   d="M712 205 H800"/>
+            <path id="p-cw-ret"  class="pipe water"   d="M800 232 H712"/>
+            <path id="p-feed"    class="pipe water"   d="M630 242 V310 H468 V282"/>
+
+            <!-- inlet filter house -->
+            <g id="c-filter">
+              <rect class="comp" x="22" y="152" width="70" height="66" rx="4" fill="url(#g-filter)"/>
+              <line x1="34" y1="162" x2="34" y2="208" stroke="#5c7284" stroke-width="1.5"/>
+              <line x1="48" y1="162" x2="48" y2="208" stroke="#5c7284" stroke-width="1.5"/>
+              <line x1="62" y1="162" x2="62" y2="208" stroke="#5c7284" stroke-width="1.5"/>
+              <line x1="76" y1="162" x2="76" y2="208" stroke="#5c7284" stroke-width="1.5"/>
+            </g>
+            <text class="comp-label" x="57" y="240" text-anchor="middle">Air filter</text>
+            <text class="comp-sub" id="h-filter" x="57" y="256" text-anchor="middle">ΔP ok</text>
+
+            <!-- gas turbine: compressor · combustor · turbine -->
+            <g id="c-gt">
+              <polygon class="comp" points="130,150 208,168 208,202 130,220" fill="url(#g-compressor)"/>
+              <circle  class="comp" cx="225" cy="160" r="13" fill="url(#g-flame)"/>
+              <polygon class="comp" points="242,168 318,148 318,222 242,202" fill="url(#g-turbine)"/>
+            </g>
+            <path d="M144 162 L192 172 M144 176 L192 186 M144 190 L192 200 M144 204 L192 210"
+                  stroke="#1c4a63" stroke-width="2" fill="none" opacity="0.55"/>
+            <path d="M256 172 L302 164 M256 186 L302 180 M256 200 L302 196"
+                  stroke="#8a5a12" stroke-width="2" fill="none" opacity="0.55"/>
+            <line x1="208" y1="185" x2="242" y2="185" stroke="#7d6a45" stroke-width="3"/>
+            <line x1="318" y1="185" x2="346" y2="185" stroke="#7d6a45" stroke-width="3"/>
+            <text class="comp-label" x="224" y="240" text-anchor="middle">Gas turbine</text>
+            <text class="comp-sub" id="h-gt"     x="224" y="256" text-anchor="middle">health 100%</text>
+            <text class="comp-sub" id="t-gt-rpm" x="224" y="272" text-anchor="middle">0 rpm</text>
+            <text class="flow-label" x="238" y="100" text-anchor="middle">fuel</text>
+            <text class="flow-label" x="110" y="176" text-anchor="middle">air</text>
+            <text class="flow-label" x="372" y="112" text-anchor="middle">exhaust ≈630 °C</text>
+
+            <!-- generator 1 -->
+            <g id="c-gen1">
+              <circle class="comp" cx="370" cy="185" r="23" fill="url(#g-gen)"/>
+            </g>
+            <path d="M358 172 A18 18 0 0 1 382 172" stroke="#fff" stroke-width="2" fill="none" opacity="0.5"/>
+            <text class="comp-label" x="370" y="190" text-anchor="middle">G1</text>
+            <text class="comp-sub" id="t-gt-mw" x="370" y="240" text-anchor="middle">0 MW</text>
+
+            <!-- HRSG + stack -->
+            <g id="c-hrsg">
+              <rect class="comp" x="430" y="90" width="92" height="190" rx="4" fill="url(#g-hrsg)"/>
+              <rect class="comp" x="456" y="34" width="38" height="56" rx="3" fill="url(#g-hrsg)"/>
+            </g>
+            <path d="M438 130 h76 M438 160 h76 M438 190 h76 M438 220 h76" stroke="#c8703a" stroke-width="2.5" fill="none" opacity="0.65"/>
+            <circle cx="442" cy="130" r="2.5" fill="#c8703a"/><circle cx="442" cy="160" r="2.5" fill="#c8703a"/>
+            <circle cx="442" cy="190" r="2.5" fill="#c8703a"/><circle cx="442" cy="220" r="2.5" fill="#c8703a"/>
+            <text class="comp-label" x="476" y="300" text-anchor="middle">HRSG</text>
+            <text class="comp-sub" id="h-hrsg" x="476" y="316" text-anchor="middle">health 100%</text>
+            <text class="comp-sub" id="t-drum" x="476" y="332" text-anchor="middle">drum 20 °C</text>
+            <text class="flow-label" x="500" y="48">stack</text>
+            <text class="flow-label" x="560" y="122" text-anchor="middle">steam</text>
+
+            <!-- steam turbine -->
+            <g id="c-st">
+              <polygon class="comp" points="600,112 682,94 682,166 600,148" fill="url(#g-turbine)"/>
+            </g>
+            <path d="M614 118 L666 105 M614 130 L666 122 M614 142 L666 138"
+                  stroke="#8a5a12" stroke-width="2" fill="none" opacity="0.55"/>
+            <line x1="682" y1="130" x2="700" y2="130" stroke="#7d6a45" stroke-width="3"/>
+            <text class="comp-label" x="641" y="80" text-anchor="middle">Steam turbine</text>
+            <text class="comp-sub" id="h-st"     x="641" y="64" text-anchor="middle">health 100%</text>
+            <text class="comp-sub" id="t-st-rpm" x="750" y="64" text-anchor="middle">0 rpm</text>
+
+            <!-- generator 2 -->
+            <g id="c-gen2">
+              <circle class="comp" cx="722" cy="130" r="23" fill="url(#g-gen)"/>
+            </g>
+            <path d="M710 117 A18 18 0 0 1 734 117" stroke="#fff" stroke-width="2" fill="none" opacity="0.5"/>
+            <text class="comp-label" x="722" y="135" text-anchor="middle">G2</text>
+            <text class="comp-sub" id="t-st-mw" x="722" y="170" text-anchor="middle">0 MW</text>
+
+            <!-- condenser -->
+            <g id="c-cond">
+              <rect class="comp" x="600" y="190" width="112" height="52" rx="4" fill="url(#g-cond)"/>
+            </g>
+            <path d="M610 206 h92 M610 218 h92 M610 230 h92" stroke="#5f9cc7" stroke-width="2" fill="none" opacity="0.6"/>
+            <text class="comp-label" x="656" y="262" text-anchor="middle">Condenser</text>
+            <text class="comp-sub" id="h-cond"  x="656" y="278" text-anchor="middle">health 100%</text>
+            <text class="comp-sub" id="t-vac"   x="656" y="294" text-anchor="middle">vacuum — kPa</text>
+
+            <!-- cooling tower -->
+            <g id="c-ct">
+              <path class="comp" d="M806 252 C820 212 820 192 806 158 L872 158 C858 192 858 212 872 252 Z" fill="url(#g-ct)"/>
+            </g>
+            <path d="M814 168 L816 244 M828 162 L829 250 M842 162 L841 250 M856 168 L854 244"
+                  stroke="#2f6b4f" stroke-width="1.5" fill="none" opacity="0.4"/>
+            <path id="p-vapor" d="M826 148 q4 -10 0 -20 M846 148 q-4 -10 0 -20" stroke="#b8a273" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <text class="comp-label" x="839" y="274" text-anchor="middle">Cooling tower</text>
+            <text class="comp-sub" id="h-ct"    x="839" y="290" text-anchor="middle">health 100%</text>
+            <text class="comp-sub" id="t-fans"  x="839" y="306" text-anchor="middle">fans 0/4</text>
+            <text class="flow-label" x="756" y="198" text-anchor="middle">circulating water</text>
+            <text class="flow-label" x="548" y="326" text-anchor="middle">feedwater</text>
+          </svg>
+
+          <!-- status strip — directly under the schematic it describes -->
+          <div class="schem-status">
+            <div class="state-line"><span class="unit-name">Gas turbine</span><span class="st" id="st-gt-state">Offline — cold</span></div>
+            <div class="progressbar"><div class="fill" id="prog-gt" style="width:0%"></div></div>
+            <div class="state-line"><span class="unit-name">Steam turbine</span><span class="st" id="st-st-state">Offline</span></div>
+            <div class="progressbar"><div class="fill" id="prog-st" style="width:0%"></div></div>
+          </div>
+
+          <!-- action buttons — grouped under the unit each one operates -->
+          <div class="schem-controls">
+            <div class="schem-col">
+              <div class="schem-col-label">Gas turbine controls</div>
+              <div class="btn-row">
+                <button class="btn primary schem-btn" id="btn-purge">Start purge</button>
+                <button class="btn primary schem-btn" id="btn-ignite" disabled>Ignite</button>
+                <button class="btn primary schem-btn" id="btn-sync-gt" disabled>Close GT breaker</button>
+              </div>
+              <div class="btn-row">
+                <button class="btn schem-btn" id="btn-shutdown-gt" disabled>Shut down GT</button>
+                <button class="btn danger schem-btn" id="btn-open-gt" disabled>Open GT breaker</button>
+              </div>
+            </div>
+            <div class="schem-col">
+              <div class="schem-col-label">Steam turbine controls</div>
+              <div class="btn-row">
+                <button class="btn primary schem-btn" id="btn-roll-st" disabled>Roll steam turbine</button>
+                <button class="btn primary schem-btn" id="btn-sync-st" disabled>Close ST breaker</button>
+              </div>
+              <div class="btn-row">
+                <button class="btn schem-btn" id="btn-shutdown-st" disabled>Shut down ST</button>
+              </div>
+            </div>
+          </div>
+          <div class="seq-msg" id="seq-msg"></div>
+        </div>
+
+        <div class="panel panel-dark" id="panel-cutaway">
+          <div class="cutaway-head">
+            <h2>Inside the machine — live cutaway</h2>
+            <label class="choice cutaway-toggle"><input type="checkbox" id="chk-cutaway" checked>
+              Show particle animation</label>
+          </div>
+          <div class="cutaway-canvas-wrap">
+            <canvas id="cutaway-canvas"
+              aria-label="Animated particle cutaway: air and fuel burning in the gas turbine, hot exhaust giving up heat in the HRSG, steam driving the steam turbine, and condensing in the cooling loop"></canvas>
+          </div>
+          <div class="cutaway-legend">
+            <span><i class="lg" style="background:#60a8a8"></i>Air</span>
+            <span><i class="lg" style="background:#eda100"></i>Fuel</span>
+            <span><i class="lg" style="background:#ff6a00"></i>Flame</span>
+            <span><i class="lg" style="background:#e8542c"></i>Hot gas</span>
+            <span><i class="lg" style="background:#dfecf3"></i>Steam</span>
+            <span><i class="lg" style="background:#7e7e76"></i>Smoke</span>
+            <span><i class="lg" style="background:#2a78d6"></i>Water</span>
+            <span><i class="lg" style="background:#ffe66b"></i>Spark</span>
+          </div>
+          <p class="cutaway-caption">A stylized physics toy, not a literal cross-section — it mirrors
+            your plant's real state: load, fouling, and health. Left running long enough at critical
+            health, a chamber can fail catastrophically and scorch permanently until rebuilt.</p>
+        </div>
+
+        <div class="tiles">
+          <div class="tile hero" style="grid-column: span 2;">
+            <div class="label">Net output</div>
+            <div class="value"><span id="tile-net">0</span> <span class="unit">MW</span></div>
+            <svg class="spark" id="spark-net" width="150" height="30" viewBox="0 0 150 30" aria-hidden="true"></svg>
+          </div>
+          <div class="tile">
+            <div class="label">Plant efficiency (LHV)</div>
+            <div class="value"><span id="tile-eff">—</span><span class="unit">%</span></div>
+            <svg class="spark" id="spark-eff" width="120" height="30" viewBox="0 0 120 30" aria-hidden="true"></svg>
+          </div>
+          <div class="tile">
+            <div class="label">Heat rate</div>
+            <div class="value" style="font-size:20px"><span id="tile-hr">—</span></div>
+            <div class="delta">Btu / kWh</div>
+          </div>
+          <div class="tile">
+            <div class="label">Fuel flow</div>
+            <div class="value" style="font-size:20px"><span id="tile-fuel">0</span></div>
+            <div class="delta">MMBtu / h</div>
+          </div>
+          <div class="tile">
+            <div class="label">CO₂ emissions</div>
+            <div class="value" style="font-size:20px"><span id="tile-co2">0</span></div>
+            <div class="delta">tonnes / h</div>
+          </div>
+          <div class="tile">
+            <div class="label">Hourly margin</div>
+            <div class="value" style="font-size:20px"><span id="tile-margin">$0</span></div>
+            <div class="delta" id="tile-margin-note">revenue − fuel − O&amp;M</div>
+          </div>
+        </div>
+
+        <div class="panel panel-chart">
+          <h2>Output vs. city demand — last 3 hours</h2>
+          <div class="legend">
+            <span><span class="key" style="background:#2a78d6"></span>Net output (MW)</span>
+            <span><span class="key" style="background:#eda100"></span>City demand (MW)</span>
+          </div>
+          <div class="chart-wrap">
+            <svg class="trend" id="trend" viewBox="0 0 760 220"></svg>
+            <div class="chart-tip" id="chart-tip"></div>
+          </div>
+        </div>
+
+        <div class="panel panel-log">
+          <h2>Alarm &amp; event log</h2>
+          <div class="log" id="log" aria-live="polite"></div>
+        </div>
+
+      </div>
+
+      <div class="col-right"><!-- right column: controls -->
+
+        <div class="panel">
+          <h2>Synchronizing &amp; checklist</h2>
+
+          <div class="syncscope" id="syncscope">
+            <svg width="90" height="90" viewBox="0 0 90 90" aria-hidden="true">
+              <circle cx="45" cy="45" r="40" fill="#fff" stroke="#b8a273" stroke-width="1.5"/>
+              <path d="M45 5 A40 40 0 0 1 58.7 7.4 L45 45 Z" fill="rgba(12,163,12,0.15)"/>
+              <path d="M45 5 A40 40 0 0 0 31.3 7.4 L45 45 Z" fill="rgba(12,163,12,0.15)"/>
+              <line x1="45" y1="45" x2="45" y2="10" stroke="#0b0b0b" stroke-width="2.5" id="sync-needle" stroke-linecap="round"/>
+              <circle cx="45" cy="45" r="3" fill="#0b0b0b"/>
+            </svg>
+            <div class="scope-readout">
+              <div><strong>Synchroscope</strong> — <span id="sync-unit">GT</span></div>
+              <div>Grid: 60.00 Hz · Machine: <span class="readout" id="sync-freq">—</span> Hz</div>
+              <div>Phase angle: <span class="readout" id="sync-phase">—</span>°</div>
+              <div class="ok-window" id="sync-ok" style="visibility:hidden">✓ In window — close now</div>
+              <div class="btn-row" style="margin:6px 0 0">
+                <button class="btn" id="btn-gov-dn">Governor −</button>
+                <button class="btn" id="btn-gov-up">Governor +</button>
+              </div>
+              <div class="hint" style="font-size:12px;color:#898781">Trim machine speed until the needle barely creeps, then close near 12 o'clock</div>
+              <label class="choice" style="padding-top:6px"><input type="checkbox" id="chk-autosync"> Auto-synchronizer
+                <span class="hint">Closes the breaker for you when matched</span></label>
+            </div>
+          </div>
+
+          <h3>First-start checklist</h3>
+          <ul class="checklist" id="checklist">
+            <li id="fs-fans">Start cooling-tower fans (at least 2)</li>
+            <li id="fs-fuel">Select a fuel</li>
+            <li id="fs-purge">Purge the gas path</li>
+            <li id="fs-ignite">Ignite and accelerate to 3,600 rpm</li>
+            <li id="fs-sync">Synchronize G1 to the grid</li>
+            <li id="fs-warm">Warm the HRSG (drum ≥ 250 °C, steam ≥ 30 bar)</li>
+            <li id="fs-roll">Roll the steam turbine to 3,600 rpm</li>
+            <li id="fs-sync2">Synchronize G2 — combined-cycle operation</li>
+          </ul>
+        </div>
+
+        <div class="panel panel-gt">
+          <h2>Gas turbine</h2>
+          <fieldset>
+            <legend>Fuel</legend>
+            <label class="choice"><input type="radio" name="fuel" value="gas" checked>
+              Natural gas <span class="hint">Cleaner, cheaper per MMBtu, less wear</span></label>
+            <label class="choice"><input type="radio" name="fuel" value="oil">
+              Distillate oil (backup) <span class="hint">+40 % fuel cost, +CO₂, 2× hot-path wear</span></label>
+          </fieldset>
+
+          <div class="ctl-row">
+            <span class="k">Load setpoint</span>
+            <span class="stepper">
+              <button id="btn-gt-dn" aria-label="Decrease setpoint">−</button>
+              <span class="val" id="gt-set-val">0 MW</span>
+              <button id="btn-gt-up" aria-label="Increase setpoint">+</button>
+            </span>
+          </div>
+          <div class="ctl-row"><span class="k">GT output / max available</span>
+            <span class="readout" id="gt-out">0 / 180 MW</span></div>
+          <div class="ctl-row"><span class="k">GT efficiency</span>
+            <span class="readout" id="gt-eff">—</span></div>
+
+          <fieldset>
+            <legend>Ramp rate</legend>
+            <label class="choice"><input type="radio" name="ramp" value="normal" checked>
+              Normal (8 MW/min) <span class="hint">Design ramp — minimal thermal stress</span></label>
+            <label class="choice"><input type="radio" name="ramp" value="fast">
+              Fast (16 MW/min) <span class="hint">Chases price spikes, but adds HRSG/rotor stress</span></label>
+          </fieldset>
+
+          <label class="choice"><input type="checkbox" id="chk-evap">
+            Evaporative inlet cooler <span class="hint">Recovers hot-day output; uses demin water</span></label>
+          <div class="btn-row">
+            <button class="btn" id="btn-wash-online" disabled>Online compressor wash ($2k + water)</button>
+          </div>
+        </div>
+
+        <div class="panel panel-hrsg">
+          <h2>HRSG &amp; steam</h2>
+          <div class="ctl-row"><span class="k">Drum temperature</span><span class="readout" id="ro-drum">20 °C</span></div>
+          <div class="ctl-row"><span class="k">Steam pressure</span><span class="readout" id="ro-press">0 bar</span></div>
+          <div class="ctl-row"><span class="k">Warm-up rate</span><span class="readout" id="ro-rate">0.0 °C/min</span></div>
+          <div class="ctl-row"><span class="k">Steam path</span><span class="readout" id="ro-steampath">—</span></div>
+          <label class="choice"><input type="checkbox" id="chk-duct" disabled>
+            Duct burners <span class="hint">Extra fuel fired in the HRSG: +up to 35 MW on the steam side, lowers overall efficiency</span></label>
+          <div class="ctl-row" id="row-duct" style="display:none">
+            <span class="k">Duct-burner level</span>
+            <span class="stepper">
+              <button id="btn-duct-dn" aria-label="Decrease duct firing">−</button>
+              <span class="val" id="duct-val">0 %</span>
+              <button id="btn-duct-up" aria-label="Increase duct firing">+</button>
+            </span>
+          </div>
+        </div>
+
+        <div class="panel panel-st">
+          <h2>Steam turbine &amp; cooling</h2>
+          <div class="ctl-row"><span class="k">Condenser pressure</span><span class="readout" id="ro-vac">— kPa abs</span></div>
+          <div class="ctl-row"><span class="k">Cooling load / capacity</span><span class="readout" id="ro-cool">0 / 0 MWth</span></div>
+          <fieldset>
+            <legend>Cooling-tower fans</legend>
+            <label class="choice"><input type="checkbox" class="chk-fan" data-fan="0"> Fan cell A <span class="hint">~90 MWth each · 0.4 MW aux power</span></label>
+            <label class="choice"><input type="checkbox" class="chk-fan" data-fan="1"> Fan cell B</label>
+            <label class="choice"><input type="checkbox" class="chk-fan" data-fan="2"> Fan cell C</label>
+            <label class="choice"><input type="checkbox" class="chk-fan" data-fan="3"> Fan cell D</label>
+          </fieldset>
+          <label class="choice"><input type="checkbox" id="chk-scr" checked>
+            SCR (NOₓ control) <span class="hint">Injects ammonia into the HRSG; without it you pay emissions penalties while firing</span></label>
+        </div>
+
+        <div class="panel panel-dispatch">
+          <h2>Dispatch</h2>
+          <fieldset>
+            <legend>Load control mode</legend>
+            <label class="choice"><input type="radio" name="dispatch" value="manual" checked>
+              Manual <span class="hint">You set the GT load setpoint</span></label>
+            <label class="choice"><input type="radio" name="dispatch" value="follow">
+              Follow city demand <span class="hint">Automatically tracks Voltage Falls' load (once G1 is on line)</span></label>
+          </fieldset>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MAINTENANCE ================= -->
+  <section class="tab-page" id="tab-maintain">
+    <div class="operate-grid">
+      <div>
+        <div class="panel">
+          <h2>Component health</h2>
+          <div id="health-meters"></div>
+          <div class="callout">Health falls with fired hours, starts, trips and thermal stress.
+            Below <strong>50 %</strong> a component loses performance and begins to risk forced outages;
+            below <strong>25 %</strong> trips become likely. Maintenance costs money and takes the unit
+            out of service — plan it for low-price hours. <span class="why" data-learn="learn-degrade" style="color:#1c5cab;cursor:pointer;text-decoration:underline">Why do machines degrade?</span></div>
+        </div>
+        <div class="panel">
+          <h2>Consumables &amp; inventory</h2>
+          <div id="consumables"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h2>Maintenance work orders</h2>
+          <p style="font-size:13px;color:#52514e;margin-top:0">Most jobs need the affected unit
+            <strong>off line</strong> first. Work advances only while the sim runs.</p>
+          <div id="task-list"></div>
+          <div class="seq-msg" id="maint-msg"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CITY & MARKET ================= -->
+  <section class="tab-page" id="tab-market">
+    <div class="tiles">
+      <div class="tile"><div class="label">Lifetime profit</div><div class="value" style="font-size:22px" id="sc-profit">$0</div></div>
+      <div class="tile"><div class="label">Energy delivered</div><div class="value" style="font-size:22px"><span id="sc-mwh">0</span> <span class="unit">MWh</span></div></div>
+      <div class="tile"><div class="label">City served (while running)</div><div class="value" style="font-size:22px"><span id="sc-served">—</span><span class="unit">%</span></div></div>
+      <div class="tile"><div class="label">Unit trips</div><div class="value" style="font-size:22px" id="sc-trips">0</div></div>
+      <div class="tile"><div class="label">Starts</div><div class="value" style="font-size:22px" id="sc-starts">0</div></div>
+      <div class="tile"><div class="label">CO₂ emitted</div><div class="value" style="font-size:22px"><span id="sc-co2">0</span> <span class="unit">t</span></div></div>
+      <div class="tile"><div class="label">☠ Catastrophic failures</div><div class="value" style="font-size:22px" id="sc-melt">0</div></div>
+    </div>
+
+    <div class="operate-grid">
+      <div>
+        <div class="panel">
+          <h2>The city of Voltage Falls</h2>
+          <p style="font-size:14px;color:#52514e">Your plant is the city's main generator. Demand follows
+            daily life: a morning ramp as people wake, an evening peak as lights, cooking and
+            air-conditioning stack up, and a quiet valley overnight. Hot afternoons add air-conditioning
+            load. Electricity price rises and falls with that demand — a merchant plant earns most by
+            being <em>on line and efficient during the peaks</em>.</p>
+          <div class="ctl-row"><span class="k">Demand right now</span><span class="readout" id="mk-demand">— MW</span></div>
+          <div class="ctl-row"><span class="k">Power price</span><span class="readout" id="mk-price">— $/MWh</span></div>
+          <div class="ctl-row"><span class="k">Natural gas price</span><span class="readout" id="mk-gas">— $/MMBtu</span></div>
+          <div class="ctl-row"><span class="k">Break-even price at current efficiency</span><span class="readout" id="mk-breakeven">—</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h2>Grid &amp; weather events</h2>
+          <div class="log" id="events-log"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LEARN ================= -->
+  <section class="tab-page" id="tab-learn">
+    <div class="learn">
+
+      <details id="learn-cc" open>
+        <summary>What is a combined-cycle power plant?</summary>
+        <div>
+          <p>A combined-cycle plant is <strong>two heat engines stacked in series</strong> so that the
+            waste heat of the first becomes the fuel of the second:</p>
+          <p><strong>1 · Gas turbine (Brayton cycle).</strong> A compressor squeezes air to ~20×
+            atmospheric pressure, fuel burns in it at ~1,400&nbsp;°C, and the hot gas spins a turbine that
+            drives both the compressor and generator&nbsp;G1. Its exhaust leaves at about
+            <strong>630&nbsp;°C</strong> — far too hot to throw away.</p>
+          <p><strong>2 · Heat-recovery steam generator (HRSG).</strong> The exhaust flows over kilometres
+            of water-filled tube banks, boiling water into high-pressure steam — a boiler with no flame of
+            its own.</p>
+          <p><strong>3 · Steam turbine (Rankine cycle).</strong> That steam expands through the steam
+            turbine, spinning generator&nbsp;G2, then condenses back to water in the condenser and is pumped
+            around again.</p>
+          <p>Energy that a simple gas turbine would blow out its stack instead produces roughly
+            <strong>50&nbsp;% more electricity for zero extra fuel</strong>. That is why combined cycle is the
+            most efficient way we have to make electricity from fuel.</p>
+        </div>
+      </details>
+
+      <details id="learn-eff">
+        <summary>Efficiency &amp; heat rate — the formulas</summary>
+        <div>
+          <p>Thermal efficiency is simply useful work out over heat in:</p>
+          <div class="formula"><span class="fx">η = W<sub>net</sub> / Q<sub>in</sub></span>
+            <span class="note">W<sub>net</sub> = electrical power delivered · Q<sub>in</sub> = fuel energy burned per unit time (both in MW)</span></div>
+          <p>When two cycles are stacked, the bottoming cycle only sees the heat the topping cycle
+            rejected, so the combined efficiency is:</p>
+          <div class="formula"><span class="fx">η<sub>CC</sub> ≈ η<sub>GT</sub> + η<sub>ST</sub> · (1 − η<sub>GT</sub>)</span>
+            <span class="note">Example: η<sub>GT</sub> = 0.37 and η<sub>ST</sub> = 0.33 → η<sub>CC</sub> ≈ 0.37 + 0.33 × 0.63 ≈ <strong>0.58</strong>, versus 0.37 for the gas turbine alone.</span></div>
+          <p>Power engineers usually quote the inverse, the <strong>heat rate</strong> — fuel energy needed
+            per kWh generated (1&nbsp;kWh = 3,412&nbsp;Btu):</p>
+          <div class="formula"><span class="fx">HR = 3,412 / η</span>&nbsp;&nbsp;Btu/kWh
+            <span class="note">η = 0.58 → HR ≈ 5,880 Btu/kWh. Lower is better: every point of efficiency is fuel money and CO₂ you don't spend.</span></div>
+        </div>
+      </details>
+
+      <details id="learn-carnot">
+        <summary>The Carnot limit — why temperature is everything</summary>
+        <div>
+          <p>No heat engine can beat the Carnot limit, set by the absolute temperatures (in kelvin,
+            K = °C + 273) that it works between:</p>
+          <div class="formula"><span class="fx">η<sub>max</sub> = 1 − T<sub>cold</sub> / T<sub>hot</sub></span>
+            <span class="note">Firing at 1,400 °C (≈1,673 K) and rejecting at 30 °C (≈303 K): η<sub>max</sub> = 1 − 303/1673 ≈ 82 %. Real plants get ~60 % — friction, mixing and finite temperature differences take the rest.</span></div>
+          <p>This one formula explains most of what you do as an operator:</p>
+          <p>· Raising <strong>T<sub>hot</sub></strong> (better blade alloys and cooling → hotter firing) is why
+            modern turbines beat old ones.</p>
+          <p>· Lowering <strong>T<sub>cold</sub></strong> is your cooling tower's job — colder condensing water
+            means a deeper condenser vacuum and more work squeezed from every kilogram of steam.</p>
+          <p>· On a hot day both ends get worse at once: intake air is thinner (less mass through the gas
+            turbine) <em>and</em> the cooling tower can't cool as low. That's why output sags in a heat
+            wave — exactly when the city wants power most.</p>
+        </div>
+      </details>
+
+      <details id="learn-states">
+        <summary>Plant states, one by one</summary>
+        <div>
+          <table class="datatable states-table">
+            <tr><th>State</th><th>What is happening — and why it exists</th></tr>
+            <tr><td>Offline — cold / warm / hot</td><td>How much heat the machine still holds. Metal cools over hours, so a restart within ~8 h ("hot") skips most of the warm-up a cold start needs. Startup speed is limited by how fast thick metal may be reheated.</td></tr>
+            <tr><td>Purge</td><td>The starter motor spins the unfired turbine so fresh air sweeps several complete volumes through the gas path and HRSG, flushing out any leaked fuel before a spark is allowed. Skipping it has destroyed real HRSGs.</td></tr>
+            <tr><td>Ignition</td><td>Fuel is admitted at a small, precise flow and igniters fire it. Too little and the flame blows out; the control system watches flame detectors continuously.</td></tr>
+            <tr><td>Acceleration</td><td>Fuel increases and the machine accelerates itself to <strong>3,600 rpm</strong> — the speed that makes a 2-pole generator produce exactly 60 Hz.</td></tr>
+            <tr><td>FSNL</td><td>"Full speed, no load" — spinning at grid frequency with the breaker still open, making no power, ready to synchronize.</td></tr>
+            <tr><td>Synchronized</td><td>The breaker is closed with frequency, voltage and phase matched to the grid. The generator is now locked in step with every other machine on the interconnection.</td></tr>
+            <tr><td>Loading / on line</td><td>More fuel now becomes electrical power instead of speed. Ramp rate is limited to protect thick components from thermal stress.</td></tr>
+            <tr><td>Combined cycle</td><td>HRSG making steam, steam turbine synchronized — the full 58 %-efficient configuration.</td></tr>
+            <tr><td>Duct firing</td><td>Extra burners inside the HRSG boost steam output for peak hours — more MW, at a worse heat rate.</td></tr>
+            <tr><td>Shutdown / cooldown</td><td>Load is ramped off before breakers open, then the machine coasts down and cools for hours. The HRSG's stored heat decides whether your next start is hot, warm or cold.</td></tr>
+            <tr><td>Tripped / lockout</td><td>A protection system stopped the unit instantly (flameout, overspeed, loss of vacuum…). Alarms must be reset before restarting — after the cause is understood.</td></tr>
+            <tr><td>☠ Wrecked</td><td>A rare, permanent outcome of running a component at critical health under stress — the failure destroys hardware rather than just tripping a breaker. Only a full rebuild in Maintenance restores it. See "Catastrophic failure" below.</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <details id="learn-purge">
+        <summary>Why must the gas path be purged before ignition?</summary>
+        <div>
+          <p>Natural gas piping runs right up to the combustor. If a valve seeps while the unit is down,
+            fuel can pool inside the turbine, the exhaust duct and the huge HRSG casing. Introduce a spark
+            into that mixture and the result is not ignition but an <strong>explosion</strong> — purge-related
+            HRSG explosions have wrecked real plants.</p>
+          <p>So an interlock forces the starter to spin the unfired machine and blow fresh air through the
+            whole gas path first. Codes require several complete <strong>volume changes</strong>:</p>
+          <div class="formula"><span class="fx">t<sub>purge</sub> = n · V / Q̇</span>
+            <span class="note">n = required volume changes (≥ 3–5), V = gas-path + HRSG volume (m³), Q̇ = purge airflow (m³/min). Big HRSG volume is why the purge takes minutes, not seconds.</span></div>
+          <p>In the simulator the <em>Ignite</em> button stays locked until purge completes — the same
+            interlock a real control system enforces. It is one of the few steps where slower is simply
+            safer.</p>
+        </div>
+      </details>
+
+      <details id="learn-sync">
+        <summary>Synchronization — joining the grid without breaking things</summary>
+        <div>
+          <p>The grid is millions of machines all spinning in lock-step at 60&nbsp;Hz. Closing your breaker
+            connects your rotor to all of them <em>rigidly, through magnetic fields</em>. Three things must
+            match at that instant: <strong>frequency</strong>, <strong>voltage</strong>, and
+            <strong>phase angle</strong> (whether your voltage wave peaks at the same moment as the grid's).</p>
+          <div class="formula"><span class="fx">N = 120 · f / P</span>
+            <span class="note">Synchronous speed: f = 60 Hz and P = 2 poles → N = 3,600 rpm. That's why FSNL is exactly 3,600 rpm.</span></div>
+          <p>Close the breaker badly out of phase and the grid yanks the rotor into step in a fraction of
+            a second — torques many times rated can twist shafts and rip generator windings. The
+            <strong>synchroscope</strong> needle shows the phase difference rotating slowly (its speed is your
+            frequency error); the operator closes as the needle drifts through 12&nbsp;o'clock. Most plants
+            use an auto-synchronizer, with the human watching — try both in the simulator.</p>
+        </div>
+      </details>
+
+      <details id="learn-stress">
+        <summary>Thermal stress — why you must warm up slowly</summary>
+        <div>
+          <p>Steam drums, headers and turbine rotors are steel up to ~15&nbsp;cm thick. Heat one surface
+            quickly and the inside lags behind; the hot layer tries to expand while the cold core holds it
+            back. That internal tug-of-war is thermal stress:</p>
+          <div class="formula"><span class="fx">σ ≈ E · α · ΔT</span>
+            <span class="note">E = stiffness of steel (~200 GPa), α = thermal expansion (~12×10⁻⁶ /°C), ΔT = temperature difference across the metal. Even ΔT = 50 °C gives ~120 MPa — a third of the steel's yield strength, cycled every start.</span></div>
+          <p>Each aggressive warm-up spends a little of the metal's <strong>fatigue life</strong>. It never
+            heals; enough cycles and cracks start. This is why:</p>
+          <p>· Drum warm-up is held to a few °C per minute — in the sim, hold the GT at low load until the
+            drum is warm, or watch HRSG health tick away.</p>
+          <p>· Starts are classified <strong>hot / warm / cold</strong>: a hot machine has small ΔT to close,
+            so it may load fast; a cold one must crawl.</p>
+          <p>· The <em>Fast</em> ramp setting earns peak-price money but charges it to component life.
+            Real operators make exactly this trade.</p>
+        </div>
+      </details>
+
+      <details id="learn-vacuum">
+        <summary>The condenser, vacuum, and cooling towers</summary>
+        <div>
+          <p>Steam leaving the turbine is condensed on tubes full of cool circulating water. When steam
+            collapses into liquid it shrinks ~1,000×, so the condenser naturally pulls a strong
+            <strong>vacuum</strong> — typically ~5&nbsp;kPa absolute (about 95&nbsp;% below atmosphere).</p>
+          <p>The vacuum matters because the turbine extracts work from steam all the way down to condenser
+            pressure. Colder cooling water → lower condensing temperature → lower back-pressure → more work
+            per kilogram of steam (it's the T<sub>cold</sub> in Carnot's formula).</p>
+          <div class="formula"><span class="fx">Q̇<sub>reject</sub> ≈ Q̇<sub>steam</sub> − P<sub>ST</sub></span>
+            <span class="note">Whatever heat the steam cycle doesn't turn into work must be carried away by the cooling tower. At full load that's ~170 MW of heat — run enough fan cells to remove it.</span></div>
+          <p>Starve the condenser of cooling (too few fans, fouled tubes, a scorching day) and pressure
+            creeps up: first the steam turbine loses output, then a protective <strong>low-vacuum trip</strong>
+            slams it off line before the long last-stage blades are damaged by hot, dense steam.</p>
+        </div>
+      </details>
+
+      <details id="learn-emissions">
+        <summary>Emissions — CO₂, NOₓ and the SCR</summary>
+        <div>
+          <p><strong>CO₂</strong> is fixed chemistry: burn the fuel, get the carbon. For natural gas:</p>
+          <div class="formula"><span class="fx">m<sub>CO₂</sub> ≈ 53.06 kg per MMBtu of gas</span>
+            <span class="note">The only lever is efficiency — a 58 % plant emits ~35 % less CO₂ per MWh than a 37 % one, and roughly 60 % less than coal.</span></div>
+          <p><strong>NOₓ</strong> forms when combustion is hot enough to make airborne nitrogen react with
+            oxygen — it drives smog and acid rain. The <strong>SCR</strong> (selective catalytic reduction)
+            in the HRSG injects ammonia over a catalyst:</p>
+          <div class="formula"><span class="fx">4 NO + 4 NH₃ + O₂ → 4 N₂ + 6 H₂O</span>
+            <span class="note">NOₓ becomes plain nitrogen and water. It consumes ammonia — keep the tank stocked, because firing without a working SCR costs emissions penalties.</span></div>
+        </div>
+      </details>
+
+      <details id="learn-degrade">
+        <summary>Degradation &amp; maintenance — why machines wear out</summary>
+        <div>
+          <p>Nothing in the plant fails all at once; everything drifts:</p>
+          <p>· <strong>Compressor fouling</strong> — air isn't clean; a film on the blades costs capacity and
+            efficiency. Washes recover it (online = small sip, offline = full recovery).</p>
+          <p>· <strong>Inlet filters</strong> load up with dust; pressure drop throttles the compressor.</p>
+          <p>· <strong>Hot-gas-path parts</strong> creep and crack at 1,400 °C; each fired hour and
+            especially each start and trip consumes life. Industry counts
+            <strong>equivalent operating hours</strong>: one start ≈ 10–20 h, one trip ≈ many more.</p>
+          <p>· <strong>HRSG tubes</strong> fatigue with thermal cycling; <strong>condenser tubes</strong> foul
+            and pinch the vacuum; <strong>cooling-tower</strong> fill scales up.</p>
+          <p>Maintenance buys the health back with money and downtime. The operator's puzzle: schedule
+            outages for cheap-price hours, before a forced outage schedules itself during the peak.</p>
+        </div>
+      </details>
+
+      <details id="learn-catastrophic">
+        <summary>☠ Catastrophic failure — when neglect becomes destruction</summary>
+        <div>
+          <p>Every trip in this simulator is normally <em>recoverable</em>: a protection system stops the
+            unit before something breaks, you fix the cause, reset alarms, and start again. But real
+            plants have a second category of event — one where the protection didn't act fast enough, or
+            the equipment was already too far gone for the trip to matter. Push a component's health to
+            single digits and keep running it anyway, and the simulator can hand you one of these instead
+            of an ordinary trip. They are rare on purpose, and permanent on purpose — the "dead battery"
+            edge of an otherwise forgiving game.</p>
+
+          <p><strong>Uncontained turbine failure.</strong> A spinning rotor stores kinetic energy:</p>
+          <div class="formula"><span class="fx">KE = ½ I ω²</span>
+            <span class="note">I = rotor's moment of inertia, ω = angular speed (rad/s). Energy scales with the <em>square</em> of speed — a rotor already cracked from neglected hot-gas-path damage that lets go at speed releases enormous energy in a fraction of a second, fast enough to punch through a casing designed to contain far gentler events.</span></div>
+          <p>This is why opening the breaker on a heavily loaded, badly worn machine is dangerous: with
+            the electrical load gone, all that fuel energy goes into pure acceleration instead — an
+            overspeed event — precisely when the metal has the least margin left.</p>
+
+          <p><strong>Compressor surge deflagration.</strong> A badly fouled or blocked inlet can stall
+            the compressor's airflow mid-start. Fuel already committed to the combustor has nowhere
+            productive to go — instead of a clean flame front, it can flash back through the casing.
+            Real gas turbines have surge-limit control for exactly this reason; in the simulator it only
+            becomes likely once filter ΔP or fouling is left past ~85%.</p>
+
+          <p><strong>HRSG tube rupture.</strong> Warming the drum faster than its safe rate over and over
+            fatigues the metal (see thermal stress, above). Water held above 100 °C stays liquid only
+            because it's under pressure; if a fatigued tube lets go, that superheated water flashes to
+            steam almost instantly:</p>
+          <div class="formula"><span class="fx">V<sub>steam</sub> ≈ 1,600 × V<sub>water</sub></span>
+            <span class="note">Flashing water expands roughly 1,600-fold at atmospheric pressure — a genuine steam explosion inside the casing, not just a leak.</span></div>
+
+          <p><strong>Condenser vacuum collapse.</strong> A condenser shell is built to hold a strong
+            vacuum <em>against</em> atmospheric pressure pushing in — about 100 kPa of differential across
+            a large thin structure. Fouling and cavitation damage thin that shell over time; push the
+            vacuum to its worst while the shell is already critically weakened, and the pressure
+            differential can cave it in rather than merely trip the turbine on low vacuum.</p>
+
+          <p>Every one of these has the same real lesson: <strong>the health meters in Maintenance are not
+            cosmetic.</strong> A component below 25% isn't "still working, just needs a wash sometime" —
+            it's on borrowed time, and the ordinary trip that usually saves you is no longer guaranteed
+            to. A wrecked component shows scorched and dark in the cutaway view and the schematic, is
+            locked out of every normal work order, and needs a full rebuild — far slower and far more
+            expensive than the maintenance that would have prevented it.</p>
+        </div>
+      </details>
+
+      <details id="learn-econ">
+        <summary>Economics — how the plant earns (or loses) money</summary>
+        <div>
+          <p>A merchant plant sells energy at the market price and buys fuel. Ignoring fixed costs, each
+            hour's margin is:</p>
+          <div class="formula"><span class="fx">margin ≈ MW · price − Q̇<sub>fuel</sub> · gas&nbsp;price − O&amp;M</span>
+            <span class="note">Q̇ in MMBtu/h. The famous <strong>spark spread</strong> = price − HR × gas price / 1000 tells you instantly whether running is profitable.</span></div>
+          <p>Break-even: with a 6,000 Btu/kWh heat rate and gas at $3.50/MMBtu, fuel alone costs
+            6,000 × 3.50 / 1000 = <strong>$21 per MWh</strong>. Below that price you lose money on every
+            megawatt — sometimes the right move is to shut down and wait for the evening peak. But a start
+            costs fuel, wear and time too… which is the whole game.</p>
+        </div>
+      </details>
+
+      <details id="learn-glossary">
+        <summary>Glossary</summary>
+        <div>
+          <table class="datatable">
+            <tr><td><strong>MW / MWh</strong></td><td>Megawatt = a rate of energy flow (1&nbsp;MW ≈ 800 homes); megawatt-hour = that rate held for an hour.</td></tr>
+            <tr><td><strong>MMBtu</strong></td><td>Million British thermal units — the unit fuel is bought in. 1 MWh of heat = 3.412 MMBtu.</td></tr>
+            <tr><td><strong>LHV</strong></td><td>Lower heating value — fuel energy not counting the heat locked in exhaust water vapor; the honest basis for efficiency.</td></tr>
+            <tr><td><strong>FSNL</strong></td><td>Full speed, no load — at 3,600 rpm, breaker open.</td></tr>
+            <tr><td><strong>HRSG</strong></td><td>Heat-recovery steam generator — the flameless boiler in the exhaust.</td></tr>
+            <tr><td><strong>Drum</strong></td><td>Thick steel vessel where boiling water and steam separate; its metal temperature limits warm-up speed.</td></tr>
+            <tr><td><strong>Back-pressure</strong></td><td>Pressure at the steam turbine exhaust — lower (deeper vacuum) means more output.</td></tr>
+            <tr><td><strong>Trip</strong></td><td>Automatic emergency shutdown by a protection system.</td></tr>
+            <tr><td><strong>Baseload / peaking</strong></td><td>Running steadily at rating vs. starting up just for high-price hours.</td></tr>
+            <tr><td><strong>Aux (house) load</strong></td><td>Power the plant itself consumes — pumps, fans, controls. Net = gross − aux.</td></tr>
+          </table>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>Educational simulator — physics simplified but honestly shaped. 1 sim minute per tick.</span>
+    <button class="btn" id="btn-save">Save game</button>
+    <button class="btn danger" id="btn-reset">Reset game</button>
+    <span id="save-note"></span>
+  </div>
+
+</div>
+
+<script src="particles.js"></script>
+<script src="audio.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

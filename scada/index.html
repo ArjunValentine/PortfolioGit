@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Florida Hydrology — Passability · Winter Haven Chain</title>
+<meta name="description" content="A live passability map for the Winter Haven Chain of Lakes, Polk County FL — which canals and lake-links a boater can currently float, which are marginal, and which have drawn down, driven by live USGS gauge readings."/>
+<meta name="theme-color" content="#0d5c74"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --deep:#0a4f66; --mid:#12839f; --shallow:#4fc3d9; --surface:#a9e8ee;
+  --sand:#f0dfa8; --sand-dark:#d9bf7c;
+  --card:#fdf6e2; --card2:#f7ecc9;
+  --line:#c99a52; --line-2:#a9793a;
+  --wood:#a9713f; --wood-dark:#7a4f28; --wood-shadow:#4f3016;
+  --ink:#1d3b40; --ink-dim:#4d6b6e; --ink-mut:#7fa0a3;
+  --cream:#fff8e6;
+  --pass:#25a35d; --marg:#eea52c; --imp:#8d8267; --unk:#9fb8bd;
+  --buoy:#ff7a3d; --red:#e2503a;
+  --mono:'Courier Prime',monospace; --disp:'Baloo 2',cursive; --body:'Quicksand',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--deep);color:var(--ink);font-family:var(--body);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── wood-plank sign chrome ─────────────────────────────────────────── */
+.plank{
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 26px),
+    linear-gradient(180deg,var(--wood) 0%,var(--wood-dark) 100%);
+  border:2px solid var(--wood-shadow);
+  border-radius:10px;
+  box-shadow:0 3px 0 var(--wood-shadow), 0 5px 10px rgba(0,20,25,.35);
+  color:var(--cream);
+}
+.nail{position:absolute;width:6px;height:6px;border-radius:50%;background:#3a2413;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;gap:1rem;position:sticky;top:0;z-index:30;
+  background:linear-gradient(180deg,var(--shallow),var(--mid));border-bottom:3px solid var(--wood-shadow)}
+.hdr-title{position:relative;padding:.55rem 1.1rem;font-family:var(--disp);font-weight:800;font-size:1.5rem;line-height:1;letter-spacing:.01em;
+  text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.hdr-title .nail{top:6px;left:8px}.hdr-title .nail.br{left:auto;right:8px}
+.hdr-title em{color:#ffe27a;font-style:normal}
+.hdr-sub{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cream);margin-top:.4rem;opacity:.9}
+.back{font-family:var(--mono);font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:#eafcff;text-decoration:none;white-space:nowrap;
+  background:rgba(0,0,0,.18);padding:.4rem .7rem;border-radius:20px;border:1px solid rgba(255,255,255,.25)}
+.back:hover{background:rgba(0,0,0,.32)}
+.badge-avatar{width:34px;height:34px;border-radius:50%;flex-shrink:0}
+
+/* ── status ribbon ──────────────────────────────────────────────────── */
+.sbar{display:flex;flex-wrap:wrap;gap:.5rem;padding:.6rem .9rem;background:linear-gradient(180deg,var(--mid),var(--deep));border-bottom:3px solid var(--wood-shadow)}
+.seg{flex:1;min-width:140px;padding:.5rem .85rem;border-radius:20px;background:var(--card);border:2px solid var(--line);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.seg-lbl{font-family:var(--body);font-weight:700;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim);display:flex;align-items:center;gap:.35rem;margin-bottom:.15rem}
+.ldot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.ldot.live{background:var(--pass);box-shadow:0 0 0 0 rgba(37,163,93,.6);animation:pulse 2.2s infinite}
+.ldot.down{background:var(--red)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(37,163,93,.55)}70%{box-shadow:0 0 0 7px rgba(37,163,93,0)}100%{box-shadow:0 0 0 0 rgba(37,163,93,0)}}
+.seg-val{font-family:var(--mono);font-size:.74rem;letter-spacing:.03em;font-weight:700;color:var(--ink)}
+.seg-val small{color:var(--ink-dim);font-weight:400}
+.mascot-row{display:flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border-radius:20px;background:var(--card);border:2px solid var(--line);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.mascot-row .mlabel{font-family:var(--disp);font-weight:700;font-size:.82rem;color:var(--ink)}
+.mascot-row small{display:block;font-family:var(--mono);font-size:.55rem;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-dim)}
+
+/* ── main layout ────────────────────────────────────────────────────── */
+.main{display:grid;grid-template-columns:1fr 330px;height:calc(100vh - 168px)}
+.map-wrap{position:relative;overflow:hidden;
+  background:linear-gradient(180deg,var(--surface) 0%, var(--shallow) 28%, var(--mid) 62%, var(--deep) 100%)}
+#map{width:100%;height:100%;display:block;position:relative;z-index:2}
+.reef-decor{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.reef-decor svg{position:absolute;filter:drop-shadow(0 2px 3px rgba(0,20,25,.25))}
+.bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.85), rgba(255,255,255,.12) 60%, transparent 70%);
+  animation:rise linear infinite;pointer-events:none;z-index:1}
+@keyframes rise{0%{transform:translateY(0) scale(1);opacity:0}8%{opacity:.8}92%{opacity:.6}100%{transform:translateY(-620px) scale(1.15);opacity:0}}
+.sand-band{position:absolute;left:0;right:0;bottom:0;height:14%;z-index:1;
+  background:linear-gradient(180deg, transparent, var(--sand-dark) 60%);
+  clip-path:polygon(0 40%,8% 30%,20% 45%,34% 25%,50% 42%,66% 22%,82% 40%,100% 28%,100% 100%,0 100%)}
+.map-note{position:absolute;left:14px;bottom:8px;z-index:3;font-family:var(--mono);font-size:.54rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--wood-shadow);opacity:.85;pointer-events:none;line-height:1.7}
+
+/* ── panel ──────────────────────────────────────────────────────────── */
+.panel{background:linear-gradient(180deg,var(--card),var(--card2));border-left:3px solid var(--wood-shadow);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.psec{padding:.9rem 1rem 1rem;border-bottom:2px dashed var(--line)}
+.peye{display:inline-block;padding:.3rem .7rem;margin-bottom:.65rem;font-family:var(--disp);font-weight:700;font-size:.72rem;letter-spacing:.03em;
+  color:var(--cream);border-radius:20px 20px 4px 20px}
+.legend-row{display:flex;align-items:center;gap:.55rem;font-family:var(--body);font-weight:600;font-size:.95rem;color:var(--ink);margin-bottom:.42rem;line-height:1.2}
+.legend-row:last-child{margin-bottom:0}
+.lg-swatch{width:26px;height:0;border-top-width:5px;border-top-style:solid;border-radius:3px;flex-shrink:0}
+.legend-row small{color:var(--ink-dim);font-family:var(--mono);font-size:.54rem;letter-spacing:.02em;text-transform:uppercase;margin-left:auto}
+
+.hint{font-size:.94rem;color:var(--ink-dim);line-height:1.5}
+.sel-name{font-family:var(--disp);font-weight:700;font-size:1.5rem;color:var(--ink);line-height:1.1;margin-bottom:.15rem}
+.sel-sub{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:.7rem}
+.status-pill{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--disp);font-weight:700;font-size:.78rem;letter-spacing:.02em;padding:.3rem .7rem;border-radius:20px;margin-bottom:.8rem}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.7rem}
+.rc{background:var(--cream);padding:.5rem .6rem;border-radius:10px;border:2px solid var(--line)}
+.rl{font-family:var(--mono);font-size:.52rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mut);margin-bottom:.2rem}
+.rv{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--ink);line-height:1.05}
+.rv small{font-size:.6rem;color:var(--ink-dim);font-weight:400}
+.spark-cap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.52rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mut);margin-top:.3rem}
+.conf-bar{height:7px;border-radius:6px;background:var(--card2);overflow:hidden;margin-top:.3rem;border:2px solid var(--line)}
+.conf-bar i{display:block;height:100%;background:var(--mid)}
+.note{font-size:.92rem;color:var(--ink-dim);line-height:1.45;margin-top:.5rem}
+.disclaimer{font-family:var(--mono);font-size:.55rem;letter-spacing:.03em;line-height:1.6;color:var(--ink-mut);text-transform:uppercase}
+.disclaimer b{color:var(--marg)}
+.phase{font-family:var(--body);font-weight:500;font-size:.85rem;color:var(--ink-dim);line-height:1.55}
+.phase b{color:var(--ink)}
+
+/* data banner */
+.banner{padding:.5rem 1rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;gap:.6rem;border-bottom:3px solid var(--wood-shadow)}
+.banner.live{background:linear-gradient(180deg,#bdeecf,#8fd6ac);color:#0f5c33}
+.banner.down{background:linear-gradient(180deg,#f7c3b8,#ec9484);color:#7a2314}
+.banner.loading{background:linear-gradient(180deg,var(--surface),var(--shallow));color:var(--deep)}
+.banner b{color:inherit}
+.banner .refresh{margin-left:auto;cursor:pointer;text-decoration:underline;color:inherit;background:none;border:none;font:inherit;letter-spacing:.06em}
+
+/* dock */
+.dock{background:linear-gradient(180deg,var(--wood),var(--wood-dark));border-top:3px solid var(--wood-shadow);padding:.55rem 1.1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.ctl{display:flex;flex-direction:column;gap:.35rem}
+.ctl-lbl{font-family:var(--disp);font-weight:700;font-size:.68rem;letter-spacing:.02em;color:var(--cream);text-shadow:0 1px 0 rgba(0,0,0,.3)}
+.drafts{display:flex;gap:.3rem;flex-wrap:wrap}
+.draft{font-family:var(--body);font-weight:700;font-size:.65rem;letter-spacing:.01em;padding:.34rem .6rem;border:2px solid var(--line-2);background:var(--card);color:var(--ink-dim);border-radius:20px;cursor:pointer;white-space:nowrap;transition:.16s}
+.draft small{opacity:.7;font-weight:500}
+.draft:hover{color:var(--ink);border-color:var(--mid)}
+.draft.on{background:#ffe9a8;border-color:#c98a1f;color:#7a4d0c}
+.time-ctl{flex:1;min-width:260px}
+.time-row{display:flex;align-items:center;gap:.7rem}
+#time{flex:1;accent-color:#ffcf4d;height:5px}
+.time-read{font-family:var(--mono);font-size:.62rem;letter-spacing:.03em;color:var(--cream);white-space:nowrap;min-width:186px;text-align:right}
+.time-read b{color:#ffe27a}
+.time-read .tense{color:var(--cream);opacity:.8}
+.toggle{font-family:var(--body);font-weight:700;font-size:.65rem;letter-spacing:.02em;padding:.34rem .65rem;border:2px solid var(--line-2);background:var(--card);color:var(--ink-dim);border-radius:20px;cursor:pointer;transition:.16s}
+.toggle.closed{border-color:var(--red);color:#7a2314;background:#f7c3b8}
+.toggle.open{border-color:var(--pass);color:#0f5c33;background:#bdeecf}
+
+/* svg map elements */
+.lake{fill:url(#spongeTex);stroke:#c98a1f;stroke-width:2}
+.node-junc{fill:#e6c878;stroke:#a9713f;stroke-width:1.5}
+.lake-lbl{font-family:var(--body);font-weight:700;font-size:12.5px;fill:var(--ink);letter-spacing:.01em;pointer-events:none;text-anchor:middle;
+  paint-order:stroke;stroke:#fffdf3;stroke-width:3.6px;stroke-linejoin:round}
+.seg{stroke-linecap:round;cursor:pointer;transition:stroke .25s,opacity .25s,stroke-width .15s}
+.seg-hit{stroke:transparent;stroke-width:18;cursor:pointer;fill:none}
+.route-glow{fill:none;stroke:#eafcff;stroke-width:11;stroke-linecap:round;opacity:.5;pointer-events:none}
+.gauge-pt{fill:var(--buoy);stroke:#fff;stroke-width:1.6}
+.gauge-lbl{font-family:var(--mono);font-size:8px;fill:#7a3410;text-anchor:middle;pointer-events:none;letter-spacing:.02em;
+  paint-order:stroke;stroke:#fffdf3;stroke-width:2.8px;stroke-linejoin:round}
+.struct{font-family:var(--body);font-weight:700;font-size:9.5px;fill:#7a4d0c;text-anchor:middle;pointer-events:none;letter-spacing:.01em;
+  paint-order:stroke;stroke:#fffdf3;stroke-width:2.8px;stroke-linejoin:round}
+.struct-closed{fill:var(--red)}
+
+/* florida locator */
+.fl-card{fill:var(--card);stroke:var(--wood-dark);stroke-width:2}
+.fl-shape{fill:#e7c98f;stroke:var(--wood-dark);stroke-width:1.2}
+.fl-pin{fill:var(--buoy);stroke:#fff;stroke-width:1.4}
+.fl-cap{font-family:var(--body);font-weight:700;font-size:8px;fill:var(--ink-dim);letter-spacing:.03em;text-transform:uppercase;text-anchor:middle}
+.fl-region{fill:none;stroke:var(--mid);stroke-width:1.2;stroke-dasharray:3 2;opacity:.7}
+
+@media (max-width:900px){
+  .main{grid-template-columns:1fr;height:auto}
+  .map-wrap{height:56vh}
+  .panel{border-left:none;border-top:3px solid var(--wood-shadow)}
+  .dock{gap:1rem}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div>
+    <div class="hdr-title plank">
+      <span class="nail"></span><span class="nail br"></span>
+      Florida Hydrology — <em>Passability</em>
+    </div>
+    <div class="hdr-sub">Winter Haven Chain of Lakes · Polk County, FL · live USGS gauges</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:.6rem">
+    <svg class="badge-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#2e9fd6" stroke="#fff" stroke-width="2"/>
+      <ellipse cx="13.5" cy="18" rx="4.4" ry="5.2" fill="#fff"/><ellipse cx="26.5" cy="18" rx="4.4" ry="5.2" fill="#fff"/>
+      <circle cx="14" cy="19" r="2" fill="#16323c"/><circle cx="27" cy="19" r="2" fill="#16323c"/>
+      <path d="M12 27 Q20 34 28 27" stroke="#16323c" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    <a href="../" class="back">← BlueVector</a>
+  </div>
+</header>
+
+<div class="banner loading" id="banner">
+  <span class="ldot" id="feed-dot"></span>
+  <span id="feed-text">Connecting to live USGS gauge feed…</span>
+  <button class="refresh" id="refresh" hidden>refresh</button>
+</div>
+
+<div class="sbar">
+  <div class="mascot-row">
+    <svg width="30" height="30" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#2e9fd6" stroke="#fff" stroke-width="2"/>
+      <ellipse cx="13.5" cy="18" rx="4.4" ry="5.2" fill="#fff"/><ellipse cx="26.5" cy="18" rx="4.4" ry="5.2" fill="#fff"/>
+      <circle cx="14" cy="19" r="2" fill="#16323c"/><circle cx="27" cy="19" r="2" fill="#16323c"/>
+      <path d="M12 27 Q20 34 28 27" stroke="#16323c" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    <div><span class="mlabel" id="chain-val-m">—</span><small id="chain-dot-lbl">through-route</small></div>
+  </div>
+  <div class="seg">
+    <div class="seg-lbl"><span class="ldot" id="chain-dot"></span>Through-route</div>
+    <div class="seg-val" id="chain-val">—</div>
+  </div>
+  <div class="seg"><div class="seg-lbl"><span class="ldot" style="background:var(--pass)"></span>Passable</div><div class="seg-val" id="cnt-pass">—</div></div>
+  <div class="seg"><div class="seg-lbl"><span class="ldot" style="background:var(--marg)"></span>Marginal</div><div class="seg-val" id="cnt-marg">—</div></div>
+  <div class="seg"><div class="seg-lbl"><span class="ldot" style="background:var(--imp)"></span>Drawn down</div><div class="seg-val" id="cnt-imp">—</div></div>
+  <div class="seg"><div class="seg-lbl"><span class="ldot" style="background:var(--buoy)"></span>Live gauges</div><div class="seg-val" id="cnt-gauge">—</div></div>
+  <div class="seg"><div class="seg-lbl"><span class="ldot" style="background:#c98a1f"></span>Reading time</div><div class="seg-val" id="asof">—</div></div>
+  <div class="mascot-row">
+    <svg width="30" height="30" viewBox="0 0 40 40">
+      <path d="M20 1 L25 14 L38 12 L28 21 L34 34 L20 26 L6 34 L12 21 L2 12 L15 14 Z" fill="#34c76f" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="15.5" cy="19" r="1.8" fill="#0d3a1f"/><circle cx="24.5" cy="19" r="1.8" fill="#0d3a1f"/>
+      <path d="M15 24 Q20 28 25 24" stroke="#0d3a1f" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+    <div><span class="mlabel" id="asof-m">—</span><small>reading time</small></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="map-wrap">
+    <div class="reef-decor" id="reef-decor"></div>
+    <div class="sand-band"></div>
+    <svg id="map" viewBox="0 0 760 640" preserveAspectRatio="xMidYMid meet" aria-label="Winter Haven chain passability map">
+      <defs>
+        <pattern id="dry-hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="7" height="7" fill="#ded0a3"/>
+          <line x1="0" y1="0" x2="0" y2="7" stroke="#9a8557" stroke-width="2.4"/>
+        </pattern>
+        <pattern id="spongeTex" width="14" height="14" patternUnits="userSpaceOnUse">
+          <rect width="14" height="14" fill="#ffd75e"/>
+          <circle cx="3.5" cy="3.5" r="1.6" fill="#eec13f"/>
+          <circle cx="11" cy="7" r="1.3" fill="#eec13f"/>
+          <circle cx="5" cy="11" r="1.4" fill="#eec13f"/>
+          <circle cx="12.5" cy="12.5" r="1.1" fill="#eec13f"/>
+        </pattern>
+      </defs>
+      <g id="g-routes"></g>
+      <g id="g-segs"></g>
+      <g id="g-lakes"></g>
+      <g id="g-gauges"></g>
+      <g id="g-structs"></g>
+      <g id="g-labels"></g>
+      <g id="g-florida"></g>
+    </svg>
+    <div class="map-note">Lakes shown at true relative position · Winter Haven, Polk Co.<br/>Tap a canal or lake-link for detail</div>
+  </div>
+
+  <aside class="panel">
+    <div class="psec">
+      <div class="peye plank">Legend — segment status</div>
+      <div class="legend-row"><span class="lg-swatch" style="border-top-color:var(--pass)"></span>Passable<small>depth ≥ draft + margin</small></div>
+      <div class="legend-row"><span class="lg-swatch" style="border-top-color:var(--marg)"></span>Marginal<small>floats but tight</small></div>
+      <div class="legend-row"><span class="lg-swatch" style="border-top-color:var(--imp);border-top-style:double;border-top-width:6px"></span>Drawn down<small>effectively no water</small></div>
+      <div class="legend-row"><span class="lg-swatch" style="border-top-color:var(--marg);border-top-style:dashed"></span>Interpolated<small>ungauged · low conf.</small></div>
+    </div>
+    <div class="psec" id="detail">
+      <div class="peye plank">Segment detail</div>
+      <div class="hint">Select a canal or lake-link on the map to see its current clearance, governing gauge, and the recent record.</div>
+    </div>
+    <div class="psec">
+      <div class="peye plank">How this reads live data</div>
+      <div class="phase">Live stage comes from <b>USGS real-time gauges</b> inside the Winter Haven bounding box (served through a Netlify function). Each segment's clearance is its <b>seeded channel depth</b> (from DEM/LiDAR — the datum no API hands you) minus how far the <b>real lake has drawn down</b> below its recent full pool. Datum-agnostic on purpose. The slider scrubs the <b>observed record</b> — every point a measurement, none simulated.</div>
+    </div>
+    <div class="psec">
+      <div class="peye plank">The honest part</div>
+      <div class="disclaimer">This <b>informs, it does not guarantee</b> navigability. Channel-bottom depths are seeded estimates pending survey. A conditions estimate — never a promise there is water under your hull.</div>
+    </div>
+  </aside>
+</div>
+
+<div class="dock">
+  <div class="ctl">
+    <div class="ctl-lbl">Boat draft</div>
+    <div class="drafts" id="drafts"></div>
+  </div>
+  <div class="ctl">
+    <div class="ctl-lbl">Lake May Canal lock</div>
+    <button class="toggle open" id="lock-toggle">Operational</button>
+  </div>
+  <div class="ctl time-ctl">
+    <div class="ctl-lbl">Time — observed record (last 30 days)</div>
+    <div class="time-row">
+      <input type="range" id="time" min="0" max="100" step="1" value="100"/>
+      <div class="time-read"><span class="tense" id="tense">now</span> · <b id="datelbl">—</b></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   Florida Hydrology Passability — live USGS build, reef-themed UI.
+   Engine + graph + reachability are faithful to the design guide. Surface
+   elevation is REAL (live USGS gauge readings via /.netlify/functions/hydro);
+   channel-bottom depth is a seeded DEM estimate (labeled). No simulated status:
+   when the feed is unavailable the map reads "unknown", never green.
+   Decorative sea-life mascots/icons below are original art, not licensed
+   characters.
+   ========================================================================== */
+
+/* ---- draft personas (a user setting) — feet ----------------------------- */
+const DRAFTS = [
+  {id:"kayak",  label:"Kayak",   ft:0.5},
+  {id:"jon",    label:"Jon boat",ft:1.0},
+  {id:"pontoon",label:"Pontoon", ft:1.5},
+  {id:"bass",   label:"Bass boat",ft:1.8},
+  {id:"cruiser",label:"Cruiser", ft:2.5},
+];
+const SAFETY_MARGIN_FT = 0.5;
+
+/* ---- graph: lakes at true relative position (projected lat/lon) --------- */
+const NODES = {
+  n_haines:{name:"Lake Haines",x:506.8,y:116.9,lat:28.0685,lon:-81.6895,rx:52,ry:33},
+  n_smart:{name:"Lake Smart",x:386.4,y:160.4,lat:28.0610,lon:-81.7130,rx:56,ry:35},
+  n_conine:{name:"Lake Conine",x:273.7,y:183.6,lat:28.0570,lon:-81.7350,rx:50,ry:33},
+  n_may:{name:"Lake May",x:447.9,y:241.7,lat:28.0470,lon:-81.7010,rx:26,ry:20,junction:true},
+  n_summit:{name:"Lake Summit",x:501.6,y:453.5,lat:28.0105,lon:-81.6905,rx:44,ry:29},
+  n_eloise:{name:"Lake Eloise",x:537.5,y:523.1,lat:27.9985,lon:-81.6835,rx:60,ry:38},
+  n_roy:{name:"Lake Roy",x:414.6,y:398.3,lat:28.0200,lon:-81.7075,rx:44,ry:29},
+  n_idylwild:{name:"Lake Idylwild",x:368.5,y:322.9,lat:28.0330,lon:-81.7165,rx:40,ry:26},
+  n_mirror:{name:"Lake Mirror",x:335.2,y:351.9,lat:28.0280,lon:-81.7230,rx:42,ry:27},
+  n_hartridge:{name:"Lake Hartridge",x:273.7,y:291.0,lat:28.0385,lon:-81.7350,rx:50,ry:31},
+  n_cannon:{name:"Lake Cannon",x:222.5,y:340.3,lat:28.0300,lon:-81.7450,rx:48,ry:31},
+  n_howard:{name:"Lake Howard",x:248.1,y:415.8,lat:28.0170,lon:-81.7400,rx:56,ry:37},
+  n_shipp:{name:"Lake Shipp",x:332.6,y:462.2,lat:28.0090,lon:-81.7235,rx:44,ry:29},
+  n_lulu:{name:"Lake Lulu",x:424.8,y:488.3,lat:28.0045,lon:-81.7055,rx:40,ry:26},
+};
+
+// segments: sillDepthFt = water depth over the controlling sill at full pool
+// (seeded from DEM/LiDAR — the crux datum). structure/interpolated as guide.
+const SEGMENTS = [
+  {id:"e1", name:"Cannon Canal",         a:"n_howard",   b:"n_cannon",    sill:4.5},
+  {id:"e2", name:"Hartridge Cut",        a:"n_cannon",   b:"n_hartridge", sill:4.0},
+  {id:"e3", name:"Mirror Narrows",       a:"n_hartridge",b:"n_mirror",    sill:3.5},
+  {id:"e4", name:"Idylwild Link",        a:"n_mirror",   b:"n_idylwild",  sill:3.8},
+  {id:"e5", name:"Roy Passage",          a:"n_idylwild", b:"n_roy",       sill:4.2},
+  {id:"e6", name:"Shipp Canal",          a:"n_howard",   b:"n_shipp",     sill:5.0},
+  {id:"e7", name:"Lulu Cut",             a:"n_shipp",    b:"n_lulu",      sill:2.2},
+  {id:"e8", name:"Eloise Canal",         a:"n_lulu",     b:"n_eloise",    sill:3.6},
+  {id:"e9", name:"Summit Link",          a:"n_eloise",   b:"n_summit",    sill:4.4},
+  {id:"e10",name:"Roy Residential Canal",a:"n_roy",      b:"n_eloise",    sill:2.0, interpolated:true},
+  {id:"e11",name:"Lake May Canal (S)",   a:"n_summit",   b:"n_may",       sill:3.2, structure:"lock"},
+  {id:"e12",name:"Lake May Canal (N)",   a:"n_may",      b:"n_conine",    sill:3.0, structure:"lock"},
+  {id:"e13",name:"Conine–Smart Canal",   a:"n_conine",   b:"n_smart",     sill:4.0},
+  {id:"e14",name:"Smart–Haines Canal",   a:"n_smart",    b:"n_haines",    sill:4.2},
+];
+const TERMINALS = {from:"n_haines", to:"n_roy"};
+
+/* ---- Florida locator outline (projected from public state-boundary geometry) */
+const FLORIDA_PATH = "M 68.1 11.4 L 82.0 11.2 L 85.9 20.4 L 124.4 22.5 L 160.5 25.0 L 161.9 31.8 L 165.3 31.6 L 166.5 25.2 L 165.4 19.2 L 168.0 16.8 L 174.5 19.4 L 182.2 20.6 L 183.9 34.4 L 187.5 50.0 L 195.6 70.4 L 208.1 92.2 L 206.3 93.8 L 206.9 104.0 L 212.1 115.3 L 220.3 138.2 L 222.0 145.4 L 221.8 152.7 L 218.8 179.1 L 216.1 179.6 L 213.4 187.8 L 214.3 190.4 L 208.9 196.4 L 206.7 195.0 L 201.5 197.4 L 192.6 198.8 L 189.9 195.5 L 191.2 190.6 L 184.8 176.5 L 179.9 173.8 L 175.6 175.8 L 172.2 167.9 L 171.3 161.4 L 165.4 154.3 L 164.0 149.6 L 165.0 142.7 L 161.7 141.5 L 162.5 145.5 L 159.6 146.6 L 150.6 129.3 L 147.1 124.9 L 155.5 112.2 L 150.0 112.9 L 146.3 116.9 L 142.6 110.6 L 147.5 93.1 L 148.5 78.6 L 145.1 75.1 L 144.0 70.4 L 138.6 69.4 L 132.3 61.7 L 127.2 58.5 L 126.9 53.8 L 123.3 52.1 L 120.4 46.8 L 109.6 39.8 L 100.2 41.4 L 100.7 46.3 L 97.6 45.4 L 85.9 51.4 L 73.4 52.8 L 73.7 49.3 L 70.8 45.1 L 56.1 35.6 L 45.6 31.6 L 36.2 30.6 L 28.4 31.3 L 11.2 34.2 L 15.4 29.5 L 13.2 26.9 L 14.3 21.7 L 8.0 15.5 L 8.9 11.4 L 68.1 11.4 Z";
+const FL_PIN = {x:174.5, y:106.0};
+const FL_BOX = {w:230, h:210};
+
+/* ---- passability engine (pure — mirrors classifySegment) ---------------- */
+function classify(clearanceFt, needFt){
+  if(clearanceFt==null) return "unknown";
+  if(clearanceFt <= 0.2) return "impassable";      // effectively dry
+  if(clearanceFt >= needFt) return "passable";
+  return "marginal";                               // floats but tight
+}
+
+/* ============================================================================
+   live data
+   ========================================================================== */
+const STATE = {draft:"pontoon", tFrac:1, lockOpen:true, sel:null,
+               feed:"loading", gauges:[], tMin:0, tMax:0};
+
+function haversineKm(aLat,aLon,bLat,bLon){
+  const R=6371, d=x=>x*Math.PI/180;
+  const s=Math.sin(d(bLat-aLat)/2)**2 + Math.cos(d(aLat))*Math.cos(d(bLat))*Math.sin(d(bLon-aLon)/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+// nearest live gauge to a segment midpoint → {gauge, km}
+function govGauge(seg){
+  const A=NODES[seg.a], B=NODES[seg.b];
+  const mlat=(A.lat+B.lat)/2, mlon=(A.lon+B.lon)/2;
+  let best=null, bestKm=Infinity;
+  for(const g of STATE.gauges){
+    if(!Number.isFinite(g.lat)||!Number.isFinite(g.lon)) continue;
+    const km=haversineKm(mlat,mlon,g.lat,g.lon);
+    if(km<bestKm){bestKm=km; best=g;}
+  }
+  return best? {gauge:best, km:bestKm} : null;
+}
+// gauge value at a fraction of the record window (nearest sample ≤ t)
+function sampleAt(g, tMs){
+  const s=g.series; let v=s[0].v;
+  for(const p of s){ if(Date.parse(p.t)<=tMs) v=p.v; else break; }
+  return v;
+}
+// clearance for a segment at time = seeded sill depth − real drawdown below full pool
+function segClearance(seg, tMs){
+  const gg=govGauge(seg);
+  if(!gg) return {clearanceFt:null, gauge:null, km:null, interp:true};
+  const now=sampleAt(gg.gauge, tMs);
+  const drawdown = gg.gauge.fullPool - now;         // ≥0 when below recent high
+  const interp = !!seg.interpolated || gg.km > 1.6; // far from any gauge → inferred
+  return {clearanceFt: seg.sill - drawdown, gauge:gg.gauge, km:gg.km, interp, drawdown};
+}
+function confFor(km, interp, tMs){
+  let c = 0.94;
+  if(interp) c = Math.max(0.35, 0.82 - Math.min(km,6)*0.08);
+  // older readings still real, but nudge confidence for staleness at window start
+  const age=(STATE.tMax - tMs)/(STATE.tMax-STATE.tMin || 1);
+  return Math.max(0.3, c - age*0.06);
+}
+
+function computeAll(tMs, needFt){
+  const out={};
+  for(const s of SEGMENTS){
+    const c=segClearance(s, tMs);
+    let status=classify(c.clearanceFt, needFt);
+    if(s.structure==="lock" && !STATE.lockOpen) status="impassable";
+    out[s.id]={...c, status, conf:confFor(c.km, c.interp, tMs), seg:s};
+  }
+  return out;
+}
+function throughRoute(statuses){
+  const adj={};
+  for(const s of SEGMENTS){
+    if(statuses[s.id].status!=="passable") continue;
+    if(s.structure==="lock" && !STATE.lockOpen) continue;
+    (adj[s.a]=adj[s.a]||[]).push({to:s.b,seg:s.id});
+    (adj[s.b]=adj[s.b]||[]).push({to:s.a,seg:s.id});
+  }
+  const start=TERMINALS.from, goal=TERMINALS.to, prev={}, q=[start], seen={[start]:1};
+  while(q.length){ const c=q.shift(); if(c===goal)break;
+    for(const e of (adj[c]||[])){ if(seen[e.to])continue; seen[e.to]=1; prev[e.to]={node:c,seg:e.seg}; q.push(e.to);} }
+  if(!seen[goal]) return {open:false, edges:new Set()};
+  const edges=new Set(); let n=goal;
+  while(n!==start){ edges.add(prev[n].seg); n=prev[n].node; }
+  return {open:true, edges};
+}
+function currentTms(){ return STATE.tMin + STATE.tFrac*(STATE.tMax-STATE.tMin); }
+
+/* ============================================================================
+   rendering
+   ========================================================================== */
+const NS="http://www.w3.org/2000/svg";
+const COL={passable:"var(--pass)",marginal:"var(--marg)",impassable:"var(--imp)",unknown:"var(--unk)"};
+function el(t,a,p){const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);if(p)p.appendChild(n);return n;}
+function segPath(s){
+  const A=NODES[s.a],B=NODES[s.b];
+  const mx=(A.x+B.x)/2,my=(A.y+B.y)/2,dx=B.x-A.x,dy=B.y-A.y,len=Math.hypot(dx,dy)||1;
+  const bow=s.interpolated?24:0, cx=mx+(-dy/len)*bow, cy=my+(dx/len)*bow;
+  return {d:`M ${A.x} ${A.y} Q ${cx} ${cy} ${B.x} ${B.y}`, mx:cx, my:cy};
+}
+let SEGREFS={};
+function buildStatic(){
+  const gL=document.getElementById("g-lakes"), gLab=document.getElementById("g-labels");
+  for(const id in NODES){
+    const n=NODES[id];
+    if(n.junction) el("circle",{cx:n.x,cy:n.y,r:9,class:"node-junc"},gL);
+    else el("ellipse",{cx:n.x,cy:n.y,rx:n.rx,ry:n.ry,class:"lake"},gL);
+    const t=el("text",{x:n.x,y:n.y+4,class:"lake-lbl"},gLab); t.textContent=n.name;
+  }
+  // segments
+  const gS=document.getElementById("g-segs"), gStr=document.getElementById("g-structs");
+  for(const s of SEGMENTS){
+    const p=segPath(s);
+    const path=el("path",{d:p.d,class:"seg",fill:"none","stroke-width":6.5},gS);
+    const hit=el("path",{d:p.d,class:"seg-hit"},gS);
+    hit.addEventListener("click",()=>select(s.id));
+    path.addEventListener("click",()=>select(s.id));
+    SEGREFS[s.id]={path,mx:p.mx,my:p.my};
+    if(s.structure==="lock"){
+      const t=el("text",{x:p.mx,y:p.my-9,class:"struct"},gStr); t.textContent="⚓ LOCK";
+      SEGREFS[s.id].structLbl=t;
+    }
+  }
+  buildFlorida();
+  buildReef();
+}
+function buildFlorida(){
+  const g=document.getElementById("g-florida");
+  const pad=12, cardW=FL_BOX.w*0.62+pad*2, cardH=FL_BOX.h*0.62+pad*2+16;
+  const ox=760-cardW-14, oy=14, sc=0.62;
+  el("rect",{x:ox,y:oy,width:cardW,height:cardH,rx:8,class:"fl-card",opacity:.95},g);
+  const inner=el("g",{transform:`translate(${ox+pad},${oy+pad}) scale(${sc})`},g);
+  el("path",{d:FLORIDA_PATH,class:"fl-shape"},inner);
+  // region ring + pin at Winter Haven
+  el("circle",{cx:FL_PIN.x,cy:FL_PIN.y,r:13,class:"fl-region"},inner);
+  el("circle",{cx:FL_PIN.x,cy:FL_PIN.y,r:4.4,class:"fl-pin"},inner);
+  const cap=el("text",{x:ox+cardW/2,y:oy+cardH-6,class:"fl-cap"},g);
+  cap.textContent="Winter Haven · Polk Co.";
+}
+
+/* original decorative reef life — sized/placed in open water, behind the
+   functional map layer; all hand-drawn shapes, not licensed characters */
+function buildReef(){
+  const host=document.getElementById("reef-decor");
+  const jelly=(x,y,s,hue)=>`<svg style="left:${x}%;top:${y}%;width:${s}px;height:${s*1.3}px;opacity:.55" viewBox="0 0 60 78">
+    <ellipse cx="30" cy="26" rx="26" ry="22" fill="${hue}"/>
+    <path d="M8 40 Q12 60 6 76 M20 44 Q24 62 18 78 M32 45 Q34 64 30 78 M44 42 Q48 60 42 76" stroke="${hue}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+  </svg>`;
+  const star=(x,y,s,hue)=>`<svg style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;opacity:.6" viewBox="0 0 40 40">
+    <path d="M20 1 L25 14 L38 12 L28 21 L34 34 L20 26 L6 34 L12 21 L2 12 L15 14 Z" fill="${hue}"/>
+  </svg>`;
+  const shell=(x,y,s)=>`<svg style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;opacity:.65" viewBox="0 0 40 30">
+    <path d="M20 2 C30 2 38 14 38 26 L2 26 C2 14 10 2 20 2 Z" fill="#ffb6a0" stroke="#c9705a" stroke-width="1.5"/>
+    <path d="M20 4 L20 25 M12 8 L14 25 M28 8 L26 25" stroke="#c9705a" stroke-width="1.2"/>
+  </svg>`;
+  const seaweed=(x,y,s)=>`<svg style="left:${x}%;top:${y}%;width:${s}px;height:${s*1.6}px;opacity:.5" viewBox="0 0 30 60">
+    <path d="M8 60 Q2 45 10 32 Q16 20 8 8" stroke="#1f9d6b" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M20 60 Q26 42 18 28 Q12 16 20 4" stroke="#1f9d6b" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>`;
+  const compass=(x,y,s)=>`<svg style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;opacity:.5" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46" fill="#fdf6e2" stroke="#7a4f28" stroke-width="3"/>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#a9793a" stroke-width="1"/>
+    <path d="M50 8 L58 50 L50 92 L42 50 Z" fill="#e2503a"/>
+    <path d="M8 50 L50 42 L92 50 L50 58 Z" fill="#12839f"/>
+    <circle cx="50" cy="50" r="5" fill="#7a4f28"/>
+    <text x="50" y="20" text-anchor="middle" font-family="Baloo 2,cursive" font-weight="700" font-size="11" fill="#4d6b6e">N</text>
+    <text x="50" y="86" text-anchor="middle" font-family="Baloo 2,cursive" font-weight="700" font-size="11" fill="#4d6b6e">S</text>
+    <text x="14" y="54" text-anchor="middle" font-family="Baloo 2,cursive" font-weight="700" font-size="11" fill="#4d6b6e">W</text>
+    <text x="86" y="54" text-anchor="middle" font-family="Baloo 2,cursive" font-weight="700" font-size="11" fill="#4d6b6e">E</text>
+  </svg>`;
+  host.innerHTML =
+    compass(4, 66, 150) +
+    jelly(88, 10, 46, "#e6a8e0") + jelly(6, 6, 34, "#f2c8ea") +
+    star(10, 84, 30, "#34c76f") + star(90, 78, 26, "#ffcf4d") +
+    shell(84, 90, 34) + shell(4, 46, 26) +
+    seaweed(2, 74, 26) + seaweed(94, 40, 22);
+  // rising bubble column, css-only
+  const bwrap=document.createElement("div");
+  for(let i=0;i<10;i++){
+    const size=6+Math.random()*14;
+    const left=6+Math.random()*88;
+    const dur=7+Math.random()*8;
+    const delay=-Math.random()*dur;
+    const b=document.createElement("div");
+    b.className="bubble";
+    b.style.cssText=`left:${left}%;bottom:-40px;width:${size}px;height:${size}px;animation-duration:${dur}s;animation-delay:${delay}s`;
+    bwrap.appendChild(b);
+  }
+  host.appendChild(bwrap);
+}
+
+function render(){
+  const need=DRAFTS.find(d=>d.id===STATE.draft).ft+SAFETY_MARGIN_FT;
+  const tMs=currentTms();
+  const statuses=computeAll(tMs, need);
+  const route=throughRoute(statuses);
+  let cP=0,cM=0,cI=0;
+  for(const s of SEGMENTS){
+    const st=statuses[s.id], ref=SEGREFS[s.id];
+    const lockClosed=(s.structure==="lock"&&!STATE.lockOpen);
+    ref.path.setAttribute("stroke",
+      (st.status==="impassable")? "url(#dry-hatch)"
+      : (st.status==="unknown")? COL.unknown : COL[st.status]);
+    ref.path.setAttribute("stroke-dasharray", s.interpolated||st.interp? "2 7":"none");
+    ref.path.setAttribute("opacity", (0.5+0.5*st.conf).toFixed(2));
+    ref.path.setAttribute("stroke-width", STATE.sel===s.id?8.5:6.5);
+    if(ref.structLbl){
+      ref.structLbl.textContent=lockClosed?"⛔ LOCK CLOSED":"⚓ LOCK";
+      ref.structLbl.classList.toggle("struct-closed",lockClosed);
+    }
+    if(st.status==="passable")cP++; else if(st.status==="marginal")cM++;
+    else if(st.status==="impassable")cI++;
+  }
+  const gR=document.getElementById("g-routes"); gR.innerHTML="";
+  if(route.open) for(const eid of route.edges){ el("path",{d:segPath(SEGMENTS.find(x=>x.id===eid)).d,class:"route-glow"},gR); }
+
+  // gauges
+  const gG=document.getElementById("g-gauges"); gG.innerHTML="";
+  for(const g of STATE.gauges){
+    if(!Number.isFinite(g.lat)||!Number.isFinite(g.lon)) continue;
+    const pt=lonlatToXY(g.lon,g.lat); if(!pt) continue;
+    el("path",{d:`M ${pt.x} ${pt.y-7} L ${pt.x+7} ${pt.y} L ${pt.x} ${pt.y+7} L ${pt.x-7} ${pt.y} Z`,class:"gauge-pt"},gG);
+    const lab=el("text",{x:pt.x,y:pt.y-11,class:"gauge-lbl"},gG); lab.textContent="⚓ USGS "+g.id;
+  }
+
+  // status bar
+  const dot=document.getElementById("chain-dot"), cv=document.getElementById("chain-val");
+  const known = STATE.feed==="live";
+  dot.style.background = !known? "var(--unk)" : route.open? "var(--pass)":"var(--red)";
+  cv.innerHTML = !known? '— <small>awaiting feed</small>'
+    : route.open? 'OPEN <small>Haines ⇄ Roy</small>' : 'BROKEN <small>no passable path</small>';
+  cv.style.color = !known? "var(--ink-mut)" : route.open? "var(--pass)":"var(--red)";
+  document.getElementById("cnt-pass").textContent = known?cP:"—";
+  document.getElementById("cnt-marg").textContent = known?cM:"—";
+  document.getElementById("cnt-imp").textContent = known?cI:"—";
+  document.getElementById("cnt-gauge").textContent = STATE.gauges.length||"—";
+  const cvm=document.getElementById("chain-val-m");
+  cvm.textContent = !known? "Awaiting feed" : route.open? "Route: passable!" : "Route: blocked";
+  cvm.style.color = !known? "var(--ink-mut)" : route.open? "#0f5c33":"#7a2314";
+  updateTimeReadout(tMs);
+  if(STATE.sel) renderDetail(statuses[STATE.sel]);
+}
+
+// project a lon/lat into the main canvas using the chain bbox used at build
+const GEO={loA:-81.7534,loB:-81.6766,laA:27.9887,laB:28.0783,cl:Math.cos(28.03*Math.PI/180),
+           W:760,H:640,pad:60};
+function lonlatToXY(lon,lat){
+  const gx=(lon-GEO.loA)*GEO.cl, gy=(lat-GEO.laA);
+  const gW=(GEO.loB-GEO.loA)*GEO.cl, gH=(GEO.laB-GEO.laA);
+  const s=Math.min((GEO.W-2*GEO.pad)/gW,(GEO.H-2*GEO.pad)/gH);
+  const x=GEO.pad+gx*s+((GEO.W-2*GEO.pad)-gW*s)/2;
+  const y=GEO.H-GEO.pad-gy*s-((GEO.H-2*GEO.pad)-gH*s)/2;
+  return {x,y};
+}
+
+function updateTimeReadout(tMs){
+  const now = Math.abs(tMs-STATE.tMax) < 3600e3;
+  const d=new Date(tMs);
+  document.getElementById("datelbl").textContent = STATE.feed==="live"
+    ? d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}) : "—";
+  const tn=document.getElementById("tense");
+  tn.textContent = STATE.feed!=="live"? "—" : now? "now · live" : "observed";
+  tn.style.color = now? "#ffe27a":"var(--cream)";
+  document.getElementById("asof").innerHTML = STATE.feed==="live"
+    ? (now?'live <small>· latest reading</small>':d.toLocaleDateString("en-US",{month:"short",day:"numeric"})+' <small>· record</small>')
+    : '— <small>· no feed</small>';
+  document.getElementById("asof-m").textContent = STATE.feed==="live"
+    ? (now? "Live!" : d.toLocaleDateString("en-US",{month:"short",day:"numeric"})) : "—";
+}
+
+function renderDetail(st){
+  const s=st.seg, need=DRAFTS.find(d=>d.id===STATE.draft).ft+SAFETY_MARGIN_FT;
+  const stC={passable:"var(--pass)",marginal:"var(--marg)",impassable:"var(--imp)",unknown:"var(--unk)"};
+  const bg=k=>`color-mix(in srgb,${stC[k]} 20%,var(--cream))`;
+  const lockClosed=(s.structure==="lock"&&!STATE.lockOpen);
+  const label={passable:"Passable",marginal:"Marginal — tight",
+    impassable:lockClosed?"Lock closed":"Drawn down",unknown:"No live data"}[st.status];
+  const clr=st.clearanceFt;
+  const d=document.getElementById("detail");
+  const g=st.gauge;
+  d.innerHTML=`
+    <div class="peye plank">Segment detail</div>
+    <div class="sel-name">${s.name}</div>
+    <div class="sel-sub">${NODES[s.a].name} — ${NODES[s.b].name}${s.structure?" · "+s.structure:""}${st.interp?" · interpolated":""}</div>
+    <div class="status-pill" style="color:${stC[st.status]};background:${bg(st.status)}">${label}</div>
+    <div class="rg">
+      <div class="rc"><div class="rl">Clearance now</div><div class="rv">${clr==null?"—":clr.toFixed(2)+" ft"}</div></div>
+      <div class="rc"><div class="rl">Need — draft+margin</div><div class="rv">${need.toFixed(2)} ft</div></div>
+      <div class="rc"><div class="rl">Channel depth · full pool</div><div class="rv">${s.sill.toFixed(1)} ft <small>seeded DEM</small></div></div>
+      <div class="rc"><div class="rl">Lake drawdown</div><div class="rv">${st.drawdown==null?"—":st.drawdown.toFixed(2)+" ft"} <small>below recent high</small></div></div>
+    </div>
+    <div><div class="peye plank" style="margin-bottom:.4rem">Observed record (30 d)</div>
+      ${sparkline(s,need)}
+      <div class="spark-cap"><span>−30 d</span><span>now</span></div></div>
+    <div class="rc" style="margin-top:.7rem"><div class="rl">Governing gauge</div>
+      <div class="rv" style="font-size:.72rem">${g?"USGS "+g.id:"— none in range"}</div>
+      <div class="note" style="margin-top:.15rem">${g?g.name+(st.km!=null?` · ${st.km.toFixed(1)} km away`:""):"No live gauge covers this segment."}${g?` · param ${g.param}`:""}</div></div>
+    <div style="margin-top:.6rem"><div class="rl">Confidence</div>
+      <div class="conf-bar"><i style="width:${Math.round(st.conf*100)}%"></i></div>
+      <div class="note">${(st.conf*100).toFixed(0)}% — ${st.interp?"interpolated from the nearest gauge":"direct from the governing gauge"}.</div></div>`;
+}
+
+function sparkline(s,need){
+  const W=290,H=64,pad=6;
+  if(STATE.feed!=="live"||!STATE.gauges.length) return `<div class="note">No record — feed unavailable.</div>`;
+  const gg=govGauge(s); if(!gg) return `<div class="note">No governing gauge in range.</div>`;
+  const ser=gg.gauge.series, full=gg.gauge.fullPool;
+  const pts=ser.map(p=>({t:Date.parse(p.t), c:s.sill-(full-p.v)}));
+  const cs=pts.map(p=>p.c);
+  const lo=Math.min(0,Math.min(...cs),need)-0.3, hi=Math.max(...cs,need)+0.3;
+  const X=t=>pad+((t-STATE.tMin)/(STATE.tMax-STATE.tMin||1))*(W-2*pad);
+  const Y=c=>H-pad-((c-lo)/(hi-lo))*(H-2*pad);
+  const line=pts.map((p,i)=>`${i?"L":"M"} ${X(p.t).toFixed(1)} ${Y(p.c).toFixed(1)}`).join(" ");
+  const needY=Y(need).toFixed(1), zeroY=Y(0).toFixed(1), nowX=X(currentTms()).toFixed(1);
+  const nowC=s.sill-(full-sampleAt(gg.gauge,currentTms()));
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="display:block">
+    <rect x="0" y="0" width="${W}" height="${H}" fill="#f7ecc9" rx="8" stroke="#c99a52"/>
+    <line x1="${pad}" y1="${zeroY}" x2="${W-pad}" y2="${zeroY}" stroke="#c99a52" stroke-width="1"/>
+    <line x1="${pad}" y1="${needY}" x2="${W-pad}" y2="${needY}" stroke="#e2503a" stroke-width="1" stroke-dasharray="3 3" opacity=".8"/>
+    <text x="${W-pad-2}" y="${(+needY-3)}" text-anchor="end" font-family="Courier Prime,monospace" font-size="7" fill="#e2503a">need</text>
+    <path d="${line}" fill="none" stroke="#12839f" stroke-width="2"/>
+    <line x1="${nowX}" y1="${pad}" x2="${nowX}" y2="${H-pad}" stroke="#c98a1f" stroke-width="1" opacity=".6"/>
+    <circle cx="${nowX}" cy="${Y(nowC).toFixed(1)}" r="3" fill="#c98a1f"/></svg>`;
+}
+
+function select(id){ STATE.sel=id; render(); }
+
+/* ---- controls ----------------------------------------------------------- */
+function buildControls(){
+  const dw=document.getElementById("drafts");
+  for(const d of DRAFTS){
+    const b=document.createElement("button");
+    b.className="draft"+(d.id===STATE.draft?" on":"");
+    b.innerHTML=`${d.label} <small>${d.ft.toFixed(1)}′</small>`;
+    b.onclick=()=>{STATE.draft=d.id;[...dw.children].forEach(c=>c.classList.remove("on"));b.classList.add("on");render();};
+    dw.appendChild(b);
+  }
+  document.getElementById("time").oninput=e=>{STATE.tFrac=+e.target.value/100;render();};
+  const lk=document.getElementById("lock-toggle");
+  lk.onclick=()=>{STATE.lockOpen=!STATE.lockOpen;
+    lk.textContent=STATE.lockOpen?"Operational":"Closed / offline";
+    lk.className="toggle "+(STATE.lockOpen?"open":"closed");render();};
+  document.getElementById("refresh").onclick=loadFeed;
+}
+
+/* ---- feed --------------------------------------------------------------- */
+function setBanner(kind,msg){
+  const b=document.getElementById("banner");
+  b.className="banner "+kind;
+  document.getElementById("feed-dot").className="ldot "+(kind==="live"?"live":kind==="down"?"down":"");
+  document.getElementById("feed-text").innerHTML=msg;
+  document.getElementById("refresh").hidden = (kind==="loading");
+}
+async function loadFeed(){
+  setBanner("loading","Connecting to live USGS gauge feed…");
+  STATE.feed="loading";
+  try{
+    const r=await fetch("/.netlify/functions/hydro",{cache:"no-store"});
+    if(!r.ok) throw new Error("feed "+r.status);
+    const d=await r.json();
+    if(!d.ok || !Array.isArray(d.gauges) || !d.gauges.length) throw new Error(d.error||"no gauges returned");
+    STATE.gauges=d.gauges;
+    // unified time window across gauges
+    let mn=Infinity,mx=-Infinity;
+    for(const g of d.gauges) for(const p of g.series){const t=Date.parse(p.t);if(t<mn)mn=t;if(t>mx)mx=t;}
+    STATE.tMin=mn; STATE.tMax=mx; STATE.tFrac=1;
+    document.getElementById("time").value=100;
+    STATE.feed="live";
+    const when=new Date(d.fetchedAt).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+    setBanner("live",`<b>Live</b> — ${d.gauges.length} USGS gauge${d.gauges.length>1?"s":""} · ${d.source} · fetched ${when}`);
+  }catch(err){
+    STATE.feed="down"; STATE.gauges=[];
+    setBanner("down",`<b>Live feed unavailable</b> — ${String(err.message||err)}. Status shown as unknown, not estimated. (The live feed runs from the deployed Netlify function.)`);
+  }
+  render();
+}
+
+/* ---- boot --------------------------------------------------------------- */
+buildStatic();
+buildControls();
+render();
+loadFeed();
+setInterval(loadFeed, 5*60*1000); // realtime refresh, matches USGS cadence
+</script>
+</body>
+</html>

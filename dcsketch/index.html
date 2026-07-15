@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DCSketch — SCADA / DCS Architecture & Estimation Workbench</title>
+<meta name="description" content="DCSketch (SCADAsketch) — a data-dense, modular SCADA/DCS architecture and estimation workbench for greenfield data-center and industrial control-system planning. Generative intake, a spatial node canvas, point-level I/O, electrical load/panel/cable schedules, and full line-item hardware, labor &amp; licensing estimation. The Revit of DCS/SCADA planning."/>
+<meta name="theme-color" content="#f6f7f8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg0:#eef0f2; --bg1:#f6f7f8; --bg2:#e6e9ec;
+  --panel:#f4f5f7; --panel2:#eaecef;
+  --edge:#c7ccd2; --edge2:#dde0e4;
+  --holo:#2f6fa8; --holo-dim:#6f8fac; --holo-deep:#1f4f7a;
+  --blue:#2f6fa8; --amber:#a8681f; --amber-dim:#c9a877;
+  --green:#1f7a4c; --red:#b23b3b; --violet:#5f56a0; --pink:#a1527c; --lime:#6f8a2a;
+  --ink:#1c232b; --ink-dim:#57626d; --ink-mut:#8993a0;
+  --grid:rgba(60,72,86,.09); --grid2:rgba(60,72,86,.045);
+  --mono:'IBM Plex Mono',ui-monospace,'Cascadia Code',monospace;
+  --disp:'Inter',system-ui,-apple-system,sans-serif;
+  --body:'Inter',system-ui,-apple-system,sans-serif;
+  --glow:none;
+  --railW:48px; --treeW:224px; --panelW:296px; --topH:48px; --dockH:232px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg0);color:var(--ink);font-family:var(--body);
+  overflow:hidden;-webkit-font-smoothing:antialiased;font-size:13px}
+button{font-family:inherit;color:inherit;cursor:pointer;background:none;border:none}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#c2c8ce;border-radius:8px}
+::-webkit-scrollbar-corner,::-webkit-scrollbar-track{background:transparent}
+.mono{font-family:var(--mono)}
+
+#app{display:grid;height:100vh;
+  grid-template-columns:var(--railW) var(--treeW) 1fr var(--panelW);
+  grid-template-rows:26px var(--topH) 1fr var(--dockH);
+  grid-template-areas:"menu menu menu menu" "top top top top" "rail tree canvas panel" "rail dock dock dock";}
+body.dock-min #app{grid-template-rows:26px var(--topH) 1fr 34px}
+body.dock-max #app{grid-template-rows:26px var(--topH) 90px 1fr}
+body.hidetree #app{grid-template-columns:var(--railW) 0 1fr var(--panelW)}
+body.hidepanel #app{grid-template-columns:var(--railW) var(--treeW) 1fr 0}
+
+/* ── menu bar ── */
+#menubar{grid-area:menu;display:flex;align-items:stretch;background:var(--panel);border-bottom:1px solid var(--edge);
+  font-family:var(--disp);font-size:12px;z-index:55;position:relative;user-select:none}
+#menubar .mlogo{display:flex;align-items:center;gap:5px;padding:0 12px 0 10px;color:var(--ink-dim);font-weight:700;font-size:12px;border-right:1px solid var(--edge2)}
+.menu{position:relative}
+.menu>.mt{padding:0 11px;height:26px;display:flex;align-items:center;color:var(--ink-dim);cursor:pointer;letter-spacing:.01em}
+.menu.open>.mt,.menu>.mt:hover{background:var(--panel2);color:var(--ink)}
+.mdrop{position:absolute;top:100%;left:0;min-width:224px;background:#fff;border:1px solid var(--edge);border-radius:0 0 6px 6px;
+  box-shadow:0 10px 26px rgba(30,40,50,.16);padding:5px;display:none;z-index:70}
+.menu.open>.mdrop{display:block}
+.mitem{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:4px;color:var(--ink-dim);cursor:pointer;
+  font-family:var(--body);font-size:13px;white-space:nowrap;position:relative}
+.mitem:hover{background:#eaf1f8;color:var(--holo)}
+.mitem .mic{width:15px;text-align:center;color:var(--holo-dim);flex-shrink:0}
+.mitem:hover .mic{color:var(--holo)}
+.mitem .k{margin-left:auto;padding-left:18px;font-family:var(--mono);font-size:9px;color:var(--ink-mut)}
+.mitem .ar{margin-left:auto;color:var(--ink-mut);font-size:10px}
+.msep{height:1px;background:var(--edge2);margin:4px 8px}
+.mhd{font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mut);padding:5px 10px 2px}
+.msub{position:absolute;left:100%;top:-6px;min-width:230px;background:#fff;border:1px solid var(--edge);border-radius:6px;
+  box-shadow:0 10px 26px rgba(30,40,50,.16);padding:5px;display:none}
+.mitem.has-sub:hover>.msub{display:block}
+.mitem.has-sub>.msub .mitem .desc{display:block;font-size:9.5px;color:var(--ink-mut);font-family:var(--mono);margin-top:1px}
+.mitem.tpl{align-items:flex-start}.mitem.tpl .mic{margin-top:2px}
+.mitem.tpl .tname{display:flex;flex-direction:column}
+/* ── top bar ── */
+#top{grid-area:top;display:flex;align-items:center;gap:12px;padding:0 10px;position:relative;z-index:40;
+  background:var(--bg1);border-bottom:1px solid var(--edge)}
+.brand{display:flex;align-items:center;gap:7px;font-family:var(--disp);font-weight:700;font-size:16px;white-space:nowrap}
+.brand .cube{color:var(--holo)}
+.brand b{color:var(--holo)}
+.proj{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--ink-dim);text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:24ch}
+.proj span{color:var(--ink)}
+.kpis{display:flex;gap:0;margin-left:6px}
+.kpi{padding:0 12px;text-align:center;border-left:1px solid var(--edge2)}
+.kpi .v{font-family:var(--disp);font-weight:700;font-size:15px;line-height:1;color:var(--ink)}
+.kpi .v.g{color:var(--green)}.kpi .v.a{color:var(--amber)}
+.kpi .l{font-family:var(--mono);font-size:8px;letter-spacing:.08em;color:var(--ink-mut);text-transform:uppercase;margin-top:2px}
+.spacer{flex:1}
+.tbtn{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:6px 10px;
+  border:1px solid var(--edge);border-radius:4px;color:var(--ink-dim);display:inline-flex;align-items:center;gap:5px;transition:.15s;white-space:nowrap;background:#fff}
+.tbtn:hover:not(:disabled){border-color:var(--holo);color:var(--holo)}
+.tbtn:disabled{opacity:.4;cursor:not-allowed}
+.tbtn.pri{background:var(--holo);color:#fff;border-color:var(--holo);font-weight:600}
+.tbtn.pri:hover{background:var(--holo-deep);color:#fff;border-color:var(--holo-deep)}
+
+/* ── left rail ── */
+#rail{grid-area:rail;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;
+  background:var(--panel);border-right:1px solid var(--edge);z-index:30}
+.rail-ic{width:34px;height:34px;display:grid;place-items:center;border-radius:6px;color:var(--ink-mut);transition:.15s;position:relative}
+.rail-ic svg{width:18px;height:18px}
+.rail-ic:hover{color:var(--holo);background:#e6edf4}
+.rail-ic.on{color:var(--holo);background:#dce9f4}
+.rail-sep{flex:1}
+.rail-ic[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:42px;white-space:nowrap;background:#26313c;
+  border:1px solid #26313c;padding:4px 8px;border-radius:4px;font-family:var(--mono);font-size:10px;color:#fff;z-index:60;letter-spacing:.04em}
+
+/* ── tree ── */
+#tree{grid-area:tree;background:var(--panel);border-right:1px solid var(--edge);overflow-y:auto;overflow-x:hidden;z-index:20}
+.tree-tabs{display:flex;gap:2px;padding:7px 6px 0;position:sticky;top:0;background:var(--panel);z-index:2}
+.tree-tab{flex:1;font-family:var(--mono);font-size:8.5px;letter-spacing:.03em;text-transform:uppercase;padding:6px 3px;
+  text-align:center;color:var(--ink-mut);border:1px solid transparent;border-bottom:none;border-radius:4px 4px 0 0;transition:.15s}
+.tree-tab.on{color:var(--holo);border-color:var(--edge2);background:var(--panel2)}
+.tree-body{padding:5px 3px 30px}
+.trow{display:flex;align-items:center;gap:6px;padding:4px 7px;border-radius:4px;cursor:pointer;font-size:12px;
+  font-family:var(--disp);font-weight:500;color:var(--ink-dim);transition:.1s}
+.trow:hover{background:#e9eef3;color:var(--ink)}
+.trow.sel{background:#dbe8f4;color:var(--holo)}
+.trow .car{width:11px;font-size:8px;color:var(--ink-mut);transition:transform .15s;flex-shrink:0}
+.trow.collapsed .car{transform:rotate(-90deg)}
+.trow .ico{width:15px;height:15px;flex-shrink:0;color:var(--holo-dim)}
+.trow.sel .ico{color:var(--holo)}
+.trow .cnt{margin-left:auto;font-family:var(--mono);font-size:8.5px;color:var(--ink-mut);background:var(--panel2);padding:0 5px;border-radius:8px}
+.tchild{margin-left:11px;border-left:1px solid var(--edge2)}
+.tchild.hid{display:none}
+.leaf{font-family:var(--mono);font-size:10px;letter-spacing:.02em;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sys-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.tag-lg{font-family:var(--mono);font-size:8.5px;color:var(--ink-mut);padding:4px 8px 2px;letter-spacing:.04em}
+
+/* ── canvas (drafting sheet) ── */
+#canvas{grid-area:canvas;position:relative;overflow:hidden;background:#fcfcfd;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+    linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px);
+  background-size:96px 96px,96px 96px,24px 24px,24px 24px}
+#svglinks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#nodes{position:absolute;inset:0;z-index:3}
+/* ── equipment block (flat, technical) ── */
+.node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none;display:flex;flex-direction:column;
+  align-items:center;gap:3px;z-index:4;--sc:var(--holo)}
+.node:active{cursor:grabbing}
+.node .sym{width:46px;height:38px;display:grid;place-items:center;position:relative;color:var(--sc);
+  background:#fff;border:1px solid var(--edge);border-top:3px solid var(--sc);border-radius:2px}
+.node .sym svg{width:23px;height:23px}
+.node.sel .sym{border-color:var(--sc);box-shadow:0 0 0 2px var(--sc);background:#eef4fa}
+.node .lbl{font-family:var(--mono);font-weight:500;font-size:9.5px;letter-spacing:.01em;color:var(--ink);text-align:center;
+  white-space:nowrap;line-height:1.15;text-shadow:0 0 3px #fcfcfd,0 0 3px #fcfcfd}
+.node .lbl small{display:block;font-family:var(--body);font-weight:400;font-size:8px;color:var(--ink-dim);letter-spacing:.01em}
+.node .badge{position:absolute;top:-6px;right:-8px;font-family:var(--mono);font-size:7.5px;background:#fff;border:1px solid var(--edge);
+  color:var(--ink-dim);border-radius:2px;padding:0 3px;z-index:5}
+.node .kw{position:absolute;bottom:-6px;left:-8px;font-family:var(--mono);font-size:7.5px;background:#fff;border:1px solid var(--edge);
+  color:var(--amber);border-radius:2px;padding:0 3px;z-index:5}
+#reticle{position:absolute;width:66px;height:56px;transform:translate(-50%,-50%);pointer-events:none;z-index:3;opacity:0;transition:opacity .15s}
+#reticle.on{opacity:1}
+#reticle .r{position:absolute;width:9px;height:9px;border:1.5px solid var(--holo)}
+#reticle .r:nth-child(1){left:0;top:0;border-right:0;border-bottom:0}
+#reticle .r:nth-child(2){right:0;top:0;border-left:0;border-bottom:0}
+#reticle .r:nth-child(3){left:0;bottom:0;border-right:0;border-top:0}
+#reticle .r:nth-child(4){right:0;bottom:0;border-left:0;border-top:0}
+#reticle .dot{display:none}
+
+#legend{position:absolute;left:10px;top:10px;z-index:9;display:flex;flex-direction:column;gap:3px;max-width:150px}
+.leg{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;letter-spacing:.03em;padding:4px 8px;
+  background:#fff;border:1px solid var(--edge);border-radius:4px;color:var(--ink-dim);cursor:pointer;transition:.15s;text-transform:uppercase;user-select:none}
+.leg.off{opacity:.4}
+.leg .sw{width:14px;height:3px;border-radius:1px;flex-shrink:0}
+.leg .k{margin-left:auto;color:var(--ink-mut);font-size:8px}
+#cstats{position:absolute;right:10px;top:10px;z-index:9;background:#fff;border:1px solid var(--edge);border-radius:6px;
+  padding:8px 10px;font-family:var(--mono);font-size:9px;color:var(--ink-dim);letter-spacing:.03em;min-width:150px}
+#cstats .r{display:flex;justify-content:space-between;padding:1.5px 0}
+#cstats .r b{color:var(--ink);font-weight:600}
+#cstats .hd{color:var(--holo-dim);text-transform:uppercase;font-size:8px;letter-spacing:.09em;margin-bottom:3px}
+
+#bubble{position:absolute;transform:translate(-50%,12px);z-index:8;min-width:210px;max-width:250px;
+  background:#fff;border:1px solid var(--edge);border-radius:6px;
+  padding:9px 11px;box-shadow:0 6px 20px rgba(30,40,50,.18);pointer-events:auto;display:none;font-size:11px}
+#bubble.on{display:block}
+#bubble .bt{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;color:var(--holo);text-transform:uppercase}
+#bubble h4{font-family:var(--disp);font-size:13px;margin:1px 0 3px;color:var(--ink)}
+#bubble .brow2{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-family:var(--mono);font-size:9px;color:var(--ink-dim);margin:4px 0}
+#bubble .brow2 b{color:var(--ink)}
+#bubble .brow{display:flex;gap:5px;margin-top:6px}
+#bubble .bmini{flex:1;font-family:var(--mono);font-size:8.5px;text-align:center;padding:5px 3px;border-radius:4px;border:1px solid var(--edge2);color:var(--ink-dim);transition:.15s}
+#bubble .bmini:hover{border-color:var(--holo);color:var(--holo)}
+
+#crumb{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:9;display:none;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.05em;background:#fff;border:1px solid var(--edge);border-radius:16px;padding:5px 13px;color:var(--ink-dim)}
+#crumb.on{display:flex;align-items:center;gap:7px}
+#crumb b{color:var(--holo)}#crumb .x{color:var(--amber);cursor:pointer}#crumb a{color:var(--ink-dim);cursor:pointer}#crumb a:hover{color:var(--holo)}
+
+#cbar{position:absolute;right:10px;bottom:10px;z-index:9;display:flex;gap:5px}
+.cbtn{width:30px;height:30px;display:grid;place-items:center;background:#fff;border:1px solid var(--edge);border-radius:5px;color:var(--ink-dim);transition:.15s}
+.cbtn:hover{border-color:var(--holo);color:var(--holo)}.cbtn svg{width:15px;height:15px}
+#palette{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:9;display:flex;gap:4px;background:#fff;
+  border:1px solid var(--edge);border-radius:8px;padding:5px;max-width:calc(100% - 220px);overflow-x:auto}
+.pchip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 7px;border-radius:5px;min-width:54px;transition:.15s;color:var(--ink-dim)}
+.pchip:hover{background:#eaf1f8;color:var(--holo)}
+.pchip svg{width:18px;height:18px}
+.pchip span{font-family:var(--mono);font-size:7.5px;letter-spacing:.02em;text-align:center;line-height:1.1}
+#toast{position:absolute;right:10px;bottom:50px;z-index:12;width:238px}
+.toastcard{background:#fff;border:1px solid var(--edge);border-radius:6px;
+  padding:8px 10px;font-size:11px;color:var(--ink);margin-top:7px;position:relative;box-shadow:0 4px 14px rgba(30,40,50,.16);animation:tin .3s ease}
+@keyframes tin{from{transform:translateX(24px);opacity:0}}
+.toastcard.warn{border-color:#d8ab6f}.toastcard.err{border-color:#d69494}
+.toastcard .x{position:absolute;right:6px;top:4px;color:var(--ink-mut);cursor:pointer;font-size:12px}
+.toastcard .th{font-family:var(--mono);font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:var(--holo);margin-bottom:2px}
+.toastcard.warn .th{color:var(--amber)}.toastcard.err .th{color:var(--red)}
+.emptyc{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.emptyc div{text-align:center;color:var(--ink-mut);font-family:var(--mono);font-size:11px;letter-spacing:.05em;line-height:1.8}
+.emptyc b{color:var(--holo)}
+
+/* ── right panel ── */
+#panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--edge);overflow-y:auto;z-index:20;display:flex;flex-direction:column}
+.ptabs{display:flex;padding:7px 6px 0;gap:2px;position:sticky;top:0;background:var(--panel);z-index:5}
+.ptab{flex:1;height:32px;display:grid;place-items:center;border-radius:5px 5px 0 0;color:var(--ink-mut);border:1px solid transparent;border-bottom:none;transition:.15s}
+.ptab svg{width:16px;height:16px}
+.ptab.on{color:var(--holo);background:var(--panel2);border-color:var(--edge2)}
+.ptab:hover:not(.on){color:var(--ink)}
+.pbody{padding:10px 11px 30px;flex:1}
+.pv{display:none}.pv.on{display:block}
+.plabel{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--holo-dim);margin:13px 0 5px;display:flex;align-items:center;gap:6px}
+.plabel::after{content:"";flex:1;height:1px;background:var(--edge2)}
+.plabel:first-child{margin-top:1px}
+.plabel .pl-act{font-size:8px;color:var(--amber);cursor:pointer;letter-spacing:.03em}
+.pcard{background:#fff;border:1px solid var(--edge2);border-radius:6px;padding:9px 10px;margin-bottom:7px}
+.pnode{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);line-height:1}
+.pnode small{display:block;font-family:var(--mono);font-size:9.5px;color:var(--ink-dim);font-weight:400;letter-spacing:.03em;margin-top:3px}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-family:var(--mono);font-size:10.5px;line-height:1.5}
+.dl dt{color:var(--ink-mut);white-space:nowrap}
+.dl dd{color:var(--ink);text-align:right}
+.dl dd b{color:var(--holo);font-weight:600}
+.dl dd.a{color:var(--amber)}.dl dd.g{color:var(--green)}
+.iogrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.iocell{background:#fff;border:1px solid var(--edge2);border-radius:5px;padding:6px 8px;display:flex;align-items:center;gap:7px}
+.iocell .n{font-family:var(--mono);font-size:17px;color:var(--ink);font-weight:600;line-height:1;min-width:26px;text-align:right}
+.iocell .m{font-family:var(--mono);font-size:8px;letter-spacing:.04em;color:var(--ink-dim);text-transform:uppercase;line-height:1.2}
+.iocell .adj{margin-left:auto;display:flex;flex-direction:column;gap:2px}
+.iocell .adj button{width:15px;height:12px;font-size:9px;line-height:1;color:var(--ink-mut);border:1px solid var(--edge2);border-radius:3px}
+.iocell .adj button:hover{color:var(--holo);border-color:var(--holo)}
+.mini-t{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:9.5px;margin-top:2px}
+.mini-t td{padding:2.5px 3px;border-bottom:1px solid var(--edge2);color:var(--ink)}
+.mini-t td.q{text-align:right;color:var(--ink);font-weight:600}.mini-t td.p{text-align:right;color:var(--ink-mut)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:8.5px;letter-spacing:.03em;padding:2px 7px;border-radius:3px;border:1px solid var(--edge);color:var(--ink-dim);margin:2px 3px 2px 0}
+.pill.g{border-color:var(--green);color:var(--green)}.pill.a{border-color:var(--amber);color:var(--amber)}.pill.v{border-color:var(--violet);color:var(--violet)}
+.plink{font-family:var(--mono);font-size:9.5px;color:var(--amber);letter-spacing:.03em;cursor:pointer;display:inline-block;margin-top:5px;text-transform:uppercase}
+.plink:hover{color:#7a4d17}
+.big{font-family:var(--disp);font-size:23px;font-weight:700;line-height:1;color:var(--ink)}
+.big.g{color:var(--green)}
+.big small{font-size:10px;color:var(--ink-dim);font-family:var(--mono);font-weight:400}
+.barrow{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9.5px;margin:4px 0}
+.barrow .lab{width:74px;color:var(--ink-dim);text-transform:uppercase;font-size:8.5px}
+.barrow .track{flex:1;height:6px;background:var(--edge2);border-radius:3px;overflow:hidden}
+.barrow .track i{display:block;height:100%;border-radius:3px}
+.barrow .val{width:42px;text-align:right;color:var(--ink)}
+.denstoggle{display:flex;border:1px solid var(--edge2);border-radius:4px;overflow:hidden}
+.denstoggle button{flex:1;font-family:var(--mono);font-size:9px;letter-spacing:.03em;padding:6px;color:var(--ink-dim);text-transform:uppercase;transition:.15s;background:#fff}
+.denstoggle button.on{background:#dbe8f4;color:var(--holo)}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0;font-family:var(--mono);font-size:10px}
+.setrow label{color:var(--ink-dim)}
+.setrow input{width:76px;background:#fff;border:1px solid var(--edge2);border-radius:4px;color:var(--ink);font-family:var(--mono);
+  font-size:10px;text-align:right;padding:3px 6px}
+.setrow input:focus{outline:none;border-color:var(--holo)}
+.vrow{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--edge2);font-size:11px}
+.vrow .gen{flex:1;color:var(--ink)}.vrow .arr{color:var(--holo-dim)}.vrow .pn{font-family:var(--mono);font-size:9.5px;color:var(--holo);text-align:right;min-width:92px}
+.vendor-sel{display:flex;gap:3px;margin:5px 0 8px}
+.vendor-sel button{flex:1;font-family:var(--mono);font-size:9px;padding:6px 3px;border:1px solid var(--edge2);border-radius:4px;color:var(--ink-dim);transition:.15s;background:#fff}
+.vendor-sel button.on{background:#dbe8f4;color:var(--holo);border-color:var(--holo-dim)}
+.audit{font-family:var(--mono);font-size:9px;line-height:1.6;color:var(--ink-dim)}
+.audit .a-row{display:flex;gap:7px;padding:2.5px 0;border-bottom:1px solid var(--edge2)}
+.audit .ts{color:var(--ink-mut);flex-shrink:0}.audit .ac{color:var(--holo)}.audit .ac.del{color:var(--red)}.audit .ac.cfg{color:var(--amber)}
+
+/* ── schedules dock ── */
+#dock{grid-area:dock;background:var(--panel);border-top:1px solid var(--edge);display:flex;flex-direction:column;z-index:25;overflow:hidden}
+.dock-h{display:flex;align-items:stretch;background:var(--bg1);border-bottom:1px solid var(--edge);flex-shrink:0}
+.dock-tabs{display:flex;overflow-x:auto;flex:1}
+.dtab{font-family:var(--mono);font-size:9.5px;letter-spacing:.03em;text-transform:uppercase;padding:9px 13px;color:var(--ink-mut);
+  white-space:nowrap;border-right:1px solid var(--edge2);transition:.15s;display:flex;align-items:center;gap:6px}
+.dtab:hover{color:var(--ink)}
+.dtab.on{color:var(--holo);background:var(--panel2);box-shadow:inset 0 -2px 0 var(--holo)}
+.dtab .c{font-size:8px;color:var(--ink-mut);background:var(--panel2);padding:0 5px;border-radius:8px}
+.dtab.on .c{color:var(--holo)}
+.dock-tools{display:flex;align-items:center;gap:3px;padding:0 8px;border-left:1px solid var(--edge2)}
+.dtool{width:28px;height:28px;display:grid;place-items:center;color:var(--ink-mut);border-radius:5px;transition:.15s}
+.dtool:hover{color:var(--holo);background:#e6edf4}.dtool svg{width:15px;height:15px}
+.dock-b{flex:1;overflow:auto;position:relative;background:#fff}
+body.dock-min .dock-b{display:none}
+.filterbar{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--edge2);position:sticky;top:0;background:var(--panel);z-index:3;font-family:var(--mono);font-size:9.5px;color:var(--ink-dim)}
+.filterbar input{background:#fff;border:1px solid var(--edge2);border-radius:4px;color:var(--ink);font-family:var(--mono);font-size:10px;padding:4px 8px;width:180px}
+.filterbar input:focus{outline:none;border-color:var(--holo)}
+.filterbar .sum{margin-left:auto;color:var(--ink-mut)}
+.filterbar .sum b{color:var(--holo);font-weight:600}
+table.sched{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:10px}
+table.sched thead th{position:sticky;top:0;background:var(--bg1);text-align:left;color:var(--ink-dim);font-weight:600;letter-spacing:.03em;
+  font-size:8.5px;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--edge);white-space:nowrap;cursor:pointer;z-index:2}
+table.sched thead th:hover{color:var(--holo)}
+table.sched thead th.num,table.sched td.num{text-align:right}
+table.sched tbody td{padding:4px 8px;border-bottom:1px solid var(--edge2);color:var(--ink);white-space:nowrap}
+table.sched tbody tr:nth-child(even){background:#fafbfc}
+table.sched tbody tr:hover{background:#eaf1f8}
+table.sched tbody tr.sel{background:#dbe8f4}
+table.sched td.tag{color:var(--holo);font-weight:600}
+table.sched td.dim{color:var(--ink-mut)}
+table.sched td.a{color:var(--amber)}table.sched td.g{color:var(--green)}table.sched td.r{color:var(--red)}
+table.sched td .chip2{font-size:8px;padding:0 5px;border-radius:7px;border:1px solid var(--edge2);color:var(--ink-dim)}
+table.sched .grp td{background:#f6efe4;color:var(--amber);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;padding-top:7px;padding-bottom:5px;position:sticky}
+table.sched tfoot td{padding:7px 8px;border-top:2px solid var(--edge);color:var(--green);font-weight:600;font-size:10.5px;position:sticky;bottom:0;background:var(--bg1)}
+table.sched tfoot td.lbl{color:var(--ink-dim);font-weight:400}
+.costsum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px}
+.costcard{background:#fff;border:1px solid var(--edge2);border-radius:6px;padding:10px 12px}
+.costcard .l{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mut)}
+.costcard .v{font-family:var(--disp);font-size:19px;font-weight:700;color:var(--ink);margin-top:3px}
+.costcard.tot .v{color:var(--green)}
+.costcard .s{font-family:var(--mono);font-size:8.5px;color:var(--ink-dim);margin-top:2px}
+
+/* ── modal ── */
+#scrim{position:fixed;inset:0;background:rgba(24,30,38,.45);z-index:100;display:none;place-items:center;padding:18px}
+#scrim.on{display:grid}
+.modal{width:min(760px,100%);max-height:92vh;overflow-y:auto;background:#fff;
+  border:1px solid var(--edge);border-radius:8px;box-shadow:0 24px 60px rgba(20,28,36,.28)}
+.modal-h{padding:14px 18px;border-bottom:1px solid var(--edge2);display:flex;align-items:center;gap:9px}
+.modal-h .cube{color:var(--holo);font-size:18px}
+.modal-h h2{font-family:var(--disp);font-size:17px;font-weight:700;color:var(--ink)}
+.modal-h p{font-family:var(--mono);font-size:9px;color:var(--ink-dim);letter-spacing:.04em;margin-top:1px}
+.modal-h .x{margin-left:auto;font-size:19px;color:var(--ink-mut);cursor:pointer}
+.modal-b{padding:14px 18px}
+.fld{margin-bottom:13px}
+.fld>label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--holo-dim);margin-bottom:5px}
+.fld input[type=text],.fld input[type=number],.fld select{width:100%;background:#fff;border:1px solid var(--edge2);border-radius:4px;
+  padding:8px 10px;color:var(--ink);font-family:var(--body);font-size:13px}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--holo);box-shadow:0 0 0 2px rgba(47,111,168,.14)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.02em;padding:6px 10px;border:1px solid var(--edge2);border-radius:16px;color:var(--ink-dim);cursor:pointer;transition:.15s;user-select:none;background:#fff}
+.chip:hover{border-color:var(--edge);color:var(--ink)}
+.chip.on{background:#dbe8f4;color:var(--holo);border-color:var(--holo)}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tlib{display:flex;flex-direction:column;gap:9px}
+.tgroup .tgh{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--holo-dim);margin:2px 0 5px;display:flex;align-items:center;gap:6px}
+.tgroup .tgh .sd{width:8px;height:8px;border-radius:2px}
+.nodepick{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+.npk{border:1px solid var(--edge2);border-radius:6px;padding:7px;cursor:pointer;transition:.15s;text-align:center;color:var(--ink-dim);position:relative;background:#fff}
+.npk:hover{border-color:var(--edge);color:var(--ink)}
+.npk.on{border-color:var(--holo);background:#eef4fa;color:var(--holo)}
+.npk svg{width:22px;height:22px;margin-bottom:2px}
+.npk .nm{font-family:var(--disp);font-size:11px;font-weight:600;line-height:1.05}
+.npk .io{font-family:var(--mono);font-size:7.5px;color:var(--ink-mut);margin-top:2px}
+.npk .qty{font-family:var(--mono);font-size:8.5px;color:var(--amber);margin-top:3px;display:none}
+.npk.on .qty{display:block}
+.npk .qty input{width:34px;background:#fff;border:1px solid var(--edge2);border-radius:4px;color:var(--amber);font-family:var(--mono);font-size:9px;text-align:center;padding:1px}
+.modal-f{padding:12px 18px;border-top:1px solid var(--edge2);display:flex;gap:9px;justify-content:flex-end;align-items:center}
+.modal-f .note{margin-right:auto;font-family:var(--mono);font-size:9px;color:var(--ink-dim);max-width:48ch;line-height:1.4}
+
+#mwarn{display:none}
+@media (max-width:960px){
+  #app{display:none}
+  #mwarn{display:grid;place-items:center;height:100vh;padding:28px;text-align:center}
+  #mwarn div{max-width:340px}#mwarn .cube{color:var(--holo);font-size:40px}
+  #mwarn h1{font-family:var(--disp);font-size:22px;margin:12px 0 8px;color:var(--ink)}
+  #mwarn p{color:var(--ink-dim);line-height:1.6;font-size:14px}
+}
+.back{position:fixed;left:calc(var(--railW) + 8px);bottom:6px;z-index:60;font-family:var(--mono);font-size:8.5px;letter-spacing:.05em;
+  color:var(--ink-mut);text-decoration:none;text-transform:uppercase}
+.back:hover{color:var(--holo)}
+</style>
+</head>
+<body>
+<div id="mwarn"><div><div class="cube">◈</div><h1>DCSketch</h1>
+  <p>This is a desktop-class engineering workbench — point-level I/O, load &amp; cable schedules, and line-item costing need room. Open on a screen ≥960px wide.</p></div></div>
+
+<div id="app">
+  <div id="menubar"><div class="mlogo"><span>◈</span>DCSketch</div></div>
+  <header id="top">
+    <div class="brand"><span class="cube">◈</span><span>DC<b>Sketch</b></span></div>
+    <div class="proj">PROJECT: <span id="projName">—</span></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="spacer"></div>
+    <button class="tbtn pri" id="btnSave">SAVE</button>
+    <button class="tbtn" id="btnUndo">↶</button>
+    <button class="tbtn" id="btnRedo" disabled>↷</button>
+    <button class="tbtn" id="btnQuest">◈ INTAKE</button>
+    <button class="tbtn" id="btnExport">⤓ EXPORT</button>
+    <a class="tbtn" href="/" style="text-decoration:none" title="Back to BlueVector">◂</a>
+  </header>
+
+  <nav id="rail">
+    <div class="rail-ic" data-tip="Toggle tree" data-act="tree"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="3" width="6" height="4"/><rect x="3" y="17" width="6" height="4"/><rect x="15" y="17" width="6" height="4"/><path d="M12 7v5M6 17v-3h12v3"/></svg></div>
+    <div class="rail-ic on" data-tip="I/O List" data-dock="io"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.3" fill="currentColor"/><circle cx="14" cy="12" r="1.3" fill="currentColor"/></svg></div>
+    <div class="rail-ic" data-tip="Load schedule" data-dock="load"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+    <div class="rail-ic" data-tip="BOM & costing" data-dock="bom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h9l3 3v15H6zM9 8h6M9 12h6M9 16h4"/></svg></div>
+    <div class="rail-ic" data-tip="Cable schedule" data-dock="cable"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7a3 3 0 003 3h10a3 3 0 013 3M4 7a3 3 0 013-3M20 17a3 3 0 01-3 3"/></svg></div>
+    <div class="rail-sep"></div>
+    <div class="rail-ic" data-tip="Fit to view" data-act="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></div>
+    <div class="rail-ic" data-tip="Estimation settings" data-act="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></div>
+  </nav>
+
+  <aside id="tree"></aside>
+
+  <main id="canvas">
+    <div id="legend"></div>
+    <div id="cstats"></div>
+    <div id="crumb"></div>
+    <svg id="svglinks"><defs><filter id="fglow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs></svg>
+    <div id="reticle"><div class="r"></div><div class="r"></div><div class="r"></div><div class="r"></div></div>
+    <div id="nodes"></div>
+    <div id="bubble"></div>
+    <div class="emptyc" id="emptyc" style="display:none"><div>NO ARCHITECTURE LOADED<br><b>Run ◈ INTAKE</b> to generate a baseline system.</div></div>
+    <div id="palette"></div>
+    <div id="cbar">
+      <button class="cbtn" data-act="fit" title="Fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button class="cbtn" data-act="add" title="Add node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div id="toast"></div>
+  </main>
+
+  <aside id="panel">
+    <div class="ptabs">
+      <button class="ptab on" data-pv="node" title="Node details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l3 3-3 3-3-3zM3 12l3 3 3-3-3-3zM21 12l-3-3-3 3 3 3zM12 15l3 3-3 3-3-3z"/></svg></button>
+      <button class="ptab" data-pv="sys" title="Systems overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></button>
+      <button class="ptab" data-pv="vendor" title="Vendor translation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h11l-3-3M20 17H9l3 3"/></svg></button>
+      <button class="ptab" data-pv="params" title="Params & audit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button>
+    </div>
+    <div class="pbody">
+      <div class="pv on" id="pvNode"></div>
+      <div class="pv" id="pvSys"></div>
+      <div class="pv" id="pvVendor"></div>
+      <div class="pv" id="pvParams"></div>
+    </div>
+  </aside>
+
+  <section id="dock">
+    <div class="dock-h">
+      <div class="dock-tabs" id="dockTabs"></div>
+      <div class="dock-tools">
+        <button class="dtool" data-dtool="csv" title="Export this schedule (CSV)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12M8 11l4 4 4-4M4 19h16"/></svg></button>
+        <button class="dtool" data-dtool="min" title="Collapse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 12h14"/></svg></button>
+        <button class="dtool" data-dtool="max" title="Maximize"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 15v5h-5M4 15v5h5M20 9V4h-5"/></svg></button>
+      </div>
+    </div>
+    <div class="dock-b" id="dockBody"></div>
+  </section>
+</div>
+
+<div id="scrim"><div class="modal" id="modal"></div></div>
+
+<script>
+"use strict";
+/* ═══════════════════════════════════════════════════════════════════════
+   DCSketch v2 — SCADA/DCS architecture & estimation workbench
+   "the Revit of DCS/SCADA planning": data-dense, parametric, schedule-driven.
+   Modules (SCADAsketch spec): I generative intake · II spatial editor ·
+   III platform-agnostic estimation — extended with point-level I/O, an
+   electrical model (loads/breakers/feeders), cable schedules, and full
+   line-item hardware + engineering + installation + licensing costing.
+   ═══════════════════════════════════════════════════════════════════════ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), uid=(p='n')=>p+Math.random().toString(36).slice(2,7);
+const money=n=>'$'+Math.round(n).toLocaleString();
+const money0=n=>'$'+(Math.round(n/100)*100).toLocaleString();
+const esc=s=>String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+/* ── glyph library (ISA-flavoured line art) ── */
+const ICON={
+server:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="8" rx="1"/><rect x="4" y="13" width="16" height="8" rx="1"/><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"/></svg>',
+chiller:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg>',
+crac:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 8c2 0 2 2 4 2s2-2 4-2M7 14c2 0 2 2 4 2s2-2 4-2"/></svg>',
+tower:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 21l2-12h10l2 12M7 9l-1-4h12l-1 4M9 21v-4h6v4"/></svg>',
+ups:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M13 7l-4 6h3l-1 4 4-6h-3z"/></svg>',
+battery:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="16" height="10" rx="1"/><path d="M19 11v4h2v-4zM7 10v6M11 10v6M15 10v6"/></svg>',
+substation:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l9 6-9 6-9-6z"/><path d="M12 14v8M8 18l4 4 4-4"/></svg>',
+transformer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/></svg>',
+genset:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="14" height="9" rx="1"/><path d="M17 11h2l2 3v3h-4M6 8V5h5v3"/><circle cx="7" cy="20" r="1.4"/><circle cx="14" cy="20" r="1.4"/></svg>',
+switchgear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 6v5l3 2M9 6v3M15 6v3"/></svg>',
+mcc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>',
+ats:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4v6M18 4v6M6 10l6 4 6-4M12 14v6"/></svg>',
+pdu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h.01M9 11h.01M9 15h.01M13 7h3M13 11h3M13 15h3"/></svg>',
+pump:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="13" r="6"/><path d="M12 13l4-4M12 5V2M9 3h6"/></svg>',
+valve:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l8 4-8 4zM20 8l-8 4 8 4zM12 12V5M9 5h6"/></svg>',
+tank:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 6c0-2 14-2 14 0v12c0 2-14 2-14 0z"/><path d="M5 6c0 2 14 2 14 0M6 13c2 1 4-1 6 0s4 1 6 0"/></svg>',
+flow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M13 9l3 3-3 3"/></svg>',
+gauge:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 18a8 8 0 1116 0"/><path d="M12 18l4-5"/></svg>',
+conveyor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="15" r="3"/><circle cx="18" cy="15" r="3"/><path d="M6 12h12M8 7h8l2 5H6z"/></svg>',
+compressor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 5v14M5 12h14" opacity=".5"/><circle cx="12" cy="12" r="2"/></svg>',
+panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>',
+plc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="6" width="16" height="12" rx="1"/><path d="M8 6V3M12 6V3M16 6V3M8 18v3M12 18v3M16 18v3M8 10h2v4H8zM14 10h2v4h-2z"/></svg>',
+hmi:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg>',
+serverstack:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="3" width="14" height="5" rx="1"/><rect x="5" y="10" width="14" height="5" rx="1"/><rect x="5" y="17" width="14" height="4" rx="1"/><path d="M8 5.5h.01M8 12.5h.01"/></svg>',
+switch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M6 12h.01M9 12h.01M12 12h.01M17 9l3-3M14 15l3 3"/></svg>',
+firewall:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M3 10h18M3 14h18M7 6v4M15 6v4M11 10v4M4 18h16v3H4z"/></svg>',
+gateway:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16"/></svg>',
+fire:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c1 4 5 5 5 9a5 5 0 01-10 0c0-2 2-3 2-5 2 1 1 3 3 3 1 0 1-2-1-4z"/></svg>',
+smoke:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg>',
+gas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6l1 4H8zM8 7h8l1 14H7z"/><path d="M11 12h2"/></svg>',
+sis:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+comm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12a7 7 0 0114 0M8 12a4 4 0 018 0"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>',
+cpu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>',
+/* water / process */
+intake:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2"/><path d="M4 18h16M6 10V6h12v4"/></svg>',
+screen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 3v18M12 3v18M16 3v18"/></svg>',
+mixer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5h14v14H5z"/><path d="M12 5v9M9 9l3-2 3 2M9 14h6"/></svg>',
+clarifier:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16" opacity=".5"/><circle cx="12" cy="12" r="2"/></svg>',
+filterbed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9h16M4 14h16M7 9v5M11 9v5M15 9v5"/></svg>',
+membrane:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M8 8v8M12 8v8M16 8v8"/></svg>',
+uv:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="9" width="18" height="6" rx="3"/><path d="M7 5v2M12 4v3M17 5v2M7 17v2M12 17v3M17 17v2"/></svg>',
+blower:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="12" r="7"/><path d="M11 12l5-3M11 12l-3 5M11 12l-4-4M18 12h3"/></svg>',
+press:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="14" width="16" height="5" rx="1"/><path d="M12 14V6M7 6h10M9 9l3-3 3 3"/></svg>',
+lift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V8l8-4 8 4v12M4 20h16M10 14a2 2 0 104 0 2 2 0 00-4 0"/></svg>',
+chem:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6M10 3v6l-4 9a1 1 0 001 1h10a1 1 0 001-1l-4-9V3"/><path d="M7.5 15h9"/></svg>',
+analyzer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M7 15l2-4 2 3 2-6 2 7M7 8h3"/></svg>',
+/* show / ride */
+coaster:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20c4 0 4-14 9-14s5 14 9 14M3 20h18"/><circle cx="7" cy="17" r="1.4"/><circle cx="11" cy="17" r="1.4"/></svg>',
+ride:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18" opacity=".5"/><circle cx="12" cy="12" r="2"/><path d="M12 5l2 3h-4z"/></svg>',
+showctl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5l16 7-16 7z"/><path d="M4 12h9"/></svg>',
+light:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6l1 6H8zM10 9v5a2 2 0 004 0V9M11 18h2M12 20v1"/></svg>',
+robot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="8" width="12" height="10" rx="2"/><path d="M9 12h.01M15 12h.01M12 4v4M10 18v3M14 18v3"/><circle cx="12" cy="4" r="1.4"/></svg>',
+fountain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c0 3-2 3-2 5s2 2 2 4 2-2 2-4-2-2-2-5M6 21c0-4 2-6 6-6s6 2 6 6M4 21h16"/></svg>',
+pool:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2M3 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2M8 12V5a2 2 0 014 0M16 12V5"/></svg>',
+spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></svg>',
+gate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V7M20 20V7M4 7h16M8 11v9M12 11v9M16 11v9"/></svg>',
+di:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h6l2-4 2 8 2-4h6"/></svg>',
+do:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8v8M4 8h8v8H4M12 12h8"/></svg>',
+ai:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16c3 0 3-8 6-8s3 8 6 8 3-8 6-8"/></svg>',
+ao:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>',
+};
+
+/* ── systems (drives canvas colour, layer legend, grouping) ── */
+const SYS={
+  power:  {label:'Power',    color:'#a8681f'},
+  cooling:{label:'Cooling',  color:'#2f7a8c'},
+  compute:{label:'Compute',  color:'#227a52'},
+  process:{label:'Process',  color:'#6b7f2a'},
+  chemical:{label:'Chemical',color:'#1f8878'},
+  show:   {label:'Show/Ride',color:'#96486b'},
+  network:{label:'Network',  color:'#3a5fa0'},
+  control:{label:'Control',  color:'#5f56a0'},
+  safety: {label:'Safety',   color:'#b23b3b'},
+};
+/* signal-type meta for point generation */
+const SPARE=0.20;
+const withSpare=n=>Math.ceil(n*(1+SPARE));
+
+/* ═══════════ EQUIPMENT TEMPLATE LIBRARY (parametric families) ═══════
+   Each family carries I/O density, electrical characteristics, physical
+   (NEMA), and a cost model (hardware $, engineering hrs, install hrs).   */
+function T(o){ return Object.assign({di:0,do:0,ai:0,ao:0,volts:0,phase:3,kw:0,fla:0,drive:null,redundant:false,
+  nema:'12',hwCost:0,engHrs:6,instHrs:6,instr:[],pts:null,note:''},o); }
+const TYPES={
+/* ── POWER ── */
+utility_sub:  T({label:'Utility Substation',short:'SUB',icon:'substation',system:'power',di:24,do:8,ai:18,ao:0,volts:13800,phase:3,kw:0,fla:0,nema:'3R',hwCost:0,engHrs:40,instHrs:24,instr:['MV metering (revenue)','Protective relay (SEL-751)','PT/CT set'],note:'Medium-voltage utility intake, protective relaying & revenue metering.'}),
+main_swgr:    T({label:'Main Switchgear',short:'SWG',icon:'switchgear',system:'power',di:20,do:8,ai:16,ao:0,volts:480,phase:3,kw:0,nema:'1',hwCost:0,engHrs:24,instHrs:18,instr:['Multifunction power meter','Breaker trip units','Bus PT'],note:'480V LV distribution, breaker status & branch metering.'}),
+transformer:  T({label:'Transformer',short:'XFR',icon:'transformer',system:'power',di:6,do:0,ai:6,ao:0,volts:480,phase:3,kw:0,nema:'3R',hwCost:0,engHrs:8,instHrs:10,instr:['Winding RTDs','Load-tap monitor'],note:'MV/LV transformer, winding temperature & loading.'}),
+mcc:          T({label:'Motor Control Center',short:'MCC',icon:'mcc',system:'power',di:32,do:16,ai:12,ao:0,volts:480,phase:3,kw:0,nema:'1',hwCost:0,engHrs:20,instHrs:16,instr:['Overload relays','Bucket metering'],note:'Grouped motor starters/VFD buckets with per-bucket status.'}),
+ats:          T({label:'Automatic Transfer Sw',short:'ATS',icon:'ats',system:'power',di:10,do:4,ai:4,ao:0,volts:480,phase:3,kw:0,nema:'1',hwCost:0,engHrs:6,instHrs:6,instr:['Source sensing'],note:'Utility↔generator transfer, source availability & position.'}),
+genset:       T({label:'Diesel Genset',short:'GEN',icon:'genset',system:'power',di:16,do:6,ai:12,ao:2,volts:480,phase:3,kw:2000,fla:2405,nema:'3R',hwCost:0,engHrs:16,instHrs:14,instr:['Engine controller (DSE)','Fuel level','Coolant/oil sensors'],note:'Standby generation, engine & alternator monitoring.'}),
+ups:          T({label:'UPS System',short:'UPS',icon:'ups',system:'power',di:14,do:4,ai:10,ao:0,volts:480,phase:3,kw:750,fla:902,nema:'1',hwCost:0,engHrs:10,instHrs:8,instr:['UPS SNMP card','Bypass status'],note:'Static UPS, rectifier/inverter/bypass & battery health.'}),
+battery:      T({label:'Battery / BMS',short:'BAT',icon:'battery',system:'power',di:6,do:2,ai:16,ao:0,volts:480,phase:1,kw:0,nema:'2',hwCost:0,engHrs:6,instHrs:6,instr:['Cell voltage monitor','String current shunt'],note:'VRLA/Li-ion string with per-string cell monitoring.'}),
+pdu:          T({label:'Power Dist. Unit',short:'PDU',icon:'pdu',system:'power',di:8,do:2,ai:24,ao:0,volts:415,phase:3,kw:300,fla:417,nema:'1',hwCost:0,engHrs:6,instHrs:5,instr:['Branch-circuit monitor','Output metering'],note:'Floor PDU/RPP with branch-circuit power monitoring.'}),
+/* ── COOLING / MECHANICAL ── */
+chiller:      T({label:'Chiller',short:'CH',icon:'chiller',system:'cooling',di:18,do:8,ai:16,ao:6,volts:480,phase:3,kw:1400,fla:1683,drive:'VFD',nema:'1',hwCost:0,engHrs:14,instHrs:12,instr:['CHW supply/return RTD','Refrigerant pressure Tx','BTU flow meter'],note:'Centrifugal/screw chiller, CHW & condenser loops.'}),
+cooling_twr:  T({label:'Cooling Tower',short:'CT',icon:'tower',system:'cooling',di:8,do:5,ai:6,ao:2,volts:480,phase:3,kw:75,fla:96,drive:'VFD',nema:'4X',hwCost:0,engHrs:8,instHrs:8,instr:['Basin level','Fan VFD','Sump temp'],note:'Open cooling tower, fan VFD & basin management.'}),
+crah:         T({label:'CRAH Unit',short:'AH',icon:'crac',system:'cooling',di:10,do:5,ai:10,ao:3,volts:480,phase:3,kw:22,fla:28,drive:'VFD',nema:'12',hwCost:0,engHrs:6,instHrs:6,instr:['Supply/return air RTD','EC fan array','Chilled-water valve'],note:'Chilled-water room air handler, EC fan wall.'}),
+crac:         T({label:'CRAC (DX) Unit',short:'AC',icon:'crac',system:'cooling',di:9,do:5,ai:8,ao:2,volts:480,phase:3,kw:30,fla:38,nema:'12',hwCost:0,engHrs:6,instHrs:6,instr:['Compressor status','Humidifier','Air temp/RH'],note:'Direct-expansion computer-room A/C.'}),
+inrow:        T({label:'In-Row Cooler',short:'IR',icon:'crac',system:'cooling',di:6,do:3,ai:8,ao:2,volts:208,phase:1,kw:8,fla:38,drive:'EC',nema:'12',hwCost:0,engHrs:4,instHrs:4,instr:['Inlet/outlet RTD','EC fan'],note:'Close-coupled in-row cooling module.'}),
+chw_pump:     T({label:'CHW Pump (VFD)',short:'P',icon:'pump',system:'cooling',di:5,do:2,ai:4,ao:1,volts:480,phase:3,kw:75,fla:96,drive:'VFD',nema:'12',hwCost:0,engHrs:4,instHrs:5,instr:['Differential pressure Tx','Motor RTD'],note:'Variable-primary chilled-water pump.'}),
+humidifier:   T({label:'Humidifier',short:'HUM',icon:'gauge',system:'cooling',di:4,do:2,ai:4,ao:1,volts:480,phase:3,kw:40,fla:51,nema:'2',hwCost:0,engHrs:3,instHrs:3,instr:['Steam demand','Conductivity'],note:'Electrode/steam humidifier for the data hall.'}),
+leak_det:     T({label:'Leak Detection',short:'LD',icon:'gauge',system:'cooling',di:16,do:2,ai:0,ao:0,volts:120,phase:1,kw:0,nema:'2',hwCost:0,engHrs:4,instHrs:6,instr:['Zone leak cable','Point sensors'],note:'Distributed water-leak sensing cable & zone panel.'}),
+/* ── COMPUTE / LOAD ── */
+server_hall:  T({label:'Server Hall',short:'MD',icon:'server',system:'compute',di:24,do:12,ai:20,ao:4,volts:415,phase:3,kw:2000,fla:2782,nema:'12',hwCost:0,engHrs:18,instHrs:14,instr:['Rack inlet RTD grid','Differential pressure','Aisle containment'],note:'White-space data hall — environmental & branch power.'}),
+it_pod:       T({label:'IT Pod / Pod-PDU',short:'POD',icon:'serverstack',system:'compute',di:8,do:4,ai:16,ao:0,volts:415,phase:3,kw:500,fla:695,nema:'12',hwCost:0,engHrs:6,instHrs:5,instr:['Busway tap meter','Rack RTD'],note:'Containment pod with busway branch metering.'}),
+/* ── NETWORK ── */
+core_switch:  T({label:'Core Switch',short:'CS',icon:'switch',system:'network',di:2,do:0,ai:2,ao:0,volts:120,phase:1,kw:0.6,fla:5,nema:'1',hwCost:14000,engHrs:6,instHrs:4,instr:['Redundant SUP','SFP+ optics'],note:'Aggregation core, redundant supervisors.'}),
+edge_switch:  T({label:'Edge/Access Switch',short:'ES',icon:'switch',system:'network',di:2,do:0,ai:2,ao:0,volts:120,phase:1,kw:0.3,fla:2.5,nema:'12',hwCost:3200,engHrs:2,instHrs:2,instr:['Managed L2/L3'],note:'Ring/star access switch for field drops.'}),
+firewall:     T({label:'OT Firewall',short:'FW',icon:'firewall',system:'network',di:2,do:0,ai:0,ao:0,volts:120,phase:1,kw:0.4,fla:3.3,nema:'1',hwCost:9000,engHrs:8,instHrs:3,instr:['IDMZ ruleset'],note:'IT/OT boundary firewall (Purdue L3.5 IDMZ).'}),
+opc_gw:       T({label:'OPC-UA Gateway',short:'GW',icon:'gateway',system:'network',di:0,do:0,ai:0,ao:0,volts:120,phase:1,kw:0.2,fla:1.7,nema:'1',hwCost:6500,engHrs:10,instHrs:3,instr:['Protocol converter'],note:'Southbound driver/protocol aggregation gateway.'}),
+/* ── CONTROL ── */
+plc_panel:    T({label:'Main Control Panel',short:'MCP',icon:'plc',system:'control',di:0,do:0,ai:0,ao:0,volts:120,phase:1,kw:1.2,fla:10,redundant:true,nema:'12',hwCost:0,engHrs:40,instHrs:16,instr:['Redundant CPU','Managed power','Surge/UPS'],note:'Redundant PAC/DCS controller, chassis & power.'}),
+rio_panel:    T({label:'Remote I/O Panel',short:'RIO',icon:'panel',system:'control',di:0,do:0,ai:0,ao:0,volts:120,phase:1,kw:0.5,fla:4,nema:'4X',hwCost:0,engHrs:14,instHrs:10,instr:['Comm adapter','Marshalling'],note:'Field marshalling / remote I/O drop.'}),
+hmi_station:  T({label:'HMI Station',short:'HMI',icon:'hmi',system:'control',di:0,do:0,ai:0,ao:0,volts:120,phase:1,kw:0.3,fla:2.5,nema:'12',hwCost:5200,engHrs:16,instHrs:4,instr:['Industrial PC','24in panel'],note:'Operator workstation / thick client.'}),
+scada_srv:    T({label:'SCADA Server',short:'SVR',icon:'serverstack',system:'control',di:0,do:0,ai:0,ao:0,volts:208,phase:1,kw:0.8,fla:6.7,redundant:true,nema:'1',hwCost:16000,engHrs:40,instHrs:6,instr:['Redundant server pair','Virtualization host'],note:'Redundant SCADA application/data server pair.'}),
+historian:    T({label:'Historian Server',short:'HIST',icon:'serverstack',system:'control',di:0,do:0,ai:0,ao:0,volts:208,phase:1,kw:0.7,fla:5.8,nema:'1',hwCost:12000,engHrs:24,instHrs:5,instr:['RAID storage array'],note:'Time-series historian with RAID storage.'}),
+/* ── SAFETY ── */
+facp:         T({label:'Fire Alarm Panel',short:'FA',icon:'fire',system:'safety',di:24,do:12,ai:0,ao:0,volts:120,phase:1,kw:0,nema:'1',hwCost:9500,engHrs:16,instHrs:20,instr:['Addressable loop cards','NAC circuits'],note:'Addressable fire alarm control panel, NFPA-72.'}),
+vesda:        T({label:'VESDA / Aspirating',short:'VSD',icon:'smoke',system:'safety',di:8,do:4,ai:4,ao:0,volts:24,phase:1,kw:0,nema:'2',hwCost:6800,engHrs:6,instHrs:10,instr:['Aspirating detector','Sampling pipe'],note:'Very-early smoke detection for the data hall.'}),
+gas_det:      T({label:'Gas / F&G System',short:'FG',icon:'gas',system:'safety',di:12,do:6,ai:12,ao:0,volts:24,phase:1,kw:0,nema:'4X',hwCost:0,engHrs:8,instHrs:12,instr:['IR/catalytic detectors','Beacon/horn'],note:'Combustible/toxic gas & flame detection.'}),
+sis:          T({label:'Safety PLC (SIS)',short:'SIS',icon:'sis',system:'safety',di:0,do:0,ai:0,ao:0,volts:120,phase:1,kw:0.6,fla:5,redundant:true,nema:'12',hwCost:0,engHrs:48,instHrs:14,instr:['SIL-rated logic solver','1oo2 I/O'],note:'IEC-61511 safety instrumented system, SIL-rated.'}),
+/* ── PROCESS (multi-vertical) ── */
+pump_vfd:     T({label:'Pump / VFD',short:'P',icon:'pump',system:'process',di:5,do:2,ai:4,ao:1,volts:480,phase:3,kw:37,fla:52,drive:'VFD',nema:'4X',hwCost:0,engHrs:3,instHrs:4,instr:['Suction/discharge Tx','Motor RTD'],note:'Variable-frequency-driven process pump.'}),
+valve_ctrl:   T({label:'Control Valve',short:'V',icon:'valve',system:'process',di:2,do:0,ai:1,ao:1,volts:24,phase:1,kw:0,nema:'4X',hwCost:0,engHrs:2,instHrs:2,instr:['Positioner (HART)','Limit switches'],note:'Modulating control valve — 1 AO ctrl, 1 AI feedback, 2 DI limits (spec example).'}),
+valve_onoff:  T({label:'On/Off Valve',short:'XV',icon:'valve',system:'process',di:2,do:1,ai:0,ao:0,volts:24,phase:1,kw:0,nema:'4X',hwCost:0,engHrs:1,instHrs:2,instr:['Solenoid','Open/close limits'],note:'On/off block/isolation valve.'}),
+tank:         T({label:'Tank / Vessel',short:'TK',icon:'tank',system:'process',di:3,do:0,ai:3,ao:0,volts:24,phase:1,kw:0,nema:'4X',hwCost:0,engHrs:2,instHrs:3,instr:['Radar level','Temp RTD','Hi/Lo switch'],note:'Storage tank/vessel with level & temperature.'}),
+flow_meter:   T({label:'Flow Meter',short:'FT',icon:'flow',system:'process',di:1,do:0,ai:1,ao:0,volts:24,phase:1,kw:0,nema:'4X',hwCost:0,engHrs:1,instHrs:2,instr:['Mag/Coriolis meter'],note:'Inline flow transmitter (HART).'}),
+compressor:   T({label:'Air Compressor',short:'CMP',icon:'compressor',system:'process',di:6,do:3,ai:6,ao:1,volts:480,phase:3,kw:110,fla:141,drive:'VFD',nema:'12',hwCost:0,engHrs:4,instHrs:5,instr:['Discharge P/T','Dew-point'],note:'Rotary-screw compressor package.'}),
+conveyor:     T({label:'Conveyor',short:'CV',icon:'conveyor',system:'process',di:6,do:3,ai:2,ao:1,volts:480,phase:3,kw:15,fla:21,drive:'VFD',nema:'4X',hwCost:0,engHrs:3,instHrs:4,instr:['Speed encoder','Belt pull-cord'],note:'Belt conveyor with run/fault & speed feedback.'}),
+/* ── WATER / WASTEWATER TREATMENT ── */
+raw_intake:   T({label:'Raw Water Intake',short:'RWI',icon:'intake',system:'process',di:10,do:5,ai:8,ao:2,volts:480,phase:3,kw:185,fla:236,drive:'VFD',nema:'4X',hwCost:0,engHrs:12,instHrs:14,instr:['Traveling screen','Intake level radar','Raw water turbidity'],note:'River/reservoir intake — traveling screens & vertical turbine intake pumps.'}),
+bar_screen:   T({label:'Bar/Fine Screen',short:'SCR',icon:'screen',system:'process',di:8,do:4,ai:3,ao:0,volts:480,phase:3,kw:11,fla:16,nema:'4X',hwCost:0,engHrs:4,instHrs:6,instr:['Differential level','Rake drive'],note:'Mechanical bar/fine screening with differential-level-driven rake cycles.'}),
+grit:         T({label:'Grit Removal',short:'GRT',icon:'clarifier',system:'process',di:6,do:3,ai:3,ao:1,volts:480,phase:3,kw:15,fla:21,nema:'4X',hwCost:0,engHrs:4,instHrs:5,instr:['Grit pump','Classifier'],note:'Vortex/aerated grit removal & washing.'}),
+rapid_mix:    T({label:'Rapid Mix / Coag',short:'RMX',icon:'mixer',system:'process',di:5,do:3,ai:4,ao:1,volts:480,phase:3,kw:30,fla:40,nema:'4X',hwCost:0,engHrs:4,instHrs:5,instr:['Flash mixer','Streaming-current detector'],note:'Rapid-mix flash mixing for coagulant dispersion (jar-test-tuned dose).'}),
+floccul:      T({label:'Flocculation Basin',short:'FLC',icon:'mixer',system:'process',di:8,do:4,ai:5,ao:3,volts:480,phase:3,kw:9,fla:13,drive:'VFD',nema:'4X',hwCost:0,engHrs:6,instHrs:7,instr:['Tapered paddle drives','Basin temp'],note:'Multi-stage tapered flocculation — variable paddle-wheel G-value control.'}),
+clarifier:    T({label:'Sed. Clarifier',short:'CLR',icon:'clarifier',system:'process',di:10,do:5,ai:6,ao:2,volts:480,phase:3,kw:5,fla:8,nema:'4X',hwCost:0,engHrs:6,instHrs:8,instr:['Sludge collector drive','Blanket-level probe','Settled turbidity'],note:'Sedimentation basins — sludge-collector torque & blanket-level management.'}),
+filter_bed:   T({label:'Media Filter Bank',short:'FLT',icon:'filterbed',system:'process',di:16,do:12,ai:12,ao:4,volts:120,phase:1,kw:0,nema:'4X',hwCost:0,engHrs:10,instHrs:12,instr:['Effluent turbidity','Head-loss Tx','Butterfly valves'],note:'Gravity dual-media filters — head-loss/turbidity-triggered backwash sequencing.'}),
+membrane:     T({label:'Membrane Skid (UF/RO)',short:'MEM',icon:'membrane',system:'process',di:20,do:12,ai:20,ao:4,volts:480,phase:3,kw:110,fla:141,drive:'VFD',nema:'4X',hwCost:0,engHrs:16,instHrs:16,instr:['Feed/permeate pressure','TMP','Conductivity'],note:'Ultrafiltration / RO skid — trans-membrane-pressure & CIP sequencing.'}),
+uv_dis:       T({label:'UV Disinfection',short:'UVD',icon:'uv',system:'process',di:10,do:5,ai:10,ao:2,volts:480,phase:3,kw:80,fla:96,nema:'4X',hwCost:0,engHrs:8,instHrs:8,instr:['UV intensity sensor','Lamp status','UVT analyzer'],note:'Medium-pressure UV reactors — dose-pacing on flow × UVT (validated per USEPA UVDGM).'}),
+clearwell:    T({label:'Clearwell Storage',short:'CW',icon:'tank',system:'process',di:5,do:1,ai:5,ao:0,volts:24,phase:1,kw:0,nema:'4X',hwCost:0,engHrs:3,instHrs:4,instr:['Level radar','Cl2 residual','Overflow switch'],note:'Finished-water clearwell providing CT contact time & pump wet-well.'}),
+hsp:          T({label:'High-Service Pumps',short:'HSP',icon:'pump',system:'process',di:8,do:4,ai:8,ao:3,volts:480,phase:3,kw:300,fla:361,drive:'VFD',nema:'4X',hwCost:0,engHrs:8,instHrs:10,instr:['Discharge pressure','Surge anticipator','Motor RTD'],note:'Distribution high-service pumps — VFD pressure/flow control to system curve.'}),
+backwash:     T({label:'Backwash System',short:'BW',icon:'pump',system:'process',di:8,do:5,ai:5,ao:2,volts:480,phase:3,kw:110,fla:141,drive:'VFD',nema:'4X',hwCost:0,engHrs:6,instHrs:7,instr:['Backwash flow','Air-scour blower'],note:'Air-scour + backwash pumping with rate-of-rise control.'}),
+aeration_blr: T({label:'Aeration Blower',short:'ABL',icon:'blower',system:'process',di:8,do:4,ai:8,ao:3,volts:480,phase:3,kw:220,fla:265,drive:'VFD',nema:'12',hwCost:0,engHrs:8,instHrs:9,instr:['DO probes','Discharge pressure','Surge control'],note:'Turbo/PD aeration blowers — most-open-valve DO control for the bioreactor.'}),
+ras_pump:     T({label:'RAS/WAS Pumps',short:'RAS',icon:'pump',system:'process',di:6,do:3,ai:5,ao:2,volts:480,phase:3,kw:55,fla:71,drive:'VFD',nema:'4X',hwCost:0,engHrs:5,instHrs:6,instr:['Sludge density','Flow'],note:'Return/waste activated-sludge pumping tied to SRT control.'}),
+belt_press:   T({label:'Dewatering Press',short:'DWP',icon:'press',system:'process',di:12,do:8,ai:8,ao:3,volts:480,phase:3,kw:22,fla:28,drive:'VFD',nema:'12',hwCost:0,engHrs:6,instHrs:7,instr:['Belt tracking','Wash-water pressure','Cake solids'],note:'Belt filter press / centrifuge dewatering with polymer conditioning.'}),
+lift_station: T({label:'Lift Station',short:'LS',icon:'lift',system:'process',di:10,do:5,ai:8,ao:2,volts:480,phase:3,kw:45,fla:59,drive:'VFD',nema:'6P',hwCost:0,engHrs:6,instHrs:8,instr:['Wet-well level','Float backup','H2S monitor'],note:'Submersible lift station — level-follow duty/standby with flush cycles.'}),
+/* ── CHEMICAL FEED / DOSING ── */
+chem_cl2:     T({label:'Chlorination (Cl₂)',short:'CL2',icon:'chem',system:'chemical',di:12,do:5,ai:8,ao:2,volts:120,phase:1,kw:2,nema:'4X',hwCost:0,engHrs:8,instHrs:10,instr:['Gas feed / vacuum reg','Ton-cylinder scale','Cl₂ leak detector'],note:'Gas chlorination — flow-paced + residual-trim; Cl₂ leak detection cross-wired to SIS.'}),
+chem_alum:    T({label:'Coagulant Feed',short:'ALM',icon:'chem',system:'chemical',di:8,do:4,ai:6,ao:3,volts:120,phase:1,kw:3,nema:'4X',hwCost:0,engHrs:5,instHrs:6,instr:['Metering pumps','Day-tank level','Calibration column'],note:'Alum/ferric coagulant metering — flow-paced with streaming-current feedback.'}),
+chem_poly:    T({label:'Polymer Feed',short:'POL',icon:'chem',system:'chemical',di:6,do:3,ai:5,ao:2,volts:120,phase:1,kw:2,nema:'4X',hwCost:0,engHrs:4,instHrs:5,instr:['Make-down unit','Aging tank'],note:'Emulsion/dry polymer make-down & aging for flocculation/dewatering.'}),
+chem_ph:      T({label:'pH / Caustic Feed',short:'PH',icon:'chem',system:'chemical',di:6,do:3,ai:6,ao:2,volts:120,phase:1,kw:2,nema:'4X',hwCost:0,engHrs:4,instHrs:5,instr:['pH analyzers','Metering pumps'],note:'Caustic/lime or CO₂ pH & alkalinity trim (corrosion control, LSI).'}),
+chem_fl:      T({label:'Fluoride Feed',short:'FL',icon:'chem',system:'chemical',di:5,do:2,ai:4,ao:1,volts:120,phase:1,kw:1,nema:'4X',hwCost:0,engHrs:3,instHrs:4,instr:['Saturator','Loss-of-weight scale'],note:'Fluoridation loss-of-weight metering with overfeed lockout.'}),
+analyzer_pnl: T({label:'Analyzer Panel',short:'AN',icon:'analyzer',system:'chemical',di:6,do:2,ai:20,ao:0,volts:120,phase:1,kw:0.4,nema:'12',hwCost:6500,engHrs:6,instHrs:6,instr:['Turbidimeters','Cl₂ analyzers','pH/ORP','Streaming current'],note:'Consolidated water-quality analyzer rack (turbidity, Cl₂, pH/ORP, particle count).'}),
+/* ── THEME PARK / ENTERTAINMENT ── */
+ride_coaster: T({label:'Coaster Ride Control',short:'RC',icon:'coaster',system:'show',di:48,do:28,ai:18,ao:6,volts:480,phase:3,kw:600,fla:722,drive:'VFD',redundant:true,nema:'4X',hwCost:0,engHrs:60,instHrs:36,instr:['Block-zone proximity','LSM/lift drives','Restraint sensors'],note:'Multi-train block-zone coaster control — dispatch interlocks, LSM launch & restraint monitoring (ASTM F24).'}),
+dark_ride:    T({label:'Dark Ride Control',short:'DR',icon:'ride',system:'show',di:36,do:24,ai:14,ao:8,volts:480,phase:3,kw:180,fla:231,drive:'VFD',nema:'12',hwCost:0,engHrs:44,instHrs:26,instr:['Vehicle position (RFID)','Scene triggers','Turntables'],note:'Trackless/omnimover ride — vehicle-position show synchronization & scene triggering.'}),
+ride_estop:   T({label:'Ride Safety (E-Stop)',short:'RES',icon:'sis',system:'safety',di:28,do:14,ai:0,ao:0,volts:120,phase:1,kw:0.6,redundant:true,nema:'4X',hwCost:0,engHrs:40,instHrs:16,instr:['SIL-3 safety relays','Zone E-stops','Gate interlocks'],note:'Dedicated SIL-rated ride safety system — zone e-stops, restraint & gate interlocks, independent of ride PLC (ASTM F24 / IEC 62061).'}),
+show_ctl:     T({label:'Show / AV Control',short:'SHW',icon:'showctl',system:'show',di:10,do:8,ai:4,ao:10,volts:120,phase:1,kw:3,nema:'12',hwCost:8500,engHrs:24,instHrs:10,instr:['SMPTE timecode','Media servers','Audio DSP'],note:'Timecode-locked show controller sequencing AV, lighting, effects & animation.'}),
+lighting_dmx: T({label:'Theatrical Lighting',short:'DMX',icon:'light',system:'show',di:6,do:4,ai:2,ao:16,volts:208,phase:3,kw:48,fla:133,nema:'12',hwCost:0,engHrs:12,instHrs:12,instr:['DMX/sACN universes','Dimmer racks'],note:'Architectural/theatrical lighting — multi-universe DMX512/sACN dimming & fixtures.'}),
+animatronics: T({label:'Animatronics',short:'ANI',icon:'robot',system:'show',di:14,do:10,ai:12,ao:28,volts:208,phase:3,kw:24,fla:67,nema:'12',hwCost:0,engHrs:32,instHrs:16,instr:['Hydraulic/servo axes','Position encoders','Valve manifolds'],note:'Multi-axis hydraulic/electric figure animation — motion-profile playback synced to show timecode.'}),
+effects_pyro: T({label:'Effects / Pyro Control',short:'FX',icon:'spark',system:'safety',di:18,do:14,ai:6,ao:2,volts:120,phase:1,kw:5,redundant:true,nema:'4X',hwCost:0,engHrs:20,instHrs:14,instr:['Fire/flame arming','Fog/CO₂','Interlock keys'],note:'Special-effects & pyrotechnic firing — armed-key interlocks, flame/fog with life-safety cross-zoning (NFPA 160).'}),
+fountain:     T({label:'Fountain / Water Show',short:'FTN',icon:'fountain',system:'show',di:10,do:8,ai:8,ao:12,volts:480,phase:3,kw:90,fla:114,drive:'VFD',nema:'6P',hwCost:0,engHrs:16,instHrs:14,instr:['Nozzle VFDs','Basin level','Wind sensor'],note:'Choreographed fountain — VFD nozzle/pump arrays & lighting on show timecode, wind-speed shed.'}),
+water_park:   T({label:'Water Park Filtration',short:'WP',icon:'pool',system:'process',di:18,do:12,ai:16,ao:6,volts:480,phase:3,kw:220,fla:265,drive:'VFD',nema:'6P',hwCost:0,engHrs:14,instHrs:16,instr:['Chlorine/pH controllers','Flow','Filter DP'],note:'Wave-pool / lazy-river filtration & recirculation — CAT chemical control (chlorine/pH) & turnover pumping.'}),
+pool_filter:  T({label:'Pool Filtration Skid',short:'PF',icon:'pool',system:'process',di:8,do:5,ai:8,ao:3,volts:480,phase:3,kw:45,fla:59,drive:'VFD',nema:'6P',hwCost:0,engHrs:6,instHrs:7,instr:['ORP/pH probes','Filter DP'],note:'Attraction pool/lagoon filtration skid with ORP-based chemical dosing.'}),
+access_ctrl:  T({label:'Access / Turnstiles',short:'ACC',icon:'gate',system:'network',di:14,do:10,ai:0,ao:0,volts:120,phase:1,kw:1.2,nema:'12',hwCost:7200,engHrs:8,instHrs:10,instr:['Turnstile controllers','Ticket scanners'],note:'Guest entry — turnstile/scanner controllers integrated to ticketing & capacity counts.'}),
+queue_mgmt:   T({label:'Queue Management',short:'Q',icon:'gate',system:'network',di:8,do:5,ai:6,ao:0,volts:120,phase:1,kw:0.8,nema:'12',hwCost:5400,engHrs:6,instHrs:6,instr:['Virtual-queue kiosks','Wait-time sensors'],note:'Virtual-queue / wait-time monitoring feeding guest apps & ops dashboards.'}),
+};
+
+/* card packing */
+function cardsFor(io){return{di:Math.ceil(withSpare(io.di)/16),do:Math.ceil(withSpare(io.do)/16),ai:Math.ceil(withSpare(io.ai)/8),ao:Math.ceil(withSpare(io.ao)/8)};}
+const ioTotal=io=>io.di+io.do+io.ai+io.ao;
+const nodeCards=n=>{const c=cardsFor(n.io);return c.di+c.do+c.ai+c.ao;};
+
+/* ═══════════ POINT-LEVEL I/O GENERATION ═══════════════════════════ */
+const POOL={
+ di:['Run Status','Fault Alarm','Remote/Auto Mode','High-High Level','Low Level Switch','E-Stop Status','Phase Loss','Ready to Start','Filter DP Switch','Vibration Trip','Breaker Closed','Aux Contact','Local/Off/Remote','Overtemp Trip','Flow Proven'],
+ do:['Start Command','Stop Command','Fault Reset','Alarm Horn','Trip Command','Enable Output','Beacon/Strobe','Bypass Command','Open Command','Close Command'],
+ ai:['Discharge Temp','Suction Pressure','Flow Rate','Level','Motor Current','Bus Voltage','Speed Feedback','Differential Pressure','Return Air Temp','Supply Air Temp','Humidity','Power (kW)','Bearing Temp','Valve Position Fb'],
+ ao:['Speed Reference','Valve Position Cmd','Damper Position','Setpoint Output','VFD Frequency Cmd'],
+};
+function sigMeta(sig,desc,onPower){
+  const d=desc.toLowerCase();
+  if(sig==='di')return{type:'24VDC DI',range:'Discrete',eu:'—',alarm:/trip|fault|e-stop|high|low|loss|overtemp/.test(d)?'Alarm':'Status'};
+  if(sig==='do')return{type:/trip|alarm|beacon|horn/.test(d)?'Relay DO':'24VDC DO',range:'Discrete',eu:'—',alarm:'—'};
+  if(sig==='ao')return{type:'4–20mA AO',range:'0–100',eu:'%',alarm:'—'};
+  // ai
+  let range='0–100',eu='%',type='4–20mA AI';
+  if(/temp/.test(d)){range='32–150';eu='°F';type='RTD Pt100';}
+  else if(/pressure|dp|differential/.test(d)){range='0–150';eu='psi';type='4–20mA HART';}
+  else if(/flow/.test(d)){range='0–500';eu='gpm';type='4–20mA HART';}
+  else if(/level/.test(d)){range='0–100';eu='%';type='4–20mA HART';}
+  else if(/current/.test(d)){range='0–2000';eu='A';type='Modbus';}
+  else if(/voltage/.test(d)){range='0–600';eu='V';type='Modbus';}
+  else if(/power|kw/.test(d)){range='0–2500';eu='kW';type='Modbus';}
+  else if(/humid/.test(d)){range='0–100';eu='%RH';type='4–20mA';}
+  else if(/speed|position/.test(d)){range='0–100';eu='%';type='4–20mA';}
+  const alarm=/temp|pressure|level|current/.test(d)?(desc.charCodeAt(0)%2?'H / HH':'L / LL'):'—';
+  return{type,range,eu,alarm};
+}
+function genPoints(node){
+  const io=node.io, out=[], T=TYPES[node.type], onPower=T.system==='power';
+  const pool=s=>(T.pts&&T.pts[s])||POOL[s];
+  // rack/slot/channel address packing
+  const rackTag=node.tag;
+  const seq={di:0,do:0,ai:0,ao:0};
+  const cardCap={di:16,do:16,ai:8,ao:8};
+  const push=(sig,i)=>{
+    const p=pool(sig), desc=p[i%p.length], m=sigMeta(sig,desc,onPower);
+    const slot=Math.floor(i/cardCap[sig]), ch=i%cardCap[sig];
+    out.push({tag:`${node.tag}_${sig.toUpperCase()}${String(i+1).padStart(3,'0')}`,
+      desc:`${node.name} — ${desc}`, system:T.system, sig:m.type, range:m.range, eu:m.eu, alarm:m.alarm,
+      addr:`${rackTag}:${sig.toUpperCase()[0]}${slot+1}:${String(ch).padStart(2,'0')}`, node:node.tag});
+  };
+  for(let i=0;i<io.di;i++)push('di',i);
+  for(let i=0;i<io.do;i++)push('do',i);
+  for(let i=0;i<io.ai;i++)push('ai',i);
+  for(let i=0;i<io.ao;i++)push('ao',i);
+  return out;
+}
+
+/* ═══════════ ELECTRICAL MODEL ═════════════════════════════════════ */
+const STD_BKR=[15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400,450,500,600,700,800,1000,1200,1600,2000,2500,3000,4000];
+const AMPACITY=[[15,'#14'],[20,'#12'],[30,'#10'],[40,'#8'],[55,'#6'],[70,'#4'],[85,'#3'],[95,'#2'],[110,'#1'],[125,'1/0'],[145,'2/0'],[165,'3/0'],[195,'4/0'],[215,'250'],[240,'300'],[260,'350'],[280,'400'],[320,'500'],[380,'600'],[420,'750'],[475,'2×250'],[560,'2×350'],[640,'2×500'],[760,'2×750'],[1200,'4×600']];
+function breakerFor(fla){const t=fla*1.25;return STD_BKR.find(b=>b>=t)||4000;}
+function conductorFor(amp){const r=AMPACITY.find(x=>x[0]>=amp);return r?r[1]+' Cu':'busway';}
+function flaOf(n){const T=TYPES[n.type];if(T.fla)return Math.round(T.fla*(n.qty||1));
+  if(T.kw&&T.volts){const f=T.phase===3?T.kw*1000/(1.732*T.volts*0.9):T.kw*1000/(T.volts*0.9);return Math.round(f*(n.qty||1));}return 0;}
+function elecOf(n){const T=TYPES[n.type];const fla=flaOf(n);const bkr=fla?breakerFor(fla):0;
+  return{volts:T.volts,phase:T.phase,kw:Math.round(T.kw*(n.qty||1)),fla,drive:T.drive,breaker:bkr,feeder:fla?conductorFor(bkr):'—'};}
+
+/* ═══════════ PROJECT STATE ════════════════════════════════════════ */
+const RATES={eng:145,elec:98,prog:82,commission:46,markup:0.15,contingency:0.10,freight:0.03,tax:0.07};
+const CARDCOST={di:640,do:690,ai:1080,ao:1240,comm:1450,cpu:9600,chassis:1750,psu:820};
+const state={
+  project:{name:'',vertical:'',footprint:'',redundancy:'Dual-Hot Standby',network:'Ring',hazardous:'General Purpose',service:'13.8kV → 480V'},
+  rates:{...RATES},
+  nodes:[],links:[],
+  sel:null,drill:null,dens:'basic',vendor:'generic',dock:'io',dockSort:null,dockDir:1,dockFilter:'',
+  sysOff:new Set(),tree:'arch',audit:[],
+};
+let undoStack=[],redoStack=[];
+const snapshot=()=>JSON.stringify({project:state.project,rates:state.rates,nodes:state.nodes,links:state.links});
+function pushUndo(){undoStack.push(snapshot());if(undoStack.length>60)undoStack.shift();redoStack.length=0;refreshUndo();}
+function restore(s){const d=JSON.parse(s);Object.assign(state,{project:d.project,rates:d.rates,nodes:d.nodes,links:d.links});
+  if(state.sel&&!state.nodes.find(n=>n.id===state.sel))state.sel=null;renderAll();}
+function refreshUndo(){$('#btnUndo').disabled=!undoStack.length;$('#btnRedo').disabled=!redoStack.length;}
+function logAudit(a,k='add'){const ts=new Date();state.audit.unshift({t:ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),a,k});if(state.audit.length>250)state.audit.pop();}
+const selNode=()=>state.nodes.find(n=>n.id===state.sel)||null;
+
+/* ═══════════ SEED (greenfield data center) ═══════════════════════ */
+function seed(){
+  const P=state.project;
+  Object.assign(P,{name:'GREENFIELD HYPERSCALE DC — PHASE 1',vertical:'Data Center / Mission Critical',footprint:'220,000 sq ft',
+    redundancy:'Dual-Hot Standby',network:'Ring',hazardous:'General Purpose',service:'13.8kV → 480V'});
+  const mk=(type,name,tag,x,y,qty=1)=>({id:uid(),type,name,tag,nx:x,ny:y,qty,io:baseIO(type,qty),drill:false});
+  state.nodes=[
+    mk('utility_sub','UTILITY SUBSTATION','SUB-01',.50,.10),
+    mk('genset','GENSET FARM','GEN-01',.14,.20,3),
+    mk('ats','TRANSFER SWITCH','ATS-01',.32,.20),
+    mk('main_swgr','MAIN SWITCHGEAR','SWG-01',.50,.26),
+    mk('ups','UPS GALLERY','UPS-01',.68,.20,2),
+    mk('pdu','FLOOR PDU','PDU-01',.68,.40,4),
+    mk('chiller','CHILLER PLANT','CH-01',.14,.46,2),
+    mk('cooling_twr','COOLING TOWERS','CT-01',.14,.66,3),
+    mk('chw_pump','CHW PUMPS','P-01',.30,.56,4),
+    mk('server_hall','DATA HALL A','MD-01',.50,.52,1),
+    mk('crah','CRAH ROW A','AH-01',.36,.72,8),
+    mk('plc_panel','BMS CONTROLLER','MCP-01',.50,.72),
+    mk('core_switch','OT CORE SWITCH','CS-01',.68,.60,2),
+    mk('facp','FIRE ALARM PANEL','FA-01',.84,.52),
+    mk('vesda','VESDA ZONES','VSD-01',.84,.68,4),
+  ];
+  const id=t=>state.nodes.find(n=>n.tag===t).id;
+  const L=(a,b,s)=>state.links.push({a:id(a),b:id(b),layer:s});
+  state.links=[];
+  L('SUB-01','SWG-01','power');L('GEN-01','ATS-01','power');L('ATS-01','SWG-01','power');
+  L('SWG-01','UPS-01','power');L('UPS-01','PDU-01','power');L('PDU-01','MD-01','power');
+  L('SWG-01','CH-01','power');L('CH-01','CT-01','cooling');L('CH-01','P-01','cooling');
+  L('P-01','MD-01','cooling');
+  L('AH-01','MD-01','cooling');L('MCP-01','MD-01','control');L('MCP-01','CH-01','control');
+  L('MCP-01','AH-01','control');L('CS-01','MCP-01','network');L('CS-01','MD-01','network');
+  L('FA-01','MD-01','safety');L('VSD-01','MD-01','safety');
+  state.sel=id('MD-01');
+  logAudit('Project generated from intake — 15 nodes across 6 systems','add');
+}
+function baseIO(type,qty=1){const t=TYPES[type];return{di:t.di*qty,do:t.do*qty,ai:t.ai*qty,ao:t.ao*qty};}
+
+function sanitizeLinks(){state.links=state.links.filter(l=>l.a&&l.b&&state.nodes.some(n=>n.id===l.a)&&state.nodes.some(n=>n.id===l.b));}
+
+/* ═══════════ LARGE WORKED EXAMPLES (fully-specced templates) ══════
+   Each returns a complete project — realistic subsystem load-outs,
+   topology, per-node design notes and a design-basis narrative.       */
+const TPL={
+datacenter(){return{
+ project:{name:'HYPERSCALE DATA CENTER — 30MW PHASE 1',vertical:'Data Center / Mission Critical',footprint:'240,000 sq ft (2 halls)',redundancy:'Dual-Hot Standby',network:'Ring',hazardous:'General Purpose',service:'34.5kV → 480V',
+  description:'Concurrently-maintainable (Tier III) 30 MW IT load across two data halls. 2N UPS topology, N+1 chilled-water cooling with waterside economization, and a redundant EtherNet/IP BMS ring integrated to the DCIM. All estimates carry 20% spare I/O per ISA-95 and Uptime Institute concurrent-maintainability practice.'},
+ nodes:[
+  {t:'utility_sub',tag:'SUB-01',name:'UTILITY SUBSTATION',x:.5,y:.09,b:'34.5kV service with two independent utility feeders and SEL protective relaying; revenue metering at the point of common coupling.'},
+  {t:'genset',tag:'GEN-01',name:'GENSET PLANT',x:.13,y:.15,q:4,b:'4× 2.5MW diesel gensets in an N+1 standby block with paralleling switchgear and 72-hour on-site fuel; bumpless ATS transfer on utility loss.'},
+  {t:'ats',tag:'ATS-01',name:'TRANSFER SWITCH',x:.30,y:.15},
+  {t:'main_swgr',tag:'SWG-01',name:'MAIN SWITCHGEAR',x:.5,y:.21},
+  {t:'transformer',tag:'XFR-01',name:'DIST TRANSFORMERS',x:.69,y:.15,q:2},
+  {t:'ups',tag:'UPS-01',name:'UPS SYSTEM (2N)',x:.83,y:.21,q:2,b:'2N static double-conversion UPS with lithium-ion strings; BMS monitors rectifier/inverter/bypass and per-string cell health over SNMP + Modbus.'},
+  {t:'pdu',tag:'PDU-01',name:'FLOOR PDUs',x:.83,y:.37,q:6,b:'Branch-circuit-monitored floor PDUs feeding overhead busway; per-pole power telemetry rolls to DCIM for stranded-capacity analysis.'},
+  {t:'chiller',tag:'CH-01',name:'CHILLED-WATER PLANT',x:.13,y:.41,q:3,b:'N+1 variable-primary chilled-water plant with waterside economizer; staged on plant kW/ton against hall demand.'},
+  {t:'cooling_twr',tag:'CT-01',name:'COOLING TOWERS',x:.13,y:.61,q:4},
+  {t:'chw_pump',tag:'P-01',name:'CHW PUMPS',x:.28,y:.51,q:6},
+  {t:'server_hall',tag:'MD-01',name:'DATA HALL A',x:.5,y:.45,b:'15MW white space — cold-aisle containment, per-rack inlet RTD grid, differential-pressure control and under-floor leak detection.'},
+  {t:'server_hall',tag:'MD-02',name:'DATA HALL B',x:.5,y:.63},
+  {t:'crah',tag:'AH-01',name:'CRAH ROWS',x:.34,y:.71,q:12,b:'Chilled-water CRAHs with EC fan walls on differential-pressure reset; containment holds supply at set point.'},
+  {t:'it_pod',tag:'POD-01',name:'CONTAINMENT PODS',x:.66,y:.55,q:4},
+  {t:'plc_panel',tag:'MCP-01',name:'BMS CONTROLLER',x:.5,y:.81,b:'Redundant ControlLogix BMS pair on a device-level ring; owns cooling sequences, electrical status and alarm management per ISA-18.2.'},
+  {t:'scada_srv',tag:'SVR-01',name:'DCIM / SCADA SERVERS',x:.68,y:.75},
+  {t:'historian',tag:'HST-01',name:'HISTORIAN',x:.68,y:.87},
+  {t:'core_switch',tag:'CS-01',name:'OT CORE SWITCH',x:.85,y:.57,q:2,b:'Redundant OT aggregation core in a resilient ring, segmented from IT by the IDMZ firewall (Purdue L3.5).'},
+  {t:'firewall',tag:'FW-01',name:'IDMZ FIREWALL',x:.85,y:.71},
+  {t:'facp',tag:'FA-01',name:'FIRE ALARM PANEL',x:.94,y:.41,b:'Addressable FACP (NFPA-72) cross-zoned with VESDA for pre-action release; interlocks CRAH fans and dampers on alarm.'},
+  {t:'vesda',tag:'VSD-01',name:'VESDA ZONES',x:.94,y:.57,q:6},
+  {t:'gas_det',tag:'FG-01',name:'CLEAN-AGENT RELEASE',x:.94,y:.73},
+ ],
+ links:[['SUB-01','SWG-01','power'],['GEN-01','ATS-01','power'],['ATS-01','SWG-01','power'],['SWG-01','XFR-01','power'],
+  ['XFR-01','UPS-01','power'],['UPS-01','PDU-01','power'],['PDU-01','MD-01','power'],['PDU-01','MD-02','power'],['PDU-01','POD-01','power'],
+  ['SWG-01','CH-01','power'],['CH-01','CT-01','cooling'],['CH-01','P-01','cooling'],['P-01','MD-01','cooling'],['P-01','MD-02','cooling'],
+  ['AH-01','MD-01','cooling'],['AH-01','MD-02','cooling'],['MCP-01','MD-01','control'],['MCP-01','MD-02','control'],['MCP-01','CH-01','control'],
+  ['MCP-01','AH-01','control'],['MCP-01','SVR-01','control'],['SVR-01','HST-01','network'],['CS-01','MCP-01','network'],['CS-01','SVR-01','network'],
+  ['FW-01','CS-01','network'],['FA-01','MD-01','safety'],['VSD-01','MD-01','safety'],['FG-01','MD-02','safety']],
+}},
+water(){return{
+ project:{name:'SURFACE-WATER TREATMENT PLANT — 40 MGD',vertical:'Water / Wastewater',footprint:'26-acre site',redundancy:'Dual-Hot Standby',network:'Ring',hazardous:'Class I Div 2',service:'12.47kV → 480V',
+  description:'Conventional 40 MGD surface-water plant: coagulation / flocculation / sedimentation, dual-media filtration and UV + free-chlorine disinfection with clearwell CT, feeding high-service distribution pumping. Redundant PLC/RTU nodes on a fiber ring report to a redundant SCADA/historian pair. Chlorine-gas areas are Class I Div 2 with leak detection hard-wired to an independent emergency shutdown. AWWA / Ten-State-Standards design basis; 20% spare I/O per ISA-95.'},
+ nodes:[
+  {t:'raw_intake',tag:'RWI-01',name:'RAW WATER INTAKE',x:.08,y:.30,b:'Riverbank intake with traveling screens and vertical-turbine low-lift pumps; VFD flow-pacing to plant demand with raw turbidity/level trending.'},
+  {t:'bar_screen',tag:'SCR-01',name:'BAR SCREENS',x:.19,y:.17},
+  {t:'rapid_mix',tag:'RMX-01',name:'RAPID MIX',x:.19,y:.43,b:'Flash-mix coagulant dispersion; alum dose flow-paced and trimmed on a streaming-current detector for charge neutralization.'},
+  {t:'floccul',tag:'FLC-01',name:'FLOCCULATION',x:.31,y:.30,q:2,b:'Three-stage tapered flocculation with VFD paddle drives holding a declining G-value profile.'},
+  {t:'clarifier',tag:'CLR-01',name:'SEDIMENTATION',x:.43,y:.19,q:4,b:'Rectangular sedimentation basins; sludge-collector torque and blanket-level probes govern desludge cycles.'},
+  {t:'filter_bed',tag:'FLT-01',name:'MEDIA FILTERS',x:.55,y:.30,q:8,b:'Dual-media gravity filters; backwash triggered on head-loss or turbidity breakthrough, with filter-to-waste on restart.'},
+  {t:'backwash',tag:'BW-01',name:'BACKWASH SYSTEM',x:.55,y:.50},
+  {t:'uv_dis',tag:'UVD-01',name:'UV DISINFECTION',x:.67,y:.19,q:2,b:'Medium-pressure UV reactors dose-paced on flow × UVT and validated per USEPA UVDGM; low-dose alarm diverts to waste.'},
+  {t:'clearwell',tag:'CW-01',name:'CLEARWELL',x:.79,y:.30,b:'Baffled clearwell providing chlorine CT contact time and the high-service wet well; residual and level monitored.'},
+  {t:'hsp',tag:'HSP-01',name:'HIGH-SERVICE PUMPS',x:.92,y:.40,q:4,b:'VFD high-service pumps holding distribution pressure to the system curve, with surge anticipation and check monitoring.'},
+  {t:'chem_alum',tag:'ALM-01',name:'COAGULANT FEED',x:.14,y:.60},
+  {t:'chem_poly',tag:'POL-01',name:'POLYMER FEED',x:.25,y:.63},
+  {t:'chem_ph',tag:'PH-01',name:'pH / CORROSION',x:.37,y:.66,b:'Caustic / CO₂ pH & alkalinity trim for Lead-and-Copper-Rule corrosion control to a target LSI.'},
+  {t:'chem_fl',tag:'FL-01',name:'FLUORIDE FEED',x:.49,y:.62},
+  {t:'chem_cl2',tag:'CL2-01',name:'CHLORINATION',x:.67,y:.58,b:'Gas chlorination flow-paced with residual trim; Cl₂ leak detectors and cylinder scales cross-wired to an independent shutdown (Class I Div 2 area).'},
+  {t:'analyzer_pnl',tag:'AN-01',name:'ANALYZER RACK',x:.79,y:.58},
+  {t:'belt_press',tag:'DWP-01',name:'RESIDUALS / DEWATERING',x:.29,y:.80},
+  {t:'main_swgr',tag:'SWG-01',name:'MAIN SWITCHGEAR',x:.06,y:.72},
+  {t:'genset',tag:'GEN-01',name:'STANDBY GENSET',x:.06,y:.88,b:'Standby generator sized for full-plant black-start; ATS transfers disinfection and high-service pumping first.'},
+  {t:'plc_panel',tag:'MCP-01',name:'PLANT PLC',x:.60,y:.80,b:'Redundant plant PLC on a fiber ring; owns filtration, disinfection and pump sequencing with ISA-18.2 alarm management.'},
+  {t:'rio_panel',tag:'RIO-01',name:'REMOTE I/O DROPS',x:.47,y:.82,q:4},
+  {t:'scada_srv',tag:'SVR-01',name:'SCADA / HISTORIAN',x:.72,y:.82,b:'Redundant SCADA/historian pair with SDWA compliance reporting and multi-year trend retention.'},
+  {t:'core_switch',tag:'CS-01',name:'OT FIBER RING',x:.86,y:.73,q:2},
+  {t:'gas_det',tag:'FG-01',name:'Cl₂ LEAK / SAFETY',x:.86,y:.88,b:'Chlorine leak detection and scrubber interlock, hard-wired to the emergency shutdown independent of the SCADA PLC.'},
+ ],
+ links:[['RWI-01','SCR-01','process'],['SCR-01','RMX-01','process'],['RMX-01','FLC-01','process'],['FLC-01','CLR-01','process'],
+  ['CLR-01','FLT-01','process'],['FLT-01','UVD-01','process'],['UVD-01','CW-01','process'],['CW-01','HSP-01','process'],['BW-01','FLT-01','process'],
+  ['ALM-01','RMX-01','chemical'],['POL-01','FLC-01','chemical'],['PH-01','CW-01','chemical'],['FL-01','CW-01','chemical'],['CL2-01','CW-01','chemical'],['AN-01','MCP-01','chemical'],
+  ['CLR-01','DWP-01','process'],['SWG-01','RWI-01','power'],['SWG-01','HSP-01','power'],['GEN-01','SWG-01','power'],['SWG-01','MCP-01','power'],
+  ['MCP-01','FLT-01','control'],['MCP-01','UVD-01','control'],['MCP-01','HSP-01','control'],['MCP-01','RIO-01','control'],['MCP-01','SVR-01','control'],
+  ['CS-01','MCP-01','network'],['CS-01','SVR-01','network'],['CL2-01','FG-01','safety'],['FG-01','MCP-01','safety']],
+}},
+themepark(){return{
+ project:{name:'REGIONAL THEME PARK — CENTRAL CONTROLS',vertical:'Entertainment / Themed',footprint:'85-acre park',redundancy:'Dual-Hot Standby',network:'Ring',hazardous:'General Purpose',service:'13.8kV → 480V',
+  description:'Park-wide controls integrating ride motion, ride safety, show/AV, water attractions and central utilities. Each ride carries an independent SIL-rated safety system (ASTM F24) separate from its motion PLC; show elements are SMPTE-timecode-locked; central chilled water serves indoor attractions. A segmented OT ring links attraction controllers to a redundant central SCADA with a park-operations dashboard. 20% spare I/O per ISA-95.'},
+ nodes:[
+  {t:'utility_sub',tag:'SUB-01',name:'PARK SUBSTATION',x:.5,y:.09},
+  {t:'main_swgr',tag:'SWG-01',name:'MAIN SWITCHGEAR',x:.5,y:.20},
+  {t:'ats',tag:'ATS-01',name:'TRANSFER SWITCH',x:.32,y:.15},
+  {t:'genset',tag:'GEN-01',name:'LIFE-SAFETY GENSET',x:.15,y:.15,b:'Standby generation backing ride-evacuation, egress lighting and central SCADA; ATS transfers life-safety and ride-recovery loads first.'},
+  {t:'chiller',tag:'CH-01',name:'CENTRAL COOLING PLANT',x:.14,y:.40,q:2,b:'Central chilled-water plant serving indoor dark rides, theaters and F&B; sequenced on campus demand.'},
+  {t:'cooling_twr',tag:'CT-01',name:'COOLING TOWERS',x:.14,y:.58,q:2},
+  {t:'chw_pump',tag:'P-01',name:'CHW PUMPS',x:.28,y:.50,q:3},
+  {t:'ride_coaster',tag:'RC-01',name:'LAUNCH COASTER',x:.44,y:.33,b:'Multi-train block-zone coaster: LSM launch and lift drives on VFDs, dispatch interlocks and restraint/position monitoring per ASTM F24. Motion PLC is fully separate from the safety system.'},
+  {t:'ride_coaster',tag:'RC-02',name:'FAMILY COASTER',x:.44,y:.50},
+  {t:'dark_ride',tag:'DR-01',name:'TRACKLESS DARK RIDE',x:.58,y:.33,b:'Trackless vehicles with RFID position synchronizing scenes, turntables and show triggers to ride motion.'},
+  {t:'ride_estop',tag:'RES-01',name:'RIDE SAFETY (SIL)',x:.58,y:.50,b:'Independent SIL-3 ride safety system — zone e-stops, gate/restraint interlocks and safe-state outputs, wired separately from every ride motion PLC (ASTM F24 / IEC 62061).'},
+  {t:'show_ctl',tag:'SHW-01',name:'SHOW CONTROL',x:.72,y:.29,b:'SMPTE-timecode show controller sequencing audio, media servers, lighting, effects and animation across attractions.'},
+  {t:'lighting_dmx',tag:'DMX-01',name:'THEATRICAL LIGHTING',x:.72,y:.43},
+  {t:'animatronics',tag:'ANI-01',name:'ANIMATRONICS',x:.86,y:.29,b:'Multi-axis hydraulic/electric figure animation playing motion profiles locked to the show timecode.'},
+  {t:'effects_pyro',tag:'FX-01',name:'EFFECTS / PYRO',x:.86,y:.43,b:'Flame/fog/pyrotechnic firing with armed-key interlocks and life-safety cross-zoning per NFPA 160.'},
+  {t:'fountain',tag:'FTN-01',name:'WATER SHOW / FOUNTAIN',x:.30,y:.66,b:'Choreographed fountain — VFD nozzle arrays and lighting on show timecode, with a wind-speed shed.'},
+  {t:'water_park',tag:'WP-01',name:'WATER PARK FILTRATION',x:.44,y:.70,b:'Wave-pool and lazy-river recirculation with CAT chemical control (chlorine/pH); turnover pumping on VFDs.'},
+  {t:'pool_filter',tag:'PF-01',name:'LAGOON FILTRATION',x:.58,y:.70},
+  {t:'access_ctrl',tag:'ACC-01',name:'ACCESS / TURNSTILES',x:.72,y:.66,b:'Main-gate turnstiles and scanners integrated to ticketing and live capacity counting.'},
+  {t:'queue_mgmt',tag:'Q-01',name:'VIRTUAL QUEUE',x:.72,y:.80},
+  {t:'plc_panel',tag:'MCP-01',name:'PARK BMS CONTROLLER',x:.5,y:.82,b:'Central BMS/utility controller for cooling, water features and area systems; feeds the park-operations dashboard.'},
+  {t:'scada_srv',tag:'SVR-01',name:'CENTRAL SCADA',x:.64,y:.86,b:'Redundant park SCADA & operations dashboard aggregating ride status, wait times, utilities and safety states.'},
+  {t:'core_switch',tag:'CS-01',name:'OT NETWORK RING',x:.86,y:.60,q:2},
+  {t:'firewall',tag:'FW-01',name:'IT/OT FIREWALL',x:.86,y:.74},
+  {t:'facp',tag:'FA-01',name:'FIRE ALARM',x:.94,y:.44},
+ ],
+ links:[['SUB-01','SWG-01','power'],['GEN-01','ATS-01','power'],['ATS-01','SWG-01','power'],['SWG-01','CH-01','power'],
+  ['SWG-01','RC-01','power'],['SWG-01','RC-02','power'],['SWG-01','DR-01','power'],['SWG-01','WP-01','power'],
+  ['CH-01','CT-01','cooling'],['CH-01','P-01','cooling'],['P-01','DR-01','cooling'],
+  ['RES-01','RC-01','safety'],['RES-01','RC-02','safety'],['RES-01','DR-01','safety'],
+  ['SHW-01','DR-01','show'],['SHW-01','DMX-01','show'],['SHW-01','ANI-01','show'],['SHW-01','FX-01','show'],['SHW-01','FTN-01','show'],
+  ['WP-01','PF-01','process'],['MCP-01','CH-01','control'],['MCP-01','FTN-01','control'],['MCP-01','WP-01','control'],['MCP-01','SVR-01','control'],
+  ['CS-01','MCP-01','network'],['CS-01','SVR-01','network'],['CS-01','RC-01','network'],['CS-01','DR-01','network'],['CS-01','SHW-01','network'],
+  ['CS-01','ACC-01','network'],['CS-01','Q-01','network'],['FW-01','CS-01','network'],['FA-01','SVR-01','safety']],
+}},
+};
+function loadTemplate(spec){
+  pushUndo();
+  state.project=Object.assign({name:'',vertical:'',footprint:'',redundancy:'Dual-Hot Standby',network:'Ring',hazardous:'General Purpose',service:'',description:''},spec.project);
+  state.nodes=spec.nodes.map(n=>({id:uid(),type:n.t,name:n.name,tag:n.tag,nx:n.x,ny:n.y,qty:n.q||1,io:baseIO(n.t,n.q||1),blurb:n.b||'',drill:false}));
+  const idOf=tag=>{const f=state.nodes.find(x=>x.tag===tag);return f?f.id:null;};
+  state.links=(spec.links||[]).map(([a,b,l])=>({a:idOf(a),b:idOf(b),layer:l})).filter(x=>x.a&&x.b);
+  state.sel=state.nodes[0]?.id||null;state.drill=null;state.sysOff=new Set();state.dock='io';
+  logAudit(`Loaded template: ${state.project.name} (${state.nodes.length} nodes)`,'add');
+  renderAll();closeModal();toast('Template loaded',`${state.project.name} · ${state.nodes.length} nodes · ${state.links.length} routes`);
+}
+function newProject(){
+  pushUndo();
+  state.project={name:'UNTITLED PROJECT',vertical:'',footprint:'',redundancy:'Simplex',network:'Star',hazardous:'General Purpose',service:'480V direct',description:''};
+  state.nodes=[];state.links=[];state.sel=null;state.drill=null;
+  logAudit('New blank project','cfg');renderAll();closeModal();toast('New project','Blank canvas — run ◈ INTAKE or load a template.');
+}
+
+/* ═══════════ SCHEDULE BUILDERS ════════════════════════════════════ */
+function fieldNodes(){return state.nodes.filter(n=>ioTotal(n.io)>0);}
+function buildIO(){const rows=[];fieldNodes().forEach(n=>genPoints(n).forEach(p=>rows.push(p)));return rows;}
+function buildInstr(){const rows=[];state.nodes.forEach(n=>{const T=TYPES[n.type];(T.instr||[]).forEach((ins,i)=>{
+  rows.push({tag:`${n.tag}-I${i+1}`,type:ins,service:n.name,system:T.system,sig:/rtd|temp/i.test(ins)?'RTD':/hart|meter|tx|pressure|flow|level/i.test(ins)?'HART':'Discrete',node:n.tag});});});return rows;}
+function buildLoad(){return state.nodes.map(n=>{const e=elecOf(n);if(!e.fla&&!e.kw)return null;
+  const demand=Math.round(e.kw*0.85);
+  return{tag:n.tag,desc:n.name,volts:e.volts?`${e.volts>=1000?(e.volts/1000)+'kV':e.volts+'V'}/${e.phase}Φ`:'—',
+    kw:e.kw,fla:e.fla,demand,breaker:e.breaker?e.breaker+'A':'—',feeder:e.feeder,drive:e.drive||'—',system:TYPES[n.type].system};}).filter(Boolean);}
+function buildPanels(){return state.nodes.filter(n=>['control','safety'].includes(TYPES[n.type].system)||ioTotal(n.io)>0).map(n=>{
+  const c=cardsFor(n.io),T=TYPES[n.type];
+  return{tag:n.tag,desc:n.name,nema:T.nema,di:c.di,do:c.do,ai:c.ai,ao:c.ao,cards:c.di+c.do+c.ai+c.ao,
+    cpu:T.redundant?'Redundant':(TYPES[n.type].system==='control'?'Simplex':'RIO'),pts:withSpace(n)};});}
+function withSpace(n){return withSpare(ioTotal(n.io));}
+function buildCable(){const box=$('#canvas').getBoundingClientRect();return state.links.map((l,i)=>{
+  const a=state.nodes.find(x=>x.id===l.a),b=state.nodes.find(x=>x.id===l.b);if(!a||!b)return null;
+  const dx=(a.nx-b.nx)*(box.width||1200),dy=(a.ny-b.ny)*(box.height||700);
+  const len=Math.max(25,Math.round(Math.hypot(dx,dy)/6)*5);
+  const map={power:['Power Feeder','600V THHN'],cooling:['Control','600V TC'],control:['Control','600V TC'],
+    network:['Network','OM4 Fiber / Cat6A'],safety:['Fire/Signal','FPLP'],process:['Instrument','16AWG TSP']};
+  const m=map[l.layer]||['Control','600V TC'];
+  let size='—';if(l.layer==='power'){const e=elecOf(a).fla||elecOf(b).fla;size=e?conductorFor(breakerFor(e)):'#2 Cu';}
+  return{tag:`C-${String(i+1).padStart(3,'0')}`,from:a.tag,to:b.tag,type:m[0],cable:m[1],size:size,len:len+' ft',system:l.layer};}).filter(Boolean);}
+
+/* ═══════════ ESTIMATION / COSTING ═════════════════════════════════ */
+function estimate(){
+  const R=state.rates,field=fieldNodes();
+  let DI=0,DO=0,AI=0,AO=0;field.forEach(n=>{DI+=n.io.di;DO+=n.io.do;AI+=n.io.ai;AO+=n.io.ao;});
+  const physical=DI+DO+AI+AO,engineered=withSpare(physical);
+  let cDI=0,cDO=0,cAI=0,cAO=0;field.forEach(n=>{const c=cardsFor(n.io);cDI+=c.di;cDO+=c.do;cAI+=c.ai;cAO+=c.ao;});
+  const totalCards=cDI+cDO+cAI+cAO;
+  const redMult={'Simplex':1,'Dual-Hot Standby':2,'TMR (Triple Modular)':3}[state.project.redundancy]||1;
+  const ctrlPanels=state.nodes.filter(n=>TYPES[n.type].system==='control'&&/panel|plc/.test(n.type)).length||1;
+  const panels=Math.max(ctrlPanels,Math.ceil(engineered/512));
+  const cpus=panels*redMult;
+  const drops=Math.max(field.length,Math.ceil(totalCards/8));
+  const switches=state.nodes.filter(n=>/switch/.test(n.type)).reduce((s,n)=>s+n.qty,0)||Math.ceil(drops/6)+1;
+  const vfds=state.nodes.filter(n=>TYPES[n.type].drive==='VFD').reduce((s,n)=>s+n.qty,0);
+  const instruments=buildInstr().length;
+  const tags=Math.round(engineered*2.6);
+  const tier=tags<=500?'500':tags<=1500?'1,500':tags<=5000?'5,000':'Unlimited';
+  const clients=Math.max(2,Math.ceil(field.length/3));
+  const drivers=Math.max(1,Math.ceil(drops/4));
+  const nema=/Div/.test(state.project.hazardous)?'7 (XP)':/Wash|Wet/.test(state.project.hazardous)?'4X':'12';
+  // ── line-item cost model
+  const lines=[];
+  const add=(grp,item,qty,unit,matEa,labHrs,rate)=>lines.push({grp,item,qty,unit,mat:matEa*qty,lab:labHrs*qty*rate,labHrs:labHrs*qty});
+  // hardware per node family
+  state.nodes.forEach(n=>{const T=TYPES[n.type],c=cardsFor(n.io);
+    if(T.hwCost)add('Field & Server Hardware',T.label,n.qty,'ea',T.hwCost,0,0);
+    const cardMat=c.di*CARDCOST.di+c.do*CARDCOST.do+c.ai*CARDCOST.ai+c.ao*CARDCOST.ao;
+    if(cardMat)add('I/O & Controllers',`${n.tag} I/O cards`,1,'lot',cardMat,0,0);
+  });
+  add('I/O & Controllers','Redundant PAC / CPU',cpus,'ea',CARDCOST.cpu,0,0);
+  add('I/O & Controllers','Controller chassis + PSU',panels,'ea',CARDCOST.chassis+CARDCOST.psu,0,0);
+  add('I/O & Controllers','Comm adapters',drops,'ea',CARDCOST.comm,0,0);
+  add('Networking','Managed switches',switches,'ea',3200,0,0);
+  add('Networking','Media / fiber optics',Math.ceil(drops/3),'lot',1200,0,0);
+  add('Cabinet Enclosures',`Enclosures (NEMA ${nema})`,panels+drops,'ea',1650,0,0);
+  add('Field Devices','VFDs / soft-starters',vfds,'ea',3600,0,0);
+  add('Field Devices','Instruments',instruments,'ea',1250,0,0);
+  // labor
+  let engHrs=0,instHrs=0;state.nodes.forEach(n=>{const T=TYPES[n.type];engHrs+=T.engHrs*n.qty;instHrs+=T.instHrs*n.qty;});
+  add('Engineering & Design','System / detailed design',Math.round(engHrs),'hr',0,1,R.eng);
+  add('Programming & Integration','PLC/SCADA programming',engineered,'pt',0,0,0);lines[lines.length-1].lab=engineered*R.prog;lines[lines.length-1].labHrs=Math.round(engineered*R.prog/R.eng);
+  add('Installation & Wiring','Panel build & field wiring',Math.round(instHrs),'hr',0,1,R.elec);
+  add('Commissioning','Point-to-point & loop check',engineered,'pt',0,0,0);lines[lines.length-1].lab=engineered*R.commission;lines[lines.length-1].labHrs=Math.round(engineered*R.commission/R.elec);
+  // licensing
+  const licTier={'500':6000,'1,500':14000,'5,000':32000,'Unlimited':58000}[tier];
+  add('Software & Licensing',`HMI/SCADA ${tier}-tag`,1,'lic',licTier,0,0);
+  add('Software & Licensing','Historian',1,'lic',tags>1500?24000:9000,0,0);
+  add('Software & Licensing','Client access licenses',clients,'ea',1200,0,0);
+  add('Software & Licensing','OPC-UA / drivers',drivers,'ea',2400,0,0);
+  // rollup
+  const mat=lines.reduce((s,l)=>s+l.mat,0), lab=lines.reduce((s,l)=>s+l.lab,0), labHrs=lines.reduce((s,l)=>s+(l.labHrs||0),0);
+  const sub=mat+lab, freight=mat*R.freight, contingency=sub*R.contingency, markup=sub*R.markup;
+  const pretax=sub+freight+contingency+markup, tax=(mat+freight)*R.tax, total=pretax+tax;
+  return{DI,DO,AI,AO,physical,engineered,cDI,cDO,cAI,cAO,totalCards,drops,panels,cpus,switches,vfds,instruments,
+    tags,tier,clients,drivers,nema,redMult,lines,mat,lab,labHrs,sub,freight,contingency,markup,tax,total,engHrs,instHrs};
+}
+
+/* ═══════════ VENDOR TRANSLATION ══════════════════════════════════ */
+const VENDORS={generic:'Generic',ab:'Allen-Bradley',siemens:'Siemens'};
+const XLATE=[
+ {gen:'Controller CPU',ab:'1756-L85E',siemens:'6ES7518-4AP00',k:'cpus'},
+ {gen:'Base chassis (10-slot)',ab:'1756-A10',siemens:'6ES7400 rack',k:'panels'},
+ {gen:'Comm adapter (ring)',ab:'1756-EN2TR',siemens:'6ES7155-6AU01',k:'drops'},
+ {gen:'16-pt 24VDC DI card',ab:'1756-IB16',siemens:'6ES7521-1BH00',k:'cDI'},
+ {gen:'16-pt 24VDC DO card',ab:'1756-OB16E',siemens:'6ES7522-1BH00',k:'cDO'},
+ {gen:'8-pt Analog In card',ab:'1756-IF8',siemens:'6ES7531-7KF00',k:'cAI'},
+ {gen:'8-pt Analog Out card',ab:'1756-OF8',siemens:'6ES7532-5HF00',k:'cAO'},
+ {gen:'Managed switch',ab:'1783-BMS10CL',siemens:'SCALANCE XC208',k:'switches'},
+ {gen:'Remote I/O adapter',ab:'1734-AENTR',siemens:'6ES7155-6AA01',k:'drops'},
+];
+
+/* ═══════════════════════════ RENDERING ══════════════════════════ */
+function renderAll(){sanitizeLinks();renderTop();renderTree();renderLegend();renderCstats();renderCanvas();renderPanel();renderDock();}
+
+function renderTop(){
+  state.est=estimate();const e=state.est;
+  $('#projName').textContent=state.project.name||'UNTITLED';
+  const k=$('#kpis');
+  k.innerHTML=[
+    ['v',state.nodes.length,'NODES'],['v',e.engineered,'ENG I/O'],['v',e.tags.toLocaleString(),'TAGS'],
+    ['a',e.cpus+'×','CPU'],['v',e.totalCards,'CARDS'],['g',money0(e.total),'BUDGET'],
+  ].map(([c,v,l])=>`<div class="kpi"><div class="v ${c==='v'?'':c}">${v}</div><div class="l">${l}</div></div>`).join('');
+}
+
+/* tree */
+function renderTree(){
+  const t=$('#tree');
+  t.innerHTML=`<div class="tree-tabs">
+    <div class="tree-tab ${state.tree==='arch'?'on':''}" data-tree="arch">Systems</div>
+    <div class="tree-tab ${state.tree==='io'?'on':''}" data-tree="io">Nodes</div></div><div class="tree-body" id="tb"></div>`;
+  const tb=$('#tb',t);
+  if(state.tree==='io'){
+    tb.appendChild(el('div','tag-lg',`${state.nodes.length} NODES · ${fieldNodes().length} WITH I/O`));
+    state.nodes.forEach(n=>{const T=TYPES[n.type];
+      const r=el('div','trow'+(n.id===state.sel?' sel':''),
+        `<span class="sys-dot" style="background:${SYS[T.system].color}"></span><span class="leaf">${n.tag} · ${n.name}</span><span class="cnt">${ioTotal(n.io)||'—'}</span>`);
+      r.onclick=()=>selectNode(n.id,true);tb.appendChild(r);});
+    bindTree(t);return;
+  }
+  Object.entries(SYS).forEach(([sys,meta])=>{
+    const ns=state.nodes.filter(n=>TYPES[n.type].system===sys);if(!ns.length)return;
+    const io=ns.reduce((s,n)=>s+ioTotal(n.io),0);
+    const gr=el('div','trow',`<span class="car">▾</span><span class="sys-dot" style="background:${meta.color}"></span>${meta.label.toUpperCase()}<span class="cnt">${ns.length}</span>`);
+    const gk=el('div','tchild');
+    ns.forEach(n=>{const r=el('div','trow'+(n.id===state.sel?' sel':''),
+      `<span style="width:11px"></span><span class="ico">${ICON[TYPES[n.type].icon]}</span><span class="leaf">${n.tag} · ${n.name}</span><span class="cnt">${ioTotal(n.io)||'—'}</span>`);
+      r.onclick=e=>{e.stopPropagation();selectNode(n.id,true);};gk.appendChild(r);});
+    gr.onclick=()=>{gr.classList.toggle('collapsed');gk.classList.toggle('hid');};
+    tb.appendChild(gr);tb.appendChild(gk);
+  });
+  // selected node's rack
+  const sel=selNode();
+  if(sel&&ioTotal(sel.io)>0){
+    const c=cardsFor(sel.io);
+    const rk=el('div','trow',`<span class="car">▾</span><span class="ico">${ICON.plc}</span>RACK · ${sel.tag}<span class="cnt">${c.di+c.do+c.ai+c.ao}</span>`);
+    const rkk=el('div','tchild');
+    const slot=(ic,l)=>el('div','trow',`<span style="width:11px"></span><span class="ico">${ICON[ic]}</span><span class="leaf">${l}</span>`);
+    rkk.appendChild(slot('comm','COMM MODULE'));
+    if(c.di)rkk.appendChild(slot('di',`DIGITAL INPUT ×${c.di}`));
+    if(c.do)rkk.appendChild(slot('do',`DIGITAL OUTPUT ×${c.do}`));
+    if(c.ai)rkk.appendChild(slot('ai',`ANALOG INPUT ×${c.ai}`));
+    if(c.ao)rkk.appendChild(slot('ao',`ANALOG OUTPUT ×${c.ao}`));
+    rkk.appendChild(slot('cpu',`CPU (${state.project.redundancy.split(' ')[0]})`));
+    rk.onclick=()=>{rk.classList.toggle('collapsed');rkk.classList.toggle('hid');};
+    tb.appendChild(rk);tb.appendChild(rkk);
+  }
+  bindTree(t);
+}
+function bindTree(t){$$('.tree-tab',t).forEach(x=>x.onclick=()=>{state.tree=x.dataset.tree;renderTree();});}
+
+function renderLegend(){
+  const used=[...new Set(state.links.map(l=>l.layer))];const g=$('#legend');g.innerHTML='';
+  Object.keys(SYS).filter(s=>used.includes(s)).forEach((s,i)=>{
+    const on=!state.sysOff.has(s);
+    const row=el('div','leg'+(on?'':' off'),`<span class="sw" style="background:${SYS[s].color}"></span>${SYS[s].label}<span class="k">${i+1}</span>`);
+    row.onclick=()=>{on?state.sysOff.add(s):state.sysOff.delete(s);renderCanvas();renderLegend();};g.appendChild(row);});
+}
+function renderCstats(){
+  const e=state.est||estimate();const c=$('#cstats');
+  const bySys={};state.nodes.forEach(n=>{const s=TYPES[n.type].system;bySys[s]=(bySys[s]||0)+1;});
+  const connKw=state.nodes.reduce((s,n)=>s+elecOf(n).kw,0);
+  c.innerHTML=`<div class="hd">System Summary</div>
+    <div class="r"><span>Connected load</span><b>${connKw.toLocaleString()} kW</b></div>
+    <div class="r"><span>Physical I/O</span><b>${e.physical}</b></div>
+    <div class="r"><span>Eng. I/O (+20%)</span><b>${e.engineered}</b></div>
+    <div class="r"><span>I/O cards</span><b>${e.totalCards}</b></div>
+    <div class="r"><span>Remote drops</span><b>${e.drops}</b></div>
+    <div class="r"><span>SCADA tags</span><b>${e.tags.toLocaleString()}</b></div>`;
+}
+
+/* canvas */
+function renderCanvas(){
+  const cv=$('#canvas');$('#emptyc').style.display=state.nodes.length?'none':'grid';
+  const drill=state.drill?state.nodes.find(n=>n.id===state.drill):null;
+  $('#crumb').classList.toggle('on',!!drill);
+  if(drill){$('#crumb').innerHTML=`<a data-home>◈ CANVAS</a> ▸ <b>${drill.tag}</b> · I/O RACK <span class="x">✕</span>`;
+    $('#crumb .x').onclick=$('#crumb a[data-home]').onclick=()=>{state.drill=null;renderCanvas();};}
+  const host=$('#nodes');host.innerHTML='';
+  const list=drill?drillChildren(drill):state.nodes.map(n=>({n,x:n.nx,y:n.ny}));
+  list.forEach(({n,x,y,card})=>{const T=TYPES[n.type];
+    const d=el('div','node'+(n.id===state.sel&&!card?' sel':''));d.dataset.sys=card?'':T.system;
+    d.style.setProperty('--sc',card?'var(--holo)':SYS[T.system].color);
+    d.style.left=(x*100)+'%';d.style.top=(y*100)+'%';
+    const e=card?null:elecOf(n);
+    d.innerHTML=`<div class="sym">${ICON[card?card.icon:T.icon]}${(!card&&ioTotal(n.io)>0)?`<span class="badge">${ioTotal(n.io)}</span>`:''}${(!card&&e&&e.kw)?`<span class="kw">${e.kw>=1000?(e.kw/1000).toFixed(1)+'MW':e.kw+'kW'}</span>`:''}</div>
+      <div class="lbl">${card?card.label:n.name}<small>${card?card.sub:n.tag}${(!card&&n.qty>1)?' ×'+n.qty:''}</small></div>`;
+    host.appendChild(d);
+    if(!card){makeDraggable(d,n);d.onclick=ev=>{ev.stopPropagation();selectNode(n.id);};
+      d.ondblclick=ev=>{ev.stopPropagation();if(ioTotal(n.io)>0){state.drill=n.id;renderCanvas();}};}
+  });
+  drawLinks(drill);positionReticle();positionBubble();
+}
+function drillChildren(n){const c=cardsFor(n.io),items=[{icon:'comm',label:'COMM',sub:'ETHERNET/IP'}];
+  for(let i=0;i<c.di;i++)items.push({icon:'di',label:'DI',sub:`16-pt DI-${i+1}`});
+  for(let i=0;i<c.do;i++)items.push({icon:'do',label:'DO',sub:`16-pt DO-${i+1}`});
+  for(let i=0;i<c.ai;i++)items.push({icon:'ai',label:'AI',sub:`8-pt AI-${i+1}`});
+  for(let i=0;i<c.ao;i++)items.push({icon:'ao',label:'AO',sub:`8-pt AO-${i+1}`});
+  items.push({icon:'cpu',label:'CPU',sub:state.project.redundancy.split(' ')[0]});
+  const R=0.30;return items.map((card,i)=>{const a=(i/items.length)*Math.PI*2-Math.PI/2;
+    return{n,x:0.5+Math.cos(a)*R*1.4,y:0.5+Math.sin(a)*R,card};});}
+const NS='http://www.w3.org/2000/svg';
+function mkpath(d,col,w,op,dash){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('stroke',col);
+  p.setAttribute('stroke-width',w);p.setAttribute('fill','none');p.setAttribute('opacity',op);p.setAttribute('stroke-linejoin','round');
+  if(dash)p.setAttribute('stroke-dasharray',dash);return p;}
+// orthogonal (Manhattan) route between two node centres, offset below the block
+function ortho(A,B){const ay=A[1]+22,by=B[1]-22; // exit bottom of A, enter top of B
+  if(Math.abs(B[0]-A[0])<8)return `M${A[0]} ${ay} L${B[0]} ${by}`;
+  const my=(ay+by)/2;
+  return `M${A[0]} ${ay} L${A[0]} ${my} L${B[0]} ${my} L${B[0]} ${by}`;}
+function drawLinks(drill){const svg=$('#svglinks'),box=$('#canvas').getBoundingClientRect();
+  [...svg.querySelectorAll('path,rect')].forEach(e=>e.remove());
+  if(drill){const cx=0.5*box.width,cy=0.5*box.height;drillChildren(drill).forEach(it=>{
+    svg.appendChild(mkpath(`M${cx} ${cy} L${it.x*box.width} ${it.y*box.height}`,'var(--holo-dim)',1,.5,'2 4'));});return;}
+  const pos={};state.nodes.forEach(n=>pos[n.id]=[n.nx*box.width,n.ny*box.height]);
+  state.links.forEach(l=>{if(state.sysOff.has(l.layer))return;const A=pos[l.a],B=pos[l.b];if(!A||!B)return;
+    const col=SYS[l.layer].color,hot=state.sel&&(l.a===state.sel||l.b===state.sel);
+    const top=A[1]<=B[1]?A:B, bot=A[1]<=B[1]?B:A;
+    svg.appendChild(mkpath(ortho(top,bot),col,hot?1.9:1.2,hot?.95:.55));});}
+function positionReticle(){const r=$('#reticle'),s=selNode();if(!s||state.drill){r.classList.remove('on');return;}
+  r.classList.add('on');r.style.left=(s.nx*100)+'%';r.style.top=(s.ny*100)+'%';}
+function positionBubble(){const b=$('#bubble'),s=selNode();if(!s||state.drill){b.classList.remove('on');return;}
+  const T=TYPES[s.type],e=elecOf(s),c=cardsFor(s.io);b.classList.add('on');b.style.left=(s.nx*100)+'%';b.style.top=(s.ny*100)+'%';
+  b.innerHTML=`<div class="bt">${T.system.toUpperCase()} · ${s.tag}</div><h4>${s.name}</h4>
+    <div class="brow2">
+      <span>I/O</span><b>${ioTotal(s.io)} pt (${withSpace(s)} eng)</b>
+      <span>Cards</span><b>${c.di+c.do+c.ai+c.ao} + CPU</b>
+      ${e.kw?`<span>Load</span><b>${e.kw} kW</b><span>Breaker</span><b>${e.breaker}A · ${e.feeder}</b>`:''}
+    </div>
+    <div class="brow"><div class="bmini" data-b="drill">DRILL RACK</div><div class="bmini" data-b="link">LINK ▸</div><div class="bmini" data-b="del">DELETE</div></div>`;
+  $('[data-b=drill]',b).onclick=()=>{if(ioTotal(s.io)>0){state.drill=s.id;renderCanvas();}};
+  $('[data-b=link]',b).onclick=()=>startLink(s.id);$('[data-b=del]',b).onclick=()=>deleteNode(s.id);}
+
+/* ═══════════ RIGHT PANEL ════════════════════════════════════════ */
+function renderPanel(){renderPvNode();renderPvSys();renderPvVendor();renderPvParams();}
+function renderPvNode(){
+  const v=$('#pvNode'),s=selNode();
+  if(!s){v.innerHTML=`<div class="plabel">Node</div><div class="pcard" style="color:var(--ink-dim)">Select a node to view its assumptions, electrical data, and I/O.</div>`;return;}
+  const T=TYPES[s.type],io=s.io,c=cardsFor(io),e=elecOf(s);
+  v.innerHTML=`
+    <div class="pnode">${s.tag}<small>${s.name} · ${T.label}${s.qty>1?` ×${s.qty}`:''}</small></div>
+    ${s.blurb?`<div class="plabel">Subsystem Design Notes</div><div class="pcard" style="font-size:11.5px;line-height:1.55;color:var(--ink)">${esc(s.blurb)}</div>`:''}
+    <div class="plabel">Generative Assumptions</div>
+    <div class="pcard"><div style="font-size:11.5px;line-height:1.5;color:var(--ink)">${T.note} <span style="color:var(--holo)">+${SPARE*100}% spare</span> per ISA-95.</div>
+    <span class="plink" id="reassess">CHANGE ▸</span></div>
+    <div class="plabel">Electrical</div>
+    <div class="pcard"><dl class="dl">
+      <dt>Voltage</dt><dd>${e.volts?`${e.volts>=1000?(e.volts/1000)+'kV':e.volts+'V'} / ${e.phase}Φ`:'Signal-level'}</dd>
+      <dt>Connected load</dt><dd class="a">${e.kw?e.kw+' kW':'—'}</dd>
+      <dt>FLA</dt><dd>${e.fla?e.fla+' A':'—'}</dd>
+      <dt>Drive</dt><dd>${e.drive||'—'}</dd>
+      <dt>Breaker</dt><dd>${e.breaker?e.breaker+' A':'—'}</dd>
+      <dt>Feeder</dt><dd>${e.feeder}</dd>
+      <dt>Enclosure</dt><dd>NEMA ${T.nema}</dd>
+    </dl></div>
+    <div class="plabel">Estimated I/O <span class="pl-act" id="addio">+ ADD AI</span></div>
+    <div class="iogrid">${ioCell('DI','di',io.di)}${ioCell('DO','do',io.do)}${ioCell('AI','ai',io.ai)}${ioCell('AO','ao',io.ao)}</div>
+    <div class="plabel">Rack Complement</div>
+    <div class="denstoggle" style="margin-bottom:6px"><button class="${state.dens==='basic'?'on':''}" data-d="basic">Summary</button><button class="${state.dens==='full'?'on':''}" data-d="full">Cards</button><button class="${state.dens==='pts'?'on':''}" data-d="pts">Points</button></div>
+    <div id="densBody"></div>
+    <div class="plabel">Node Cost</div>
+    <div class="pcard"><dl class="dl">
+      <dt>Hardware</dt><dd>${money(nodeHwCost(s))}</dd>
+      <dt>Engineering</dt><dd>${Math.round(T.engHrs*s.qty)} hr</dd>
+      <dt>Installation</dt><dd>${Math.round(T.instHrs*s.qty)} hr</dd>
+    </dl></div>`;
+  $('#reassess',v).onclick=openIntake;$('#addio',v).onclick=()=>adjustIO(s.id,'ai',1);
+  $$('.denstoggle button',v).forEach(b=>b.onclick=()=>{state.dens=b.dataset.d;renderPvNode();});
+  $$('.iocell .adj button',v).forEach(b=>b.onclick=()=>adjustIO(s.id,b.dataset.io,b.dataset.dir==='up'?1:-1));
+  const db=$('#densBody',v);
+  if(state.dens==='full'){
+    const slots=[['comm','Comm module','ETHERNET/IP',1],['di','16-pt DI','24VDC',c.di],['do','16-pt DO','24VDC',c.do],['ai','8-pt AI','4-20mA',c.ai],['ao','8-pt AO','4-20mA',c.ao],['cpu','CPU',state.project.redundancy.split(' ')[0],1]];
+    const tb=el('table','mini-t');slots.filter(x=>x[3]>0).forEach(x=>tb.appendChild(el('tr',null,`<td><span class="ico" style="display:inline-block;width:13px;vertical-align:-2px;color:var(--holo-dim)">${ICON[x[0]]}</span> ${x[1]}</td><td class="p">${x[2]}</td><td class="q">×${x[3]}</td>`)));db.appendChild(tb);
+  }else if(state.dens==='pts'){
+    const pts=genPoints(s).slice(0,14);const tb=el('table','mini-t');
+    tb.appendChild(el('tr',null,`<td style="color:var(--holo-dim)">TAG</td><td class="p" style="color:var(--holo-dim)">SIG</td><td class="q" style="color:var(--holo-dim)">EU</td>`));
+    pts.forEach(p=>tb.appendChild(el('tr',null,`<td>${p.tag.split('_')[1]}</td><td class="p">${p.sig}</td><td class="q">${p.eu}</td>`)));
+    db.appendChild(tb);if(genPoints(s).length>14)db.appendChild(el('div','tag-lg',`+${genPoints(s).length-14} more — see I/O List dock`));
+  }else db.appendChild(el('div','pcard',`<div style="font-size:11px;color:var(--ink-dim)">${c.di+c.do+c.ai+c.ao} I/O cards + comm + CPU. ${ioTotal(io)} points → <b style="color:var(--holo)">${genPoints(s).length}</b> tags in the I/O List.</div>`));
+}
+function ioCell(l,k,v){return `<div class="iocell"><div class="n">${v}</div><div class="m">${l}<br>${({di:'DISC IN',do:'DISC OUT',ai:'ANLG IN',ao:'ANLG OUT'})[k]}</div><div class="adj"><button data-io="${k}" data-dir="up">▲</button><button data-io="${k}" data-dir="dn">▼</button></div></div>`;}
+function nodeHwCost(n){const T=TYPES[n.type],c=cardsFor(n.io);return T.hwCost*n.qty+c.di*CARDCOST.di+c.do*CARDCOST.do+c.ai*CARDCOST.ai+c.ao*CARDCOST.ao;}
+
+function renderPvSys(){
+  const v=$('#pvSys'),e=state.est||estimate();
+  const bySys={};state.nodes.forEach(n=>{const s=TYPES[n.type].system;(bySys[s]=bySys[s]||{n:0,io:0,kw:0});bySys[s].n++;bySys[s].io+=ioTotal(n.io);bySys[s].kw+=elecOf(n).kw;});
+  const maxIo=Math.max(1,...Object.values(bySys).map(x=>x.io));
+  v.innerHTML=`<div class="plabel">Project Rollup</div>
+    <div class="pcard"><div class="big g">${money(e.total)}<small> total installed</small></div>
+    <div style="margin-top:7px">
+      <span class="pill">${e.tier}-tag SCADA</span><span class="pill a">${e.redMult}× CPU</span><span class="pill v">NEMA ${e.nema}</span><span class="pill">${e.labHrs.toLocaleString()} lab-hr</span>
+    </div></div>
+    <div class="plabel">Cost Breakdown</div><div class="pcard"><dl class="dl">
+      <dt>Material</dt><dd>${money(e.mat)}</dd>
+      <dt>Labor</dt><dd>${money(e.lab)}</dd>
+      <dt>Freight (${(state.rates.freight*100)|0}%)</dt><dd>${money(e.freight)}</dd>
+      <dt>Contingency (${(state.rates.contingency*100)|0}%)</dt><dd>${money(e.contingency)}</dd>
+      <dt>Overhead/markup (${(state.rates.markup*100)|0}%)</dt><dd>${money(e.markup)}</dd>
+      <dt>Tax</dt><dd>${money(e.tax)}</dd>
+      <dt style="color:var(--green)">Grand total</dt><dd class="g">${money(e.total)}</dd>
+    </dl><span class="plink" id="toBom">FULL BOM ▸</span></div>
+    <div class="plabel">By System</div><div class="pcard">${Object.entries(bySys).map(([s,x])=>`
+      <div class="barrow"><span class="lab">${SYS[s].label}</span><span class="track"><i style="width:${Math.max(6,x.io/maxIo*100)}%;background:${SYS[s].color}"></i></span><span class="val">${x.io} I/O</span></div>`).join('')}
+      <div style="font-family:var(--mono);font-size:9px;color:var(--ink-mut);margin-top:6px">${Object.entries(bySys).map(([s,x])=>`${x.n} ${SYS[s].label.toLowerCase()}${x.kw?' · '+x.kw+'kW':''}`).join(' · ')}</div></div>
+    <div class="plabel">Software & Licensing</div><div class="pcard"><dl class="dl">
+      <dt>HMI/SCADA tier</dt><dd><b>${e.tier}-tag</b></dd>
+      <dt>Historian</dt><dd>${e.tags>1500?'High-throughput':'Standard'}</dd>
+      <dt>Client access</dt><dd>${e.clients}</dd>
+      <dt>OPC-UA drivers</dt><dd>${e.drivers}</dd>
+    </dl></div>`;
+  $('#toBom',v).onclick=()=>{setDock('bom');};
+}
+function renderPvVendor(){
+  const v=$('#pvVendor'),e=state.est||estimate();
+  v.innerHTML=`<div class="plabel">Vendor Translation</div>
+    <div class="pcard" style="font-size:11px;color:var(--ink-dim)">Design stays platform-agnostic; map generic parts to a catalog for the BOM.</div>
+    <div class="vendor-sel">${Object.entries(VENDORS).map(([k,l])=>`<button class="${state.vendor===k?'on':''}" data-v="${k}">${l}</button>`).join('')}</div>
+    <div id="vlist"></div>`;
+  const list=$('#vlist',v);
+  XLATE.forEach(x=>{const q=e[x.k]||0;if(!q)return;
+    const pn=state.vendor==='generic'?x.gen:x[state.vendor];
+    list.appendChild(el('div','vrow',`<span class="gen">${x.gen} <span style="color:var(--amber)">×${q}</span></span><span class="arr">▸</span><span class="pn">${pn}</span>`));});
+  $$('.vendor-sel button',v).forEach(b=>b.onclick=()=>{state.vendor=b.dataset.v;logAudit('Vendor → '+VENDORS[b.dataset.v],'cfg');renderPvVendor();});
+}
+function renderPvParams(){
+  const v=$('#pvParams'),P=state.project,R=state.rates;
+  v.innerHTML=`${P.description?`<div class="plabel">Design Basis</div><div class="pcard" style="font-size:11.5px;line-height:1.55;color:var(--ink)">${esc(P.description)}</div>`:''}
+    <div class="plabel">Project Parameters <span class="pl-act" id="editP">EDIT ▸</span></div>
+    <div class="pcard"><dl class="dl">
+      <dt>Vertical</dt><dd>${P.vertical||'—'}</dd><dt>Footprint</dt><dd>${P.footprint||'—'}</dd>
+      <dt>Service</dt><dd>${P.service}</dd><dt>Redundancy</dt><dd><b>${P.redundancy}</b></dd>
+      <dt>Network</dt><dd>${P.network}</dd><dt>Hazardous</dt><dd>${P.hazardous}</dd>
+    </dl></div>
+    <div class="plabel">Estimation Rates</div>
+    <div class="pcard">
+      <div class="setrow"><label>Engineering $/hr</label><input type="number" data-r="eng" value="${R.eng}"></div>
+      <div class="setrow"><label>Installation $/hr</label><input type="number" data-r="elec" value="${R.elec}"></div>
+      <div class="setrow"><label>Programming $/pt</label><input type="number" data-r="prog" value="${R.prog}"></div>
+      <div class="setrow"><label>Commission $/pt</label><input type="number" data-r="commission" value="${R.commission}"></div>
+      <div class="setrow"><label>Markup %</label><input type="number" data-r="markup" value="${Math.round(R.markup*100)}"></div>
+      <div class="setrow"><label>Contingency %</label><input type="number" data-r="contingency" value="${Math.round(R.contingency*100)}"></div>
+    </div>
+    <div class="plabel">Quality Audit Trail</div>
+    <div class="pcard" style="padding:7px 9px"><div class="audit" id="auditList"></div></div>`;
+  $('#editP',v).onclick=openIntake;
+  $$('[data-r]',v).forEach(inp=>inp.onchange=()=>{let val=+inp.value||0;const k=inp.dataset.r;
+    if(k==='markup'||k==='contingency')val=val/100;state.rates[k]=val;logAudit(`Rate ${k} → ${inp.value}`,'cfg');renderAll();});
+  const al=$('#auditList',v);if(!state.audit.length)al.innerHTML='<div style="color:var(--ink-mut)">No revisions.</div>';
+  state.audit.slice(0,60).forEach(a=>al.appendChild(el('div','a-row',`<span class="ts">${a.t}</span><span class="ac ${a.k}">${esc(a.a)}</span>`)));
+}
+
+/* ═══════════ DOCK (schedules) ═══════════════════════════════════ */
+const DOCKS={
+  io:{label:'I/O List',build:buildIO,cols:[['tag','Tag'],['desc','Description'],['sig','Signal'],['range','Range','num'],['eu','EU'],['alarm','Alarm'],['addr','PLC Addr'],['node','Node']]},
+  instr:{label:'Instrument Index',build:buildInstr,cols:[['tag','Tag'],['type','Instrument'],['service','Service'],['sig','Signal'],['system','System'],['node','Node']]},
+  load:{label:'Load Schedule',build:buildLoad,cols:[['tag','Tag'],['desc','Load'],['volts','V/Φ'],['kw','kW','num'],['fla','FLA','num'],['demand','Demand kW','num'],['breaker','Breaker'],['feeder','Feeder'],['drive','Drive']]},
+  panel:{label:'Panel Schedule',build:buildPanels,cols:[['tag','Panel'],['desc','Description'],['nema','NEMA'],['di','DI','num'],['do','DO','num'],['ai','AI','num'],['ao','AO','num'],['cards','Cards','num'],['pts','Eng I/O','num'],['cpu','CPU']]},
+  cable:{label:'Cable Schedule',build:buildCable,cols:[['tag','Cable'],['from','From'],['to','To'],['type','Type'],['cable','Cable'],['size','Size'],['len','Length','num'],['system','System']]},
+  bom:{label:'BOM & Costing',build:null,cols:null},
+  lic:{label:'Licensing',build:null,cols:null},
+  rev:{label:'Revisions',build:null,cols:null},
+};
+function renderDock(){
+  const tabs=$('#dockTabs');
+  const counts={io:buildIO().length,instr:buildInstr().length,load:buildLoad().length,panel:buildPanels().length,cable:buildCable().length,
+    bom:(state.est||estimate()).lines.length,lic:4,rev:state.audit.length};
+  tabs.innerHTML=Object.entries(DOCKS).map(([k,d])=>`<div class="dtab ${state.dock===k?'on':''}" data-d="${k}">${d.label}<span class="c">${counts[k]}</span></div>`).join('');
+  $$('.dtab',tabs).forEach(t=>t.onclick=()=>setDock(t.dataset.d));
+  const body=$('#dockBody');body.innerHTML='';
+  if(state.dock==='bom')return renderBom(body);
+  if(state.dock==='lic')return renderLic(body);
+  if(state.dock==='rev')return renderRev(body);
+  const D=DOCKS[state.dock];let rows=D.build();
+  // filter
+  const f=state.dockFilter.trim().toLowerCase();
+  if(f)rows=rows.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(f)));
+  // sort
+  if(state.dockSort){rows=[...rows].sort((a,b)=>{const x=a[state.dockSort],y=b[state.dockSort];
+    const nx=parseFloat(x),ny=parseFloat(y);const cmp=(!isNaN(nx)&&!isNaN(ny))?nx-ny:String(x).localeCompare(String(y));return cmp*state.dockDir;});}
+  const bar=el('div','filterbar',`<span>FILTER</span><input id="dfilter" placeholder="tag, description, system…" value="${esc(state.dockFilter)}">
+    <span class="sum"><b>${rows.length}</b> rows · schedule: <b>${D.label}</b></span>`);
+  body.appendChild(bar);
+  const tbl=el('table','sched');
+  tbl.innerHTML=`<thead><tr>${D.cols.map(c=>`<th class="${c[2]||''}" data-s="${c[0]}">${c[1]}${state.dockSort===c[0]?(state.dockDir>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead>`;
+  const tb=el('tbody');
+  rows.forEach(r=>{const tr=el('tr');tr.innerHTML=D.cols.map(c=>{let cls=c[2]||'';const key=c[0];let val=r[key];
+    if(key==='tag')cls+=' tag';if(key==='node'||key==='system')cls+=' dim';
+    if(key==='alarm'&&/alarm|hh|ll/i.test(val))cls+=' a';
+    if(key==='drive'&&val==='VFD')cls+=' g';
+    if(key==='system')val=`<span class="chip2" style="color:${SYS[val]?SYS[val].color:'var(--ink-dim)'}">${SYS[val]?SYS[val].label:val}</span>`;
+    return `<td class="${cls}">${val}</td>`;}).join('');
+    if(r.node&&state.nodes.find(n=>n.tag===r.node&&n.id===state.sel))tr.classList.add('sel');
+    if(r.node){tr.style.cursor='pointer';tr.onclick=()=>{const n=state.nodes.find(x=>x.tag===r.node);if(n)selectNode(n.id,true);};}
+    tb.appendChild(tr);});
+  tbl.appendChild(tb);body.appendChild(tbl);
+  $$('th[data-s]',tbl).forEach(th=>th.onclick=()=>{const s=th.dataset.s;if(state.dockSort===s)state.dockDir*=-1;else{state.dockSort=s;state.dockDir=1;}renderDock();});
+  $('#dfilter',body).oninput=e=>{state.dockFilter=e.target.value;const pos=e.target.selectionStart;renderDock();const inp=$('#dfilter');if(inp){inp.focus();inp.setSelectionRange(pos,pos);}};
+}
+function renderBom(body){
+  const e=state.est||estimate();
+  const cards=[['Material',e.mat],['Labor ('+e.labHrs.toLocaleString()+' hr)',e.lab],['Overheads',e.freight+e.contingency+e.markup+e.tax],['Total Installed',e.total]];
+  const cs=el('div','costsum');cards.forEach(([l,v],i)=>cs.appendChild(el('div','costcard'+(i===3?' tot':''),`<div class="l">${l}</div><div class="v">${money(v)}</div><div class="s">${i===3?money(v/Math.max(1,e.engineered))+' / eng I/O pt':''}</div>`)));
+  body.appendChild(cs);
+  const tbl=el('table','sched');
+  tbl.innerHTML=`<thead><tr><th>Line Item</th><th class="num">Qty</th><th>Unit</th><th class="num">Material</th><th class="num">Labor Hrs</th><th class="num">Labor $</th><th class="num">Extended</th></tr></thead>`;
+  const tb=el('tbody');let grp='';
+  e.lines.forEach(l=>{if(l.grp!==grp){grp=l.grp;tb.appendChild(el('tr','grp',`<td colspan="7">${grp}</td>`));}
+    tb.appendChild(el('tr',null,`<td>${l.item}</td><td class="num">${l.qty}</td><td class="dim">${l.unit}</td><td class="num">${l.mat?money(l.mat):'—'}</td><td class="num dim">${l.labHrs?Math.round(l.labHrs):'—'}</td><td class="num">${l.lab?money(l.lab):'—'}</td><td class="num g">${money(l.mat+l.lab)}</td>`));});
+  tbl.appendChild(tb);
+  tbl.appendChild(el('tfoot',null,`<tr><td class="lbl" colspan="3">Subtotal</td><td class="num">${money(e.mat)}</td><td class="num">${e.labHrs.toLocaleString()}</td><td class="num">${money(e.lab)}</td><td class="num">${money(e.sub)}</td></tr>
+    <tr><td class="lbl" colspan="6">Freight ${(state.rates.freight*100)|0}% + Contingency ${(state.rates.contingency*100)|0}% + Markup ${(state.rates.markup*100)|0}% + Tax</td><td class="num">${money(e.freight+e.contingency+e.markup+e.tax)}</td></tr>
+    <tr><td class="lbl" colspan="6" style="color:var(--green)">TOTAL INSTALLED COST</td><td class="num">${money(e.total)}</td></tr>`));
+  body.appendChild(tbl);
+}
+function renderLic(body){
+  const e=state.est||estimate();
+  const rows=[['HMI/SCADA runtime',`${e.tier}-tag tier`,`${e.tags.toLocaleString()} tags vs ${e.tier} limit`],
+    ['Development seats','1–2','engineering / config'],
+    ['Historian',e.tags>1500?'High-throughput':'Standard',`${e.tags.toLocaleString()} tags logged`],
+    ['Client access licenses',e.clients,'thick / thin / web / mobile'],
+    ['OPC-UA / driver conn.',e.drivers,'southbound field drivers'],
+    ['Redundancy license',e.redMult>1?'Yes':'No',`${state.project.redundancy}`],
+    ['Reporting / alarms','Included','ISA-18.2 alarm mgmt']];
+  const tbl=el('table','sched');tbl.innerHTML=`<thead><tr><th>Component</th><th>Tier / Qty</th><th>Basis</th></tr></thead>`;
+  const tb=el('tbody');rows.forEach(r=>tb.appendChild(el('tr',null,`<td>${r[0]}</td><td class="tag">${r[1]}</td><td class="dim">${r[2]}</td>`)));tbl.appendChild(tb);
+  body.appendChild(el('div','filterbar',`<span class="sum">Cross-referenced from <b>${e.tags.toLocaleString()}</b> generated tags (Module III.2)</span>`));
+  body.appendChild(tbl);
+}
+function renderRev(body){
+  const tbl=el('table','sched');tbl.innerHTML=`<thead><tr><th>Time</th><th>Action</th><th>Class</th></tr></thead>`;
+  const tb=el('tbody');state.audit.forEach(a=>tb.appendChild(el('tr',null,`<td class="dim">${a.t}</td><td>${esc(a.a)}</td><td class="${a.k==='del'?'r':a.k==='cfg'?'a':'g'}">${a.k.toUpperCase()}</td>`)));tbl.appendChild(tb);
+  body.appendChild(el('div','filterbar',`<span class="sum">ISO-9001 design history · <b>${state.audit.length}</b> tracked revisions</span>`));
+  body.appendChild(tbl);
+}
+function setDock(k){state.dock=k;state.dockSort=null;state.dockDir=1;document.body.classList.remove('dock-min');
+  $$('.rail-ic[data-dock]').forEach(x=>x.classList.toggle('on',x.dataset.dock===k));renderDock();}
+
+/* ═══════════ INTERACTIONS ═══════════════════════════════════════ */
+function selectNode(id){state.sel=id;state.drill=null;renderTop();renderTree();renderCanvas();renderPvNode();renderDock();setPv('node');}
+function setPv(name){$$('.ptab').forEach(t=>t.classList.toggle('on',t.dataset.pv===name));$$('.pv').forEach(p=>p.classList.remove('on'));
+  $('#pv'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('on');}
+function adjustIO(id,key,delta){const n=state.nodes.find(x=>x.id===id);if(!n)return;const step={di:2,do:2,ai:1,ao:1}[key];
+  n.io[key]=Math.max(0,n.io[key]+delta*step);pushUndo();logAudit(`${n.tag}: ${key.toUpperCase()} → ${n.io[key]}`,'cfg');
+  renderTop();renderPvNode();renderPvSys();renderCstats();renderCanvas();renderTree();renderDock();toast('I/O','Point count updated — schedules re-mapped.');}
+function deleteNode(id){const n=state.nodes.find(x=>x.id===id);if(!n)return;pushUndo();
+  state.nodes=state.nodes.filter(x=>x.id!==id);state.links=state.links.filter(l=>l.a!==id&&l.b!==id);
+  if(state.sel===id)state.sel=state.nodes[0]?.id||null;logAudit(`Deleted ${n.tag} (${n.name})`,'del');renderAll();toast('Removed',`${n.tag} deleted.`,'warn');}
+let linking=null;
+function startLink(id){linking=id;toast('Link mode','Click another node to route. Esc cancels.');$('#canvas').style.cursor='crosshair';}
+function finishLink(id){if(!linking||linking===id){linking=null;$('#canvas').style.cursor='';return;}
+  const a=state.nodes.find(n=>n.id===linking),b=state.nodes.find(n=>n.id===id);
+  const layer=[TYPES[a.type].system,TYPES[b.type].system].includes('power')?'power':
+    [TYPES[a.type].system,TYPES[b.type].system].includes('cooling')?'cooling':
+    [TYPES[a.type].system,TYPES[b.type].system].includes('safety')?'safety':'network';
+  if(!state.links.some(l=>(l.a===linking&&l.b===id)||(l.a===id&&l.b===linking))){pushUndo();state.links.push({a:linking,b:id,layer});
+    logAudit(`Routed ${a.tag} ▸ ${b.tag} (${SYS[layer].label})`,'add');}
+  linking=null;$('#canvas').style.cursor='';renderCanvas();renderLegend();renderDock();}
+function makeDraggable(dom,n){let sx,sy,ox,oy,moved;
+  const down=e=>{if(linking){finishLink(n.id);return;}e.preventDefault();sx=e.clientX;sy=e.clientY;ox=n.nx;oy=n.ny;moved=false;
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);};
+  const move=e=>{const box=$('#canvas').getBoundingClientRect();const dx=(e.clientX-sx)/box.width,dy=(e.clientY-sy)/box.height;
+    if(Math.abs(dx)+Math.abs(dy)>.004)moved=true;n.nx=clamp(ox+dx,.04,.96);n.ny=clamp(oy+dy,.05,.95);
+    dom.style.left=(n.nx*100)+'%';dom.style.top=(n.ny*100)+'%';if(state.sel===n.id){positionReticle();positionBubble();}drawLinks(null);};
+  const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);
+    if(moved){pushUndo();logAudit(`Moved ${n.tag}`,'cfg');}};
+  dom.addEventListener('pointerdown',down);}
+
+/* ═══════════ INTAKE (questionnaire) ═════════════════════════════ */
+const VERTICALS=['Data Center / Mission Critical','Water / Wastewater','Food & Beverage','Discrete Mfg','Power / Utility','Oil & Gas'];
+const REDUN=['Simplex','Dual-Hot Standby','TMR (Triple Modular)'];
+const NETS=['Star','Ring','Mesh','Air-gapped'];
+const HAZ=['General Purpose','Washdown / Wet','Class I Div 1','Class I Div 2'];
+const SVC=['13.8kV → 480V','34.5kV → 480V','480V direct','208V / 120V'];
+let intakeSel={};
+function openIntake(){
+  const P=state.project;intakeSel={};state.nodes.forEach(n=>intakeSel[n.type]=(intakeSel[n.type]||0)+n.qty);
+  const groups={};Object.entries(TYPES).forEach(([k,t])=>{(groups[t.system]=groups[t.system]||[]).push([k,t]);});
+  const lib=Object.entries(SYS).filter(([s])=>groups[s]).map(([s,meta])=>`
+    <div class="tgroup"><div class="tgh"><span class="sd" style="background:${meta.color}"></span>${meta.label}</div>
+    <div class="nodepick">${groups[s].map(([k,t])=>`<div class="npk ${intakeSel[k]?'on':''}" data-type="${k}">${ICON[t.icon]}
+      <div class="nm">${t.label}</div><div class="io">${t.di+t.do+t.ai+t.ao} I/O${t.kw?' · '+(t.kw>=1000?(t.kw/1000)+'MW':t.kw+'kW'):''}</div>
+      <div class="qty">×<input type="number" min="1" value="${intakeSel[k]||1}" data-q="${k}"></div></div>`).join('')}</div></div>`).join('');
+  $('#modal').innerHTML=`
+    <div class="modal-h"><span class="cube">◈</span><div><h2>Project Intake</h2><p>MODULE I · GENERATIVE INTAKE & ASSUMPTIONS ENGINE</p></div><span class="x" id="mx">✕</span></div>
+    <div class="modal-b">
+      <div class="two"><div class="fld"><label>Project name</label><input type="text" id="qName" value="${esc(P.name)}" placeholder="Greenfield DC SCADA"></div>
+        <div class="fld"><label>Facility footprint</label><input type="text" id="qFoot" value="${esc(P.footprint)}" placeholder="220,000 sq ft"></div></div>
+      <div class="fld"><label>Industry vertical</label><div class="chips" id="qVert">${VERTICALS.map(x=>`<div class="chip ${P.vertical===x?'on':''}" data-v="${x}">${x}</div>`).join('')}</div></div>
+      <div class="three">
+        <div class="fld"><label>Redundancy</label><select id="qRed">${REDUN.map(x=>`<option ${P.redundancy===x?'selected':''}>${x}</option>`).join('')}</select></div>
+        <div class="fld"><label>Network</label><select id="qNet">${NETS.map(x=>`<option ${P.network===x?'selected':''}>${x}</option>`).join('')}</select></div>
+        <div class="fld"><label>Electrical service</label><select id="qSvc">${SVC.map(x=>`<option ${P.service===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      </div>
+      <div class="fld"><label>Hazardous area classification</label><select id="qHaz">${HAZ.map(x=>`<option ${P.hazardous===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="fld"><label>Equipment families (the engine infers I/O density, electrical load & cost per family)</label>
+        <div class="tlib" id="qNodes">${lib}</div></div>
+    </div>
+    <div class="modal-f"><div class="note">ISA-95 baseline + 20% spare I/O. Electrical, panel, cable & cost schedules regenerate from the selected families.</div>
+      <button class="tbtn" id="mCancel">CANCEL</button><button class="tbtn pri" id="mGen">◈ GENERATE</button></div>`;
+  $('#scrim').classList.add('on');$('#mx').onclick=$('#mCancel').onclick=closeModal;
+  $$('#qVert .chip').forEach(c=>c.onclick=()=>{$$('#qVert .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');});
+  $$('#qNodes .npk').forEach(card=>card.onclick=e=>{if(e.target.tagName==='INPUT')return;card.classList.toggle('on');const k=card.dataset.type;
+    if(card.classList.contains('on'))intakeSel[k]=intakeSel[k]||+$(`[data-q="${k}"]`,card).value||1;else delete intakeSel[k];});
+  $$('#qNodes input[data-q]').forEach(inp=>inp.oninput=()=>{intakeSel[inp.dataset.q]=Math.max(1,+inp.value||1);});
+  $('#mGen').onclick=generateFromIntake;
+}
+function closeModal(){$('#scrim').classList.remove('on');}
+function generateFromIntake(){
+  const P=state.project;P.name=($('#qName').value||'Untitled Project').toUpperCase();P.footprint=$('#qFoot').value||'—';
+  const vv=$('#qVert .chip.on');P.vertical=vv?vv.dataset.v:VERTICALS[0];P.redundancy=$('#qRed').value;P.network=$('#qNet').value;
+  P.service=$('#qSvc').value;P.hazardous=$('#qHaz').value;
+  const picked=Object.entries(intakeSel).filter(([k,q])=>q>0);
+  pushUndo();
+  if(picked.length){state.nodes=[];state.links=[];const counts={};const n=picked.length;
+    picked.forEach(([type,qty],idx)=>{const T=TYPES[type];const a=(idx/n)*Math.PI*2-Math.PI/2;
+      const nx=clamp(0.5+Math.cos(a)*0.32,0.1,0.9),ny=clamp(0.5+Math.sin(a)*0.30,0.13,0.87);
+      counts[T.short]=(counts[T.short]||0)+1;const tag=`${T.short}-${String(counts[T.short]).padStart(2,'0')}`;
+      state.nodes.push({id:uid(),type,name:T.label.toUpperCase(),tag,nx,ny,qty:+qty,io:baseIO(type,+qty),drill:false});});
+    autoRoute();
+    const hub=state.nodes.find(n=>['compute','process'].includes(TYPES[n.type].system))||state.nodes[0];
+    state.sel=hub?hub.id:null;logAudit(`Generated ${state.nodes.length} families across ${new Set(state.nodes.map(n=>TYPES[n.type].system)).size} systems`,'add');}
+  closeModal();renderAll();toast('Generated',`${state.nodes.length} nodes · full schedules built.`);
+}
+function autoRoute(){const by=s=>state.nodes.filter(n=>TYPES[n.type].system===s);
+  const hub=by('compute')[0]||by('process')[0]||state.nodes[0];const link=(a,b,l)=>{if(a&&b&&a!==b&&!state.links.some(x=>(x.a===a&&x.b===b)||(x.a===b&&x.b===a)))state.links.push({a,b,layer:l});};
+  by('power').forEach(p=>hub&&link(p.id,hub.id,'power'));
+  by('cooling').forEach(c=>hub&&link(c.id,hub.id,'cooling'));
+  const ctrl=state.nodes.find(n=>TYPES[n.type].system==='control');
+  if(ctrl)state.nodes.filter(n=>ioTotal(n.io)>0&&n.id!==ctrl.id).slice(0,8).forEach(n=>link(ctrl.id,n.id,'control'));
+  by('network').forEach(s=>ctrl&&link(s.id,ctrl.id,'network'));
+  by('safety').forEach(s=>hub&&link(s.id,hub.id,'safety'));}
+
+function addNode(type){const T=TYPES[type],count=state.nodes.filter(n=>n.type===type).length+1;pushUndo();
+  const node={id:uid(),type,name:T.label.toUpperCase(),tag:`${T.short}-${String(count).padStart(2,'0')}`,
+    nx:.5+(Math.random()-.5)*.1,ny:.5+(Math.random()-.5)*.1,qty:1,io:baseIO(type),drill:false};
+  state.nodes.push(node);state.sel=node.id;logAudit(`Added ${node.tag} (${node.name})`,'add');renderAll();toast('Added',`${node.tag} placed.`);}
+function renderPalette(){const p=$('#palette');const quick=['server_hall','chiller','crah','ups','pdu','chw_pump','pump_vfd','valve_ctrl','core_switch','plc_panel','facp'];
+  p.innerHTML=quick.map(k=>`<button class="pchip" data-add="${k}">${ICON[TYPES[k].icon]}<span>${TYPES[k].label}</span></button>`).join('');
+  $$('.pchip',p).forEach(b=>b.onclick=()=>addNode(b.dataset.add));}
+
+/* ═══════════ EXPORTS ═══════════════════════════════════════════ */
+function toCSV(rows,cols){return [cols.map(c=>`"${c[1]}"`).join(',')].concat(rows.map(r=>cols.map(c=>`"${String(r[c[0]]).replace(/"/g,'""')}"`).join(','))).join('\n');}
+function download(fn,data,mime){const b=new Blob([data],{type:mime}),u=URL.createObjectURL(b),a=el('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);}
+function exportDock(){
+  const base=(state.project.name||'dcsketch').replace(/[^a-z0-9]+/gi,'_').toLowerCase();
+  if(state.dock==='bom'){const e=estimate();const cols=[['grp','Group'],['item','Item'],['qty','Qty'],['unit','Unit'],['mat','Material'],['labHrs','LaborHrs'],['lab','Labor$']];
+    download(base+'_bom.csv',toCSV(e.lines.map(l=>({...l,mat:Math.round(l.mat),lab:Math.round(l.lab),labHrs:Math.round(l.labHrs||0)})),cols),'text/csv');}
+  else if(['lic','rev'].includes(state.dock)){toast('Export','Use BOM/schedule tabs for CSV; this view is summary-only.');return;}
+  else{const D=DOCKS[state.dock];download(base+'_'+state.dock+'.csv',toCSV(D.build(),D.cols),'text/csv');}
+  logAudit(`Exported ${DOCKS[state.dock].label} (CSV)`,'cfg');toast('Export',`${DOCKS[state.dock].label} downloaded.`);
+}
+function exportMenu(){
+  $('#modal').innerHTML=`<div class="modal-h"><span class="cube">⤓</span><div><h2>Export</h2><p>PLATFORM-AGNOSTIC OUTPUT</p></div><span class="x" id="mx">✕</span></div>
+    <div class="modal-b"><div class="nodepick">
+      <div class="npk on" data-x="io"><div class="nm">I/O List</div><div class="io">point-level .CSV</div></div>
+      <div class="npk on" data-x="load"><div class="nm">Load Schedule</div><div class="io">electrical .CSV</div></div>
+      <div class="npk on" data-x="cable"><div class="nm">Cable Schedule</div><div class="io">.CSV</div></div>
+      <div class="npk on" data-x="bom"><div class="nm">BOM & Costing</div><div class="io">.CSV</div></div>
+      <div class="npk on" data-x="json"><div class="nm">Full Project</div><div class="io">.JSON</div></div>
+      <div class="npk on" data-x="pdf"><div class="nm">Print / PDF</div><div class="io">design sheet</div></div>
+    </div></div>`;
+  $('#scrim').classList.add('on');$('#mx').onclick=closeModal;
+  $$('#modal .npk').forEach(c=>c.onclick=()=>{const x=c.dataset.x;closeModal();
+    if(x==='json'){download((state.project.name||'dcsketch').replace(/[^a-z0-9]+/gi,'_').toLowerCase()+'.json',JSON.stringify({project:state.project,rates:state.rates,nodes:state.nodes,links:state.links,estimate:estimate()},null,2),'application/json');toast('Export','Project .json saved.');}
+    else if(x==='pdf')window.print();
+    else{setDock(x);exportDock();}});
+}
+
+/* ═══════════ TOASTS ════════════════════════════════════════════ */
+function toast(head,body,kind){const t=$('#toast');const c=el('div','toastcard'+(kind?' '+kind:''),`<span class="x">✕</span><div class="th">${head}</div>${body}`);
+  t.appendChild(c);$('.x',c).onclick=()=>c.remove();setTimeout(()=>{c.style.transition='opacity .4s';c.style.opacity='0';setTimeout(()=>c.remove(),400);},4000);
+  while(t.children.length>3)t.firstChild.remove();}
+
+/* ═══════════ WIRING ════════════════════════════════════════════ */
+function wire(){
+  $('#btnSave').onclick=saveJSON;
+  $('#btnUndo').onclick=()=>{if(!undoStack.length)return;redoStack.push(snapshot());restore(undoStack.pop());refreshUndo();toast('Undo','Reverted.');};
+  $('#btnRedo').onclick=()=>{if(!redoStack.length)return;undoStack.push(snapshot());restore(redoStack.pop());refreshUndo();};
+  $('#btnQuest').onclick=openIntake;$('#btnExport').onclick=exportMenu;
+  $$('.rail-ic').forEach(ic=>ic.onclick=()=>{
+    if(ic.dataset.dock)setDock(ic.dataset.dock);
+    if(ic.dataset.act==='tree')document.body.classList.toggle('hidetree');
+    if(ic.dataset.act==='fit')fitView();
+    if(ic.dataset.act==='settings'){setPv('params');}
+  });
+  $$('.ptab').forEach(t=>t.onclick=()=>setPv(t.dataset.pv));
+  $$('#cbar .cbtn').forEach(b=>b.onclick=()=>{if(b.dataset.act==='fit')fitView();if(b.dataset.act==='add')addNode('crah');});
+  $$('.dtool').forEach(b=>b.onclick=()=>{const t=b.dataset.dtool;
+    if(t==='csv')exportDock();
+    if(t==='min')document.body.classList.toggle('dock-min');
+    if(t==='max')document.body.classList.toggle('dock-max');});
+  $('#canvas').addEventListener('pointerdown',e=>{
+    if(e.target.closest('.node,#bubble,#legend,#palette,#cbar,#crumb,#cstats'))return;
+    if(linking){linking=null;$('#canvas').style.cursor='';toast('Cancelled','');return;}
+    if(state.drill){state.drill=null;renderCanvas();return;}
+    state.sel=null;renderTop();renderCanvas();renderPvNode();renderDock();});
+  window.addEventListener('keydown',e=>{
+    if($('#scrim').classList.contains('on')){if(e.key==='Escape')closeModal();return;}
+    if(e.target.tagName==='INPUT')return;
+    if(e.key==='Escape'){if(openMenu!=null){renderMenus(null);}else if(linking){linking=null;$('#canvas').style.cursor='';}else if(state.drill){state.drill=null;renderCanvas();}else{state.sel=null;renderCanvas();renderPvNode();renderTop();}}
+    if((e.key==='z'||e.key==='Z')&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('#btnUndo').click();}
+    if(e.key==='Delete'&&selNode())deleteNode(state.sel);
+    if(/^[1-7]$/.test(e.key)){const legs=$$('#legend .leg'),i=+e.key-1;if(legs[i])legs[i].click();}});
+  new ResizeObserver(()=>drawLinks(state.drill?state.nodes.find(n=>n.id===state.drill):null)).observe($('#canvas'));
+}
+function fitView(){if(!state.nodes.length)return;const xs=state.nodes.map(n=>n.nx),ys=state.nodes.map(n=>n.ny);
+  const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
+  const cx=(minx+maxx)/2,cy=(miny+maxy)/2,s=Math.min(0.76/Math.max(.2,maxx-minx),0.76/Math.max(.2,maxy-miny),1.7);
+  state.nodes.forEach(n=>{n.nx=clamp(0.5+(n.nx-cx)*s,.06,.94);n.ny=clamp(0.5+(n.ny-cy)*s,.07,.93);});renderCanvas();toast('View','Fit to canvas.');}
+
+/* ═══════════ APPLICATION MENU BAR ═══════════════════════════════ */
+const fileBase=()=>(state.project.name||'dcsketch').replace(/[^a-z0-9]+/gi,'_').toLowerCase();
+function saveJSON(){download(fileBase()+'.json',JSON.stringify({project:state.project,rates:state.rates,nodes:state.nodes,links:state.links},null,2),'application/json');toast('Saved','Project .json downloaded.');}
+function saveAsTemplate(){download(fileBase()+'_template.json',JSON.stringify({project:state.project,nodes:state.nodes.map(n=>({t:n.type,tag:n.tag,name:n.name,x:+n.nx.toFixed(3),y:+n.ny.toFixed(3),q:n.qty,b:n.blurb||''})),links:state.links.map(l=>{const a=state.nodes.find(n=>n.id===l.a),b=state.nodes.find(n=>n.id===l.b);return[a&&a.tag,b&&b.tag,l.layer];}).filter(x=>x[0]&&x[1])},null,2),'application/json');toast('Template saved','Reusable template .json downloaded.');}
+function importJSON(){const inp=el('input');inp.type='file';inp.accept='.json,application/json';
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{const d=JSON.parse(r.result);
+      if(d.nodes&&d.nodes[0]&&d.nodes[0].t&&!d.nodes[0].id){loadTemplate(d);return;} // template form
+      if(!d.nodes)throw 0;pushUndo();
+      state.project=Object.assign({description:''},d.project||state.project);state.rates=Object.assign({...RATES},d.rates||{});
+      state.nodes=d.nodes;state.links=d.links||[];state.sel=state.nodes[0]?.id||null;state.drill=null;
+      logAudit('Imported project '+(state.project.name||''),'add');renderAll();toast('Imported',`${state.nodes.length} nodes loaded.`);}
+      catch(e){toast('Import failed','Not a valid DCSketch project file.','err');}};
+    r.readAsText(f);};inp.click();}
+function duplicateNode(){const s=selNode();if(!s){toast('Edit','Select a node first.');return;}pushUndo();
+  const T=TYPES[s.type],count=state.nodes.filter(n=>n.type===s.type).length+1;
+  const n={id:uid(),type:s.type,name:s.name,tag:`${T.short}-${String(count).padStart(2,'0')}`,nx:clamp(s.nx+0.04,.05,.95),ny:clamp(s.ny+0.05,.05,.95),qty:s.qty,io:{...s.io},blurb:s.blurb||'',drill:false};
+  state.nodes.push(n);state.sel=n.id;logAudit(`Duplicated ${s.tag} → ${n.tag}`,'add');renderAll();toast('Duplicated',n.tag);}
+function exportAllSchedules(){
+  const parts=[`# DCSketch — ${state.project.name||'project'} — all schedules`,''];
+  [['I/O LIST',DOCKS.io],['INSTRUMENT INDEX',DOCKS.instr],['LOAD SCHEDULE',DOCKS.load],['PANEL SCHEDULE',DOCKS.panel],['CABLE SCHEDULE',DOCKS.cable]]
+    .forEach(([title,D])=>{parts.push('# '+title,toCSV(D.build(),D.cols),'');});
+  const e=estimate();
+  parts.push('# BOM & COSTING',toCSV(e.lines.map(l=>({...l,mat:Math.round(l.mat),lab:Math.round(l.lab),labHrs:Math.round(l.labHrs||0)})),[['grp','Group'],['item','Item'],['qty','Qty'],['unit','Unit'],['mat','Material'],['labHrs','LaborHrs'],['lab','Labor$']]),'');
+  parts.push('# COST ROLLUP',`"Material","${Math.round(e.mat)}"\n"Labor","${Math.round(e.lab)}"\n"Freight","${Math.round(e.freight)}"\n"Contingency","${Math.round(e.contingency)}"\n"Markup","${Math.round(e.markup)}"\n"Tax","${Math.round(e.tax)}"\n"TOTAL INSTALLED","${Math.round(e.total)}"`);
+  download(fileBase()+'_all_schedules.csv',parts.join('\n'),'text/csv');
+  logAudit('Exported all schedules (CSV bundle)','cfg');toast('Export','All schedules exported to one CSV.');}
+function aboutModal(){$('#modal').innerHTML=`<div class="modal-h"><span class="cube">◈</span><div><h2>DCSketch</h2><p>SCADA / DCS ARCHITECTURE & ESTIMATION WORKBENCH</p></div><span class="x" id="mx">✕</span></div>
+  <div class="modal-b" style="font-size:13px;line-height:1.6;color:var(--ink-dim)">
+   <p style="margin-bottom:10px">A data-dense planning tool that turns a generative intake into a spatial control-system architecture, point-level I/O, electrical load / panel / cable schedules, and a full line-item hardware + labor + licensing estimate — platform-agnostic, with vendor translation to Allen-Bradley / Siemens.</p>
+   <div class="plabel" style="color:var(--holo-dim)">Spec modules</div>
+   <p>· <b style="color:var(--holo)">Module I</b> — Generative Intake &amp; Assumptions Engine (ISA-95 baseline + 20% spare)<br>· <b style="color:var(--holo)">Module II</b> — Spatial / Visual Editor (system-grouped canvas, fractal I/O drill-in)<br>· <b style="color:var(--holo)">Module III</b> — Platform-Agnostic Estimation (BOM, licensing, vendor matrix)</p>
+   <div class="plabel" style="color:var(--holo-dim)">Worked examples</div>
+   <p>Hyperscale data center · 40 MGD surface-water treatment plant · regional theme park — each fully specced with realistic subsystems &amp; design notes. Load them from <b style="color:var(--holo)">File ▸ Open Example</b>.</p>
+  </div><div class="modal-f"><button class="tbtn pri" id="mok">CLOSE</button></div>`;
+  $('#scrim').classList.add('on');$('#mx').onclick=$('#mok').onclick=closeModal;}
+function shortcutsModal(){const rows=[['Esc','Deselect / exit drill / cancel link / close menu'],['⌘ / Ctrl + Z','Undo'],['Del','Delete selected node'],['1 – 9','Toggle a system layer'],['Double-click node','Drill into its I/O rack'],['Drag node','Reposition (links auto-reroute)']];
+  $('#modal').innerHTML=`<div class="modal-h"><span class="cube">⌨</span><div><h2>Keyboard Shortcuts</h2></div><span class="x" id="mx">✕</span></div>
+   <div class="modal-b"><table class="sched" style="width:100%"><tbody>${rows.map(r=>`<tr><td class="tag" style="width:150px">${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody></table></div>
+   <div class="modal-f"><button class="tbtn pri" id="mok">CLOSE</button></div>`;
+  $('#scrim').classList.add('on');$('#mx').onclick=$('#mok').onclick=closeModal;}
+function insertGroups(){const groups={};Object.entries(TYPES).forEach(([k,t])=>{(groups[t.system]=groups[t.system]||[]).push([k,t]);});
+  return Object.entries(SYS).filter(([s])=>groups[s]).map(([s,meta])=>({t:meta.label,ic:'▸',sub:groups[s].map(([k,t])=>({t:t.label,ic:'+',a:()=>addNode(k)}))}));}
+function MENUS(){return[
+ {label:'File',items:[
+   {t:'New Project',ic:'✧',a:newProject},
+   {t:'Open Example',ic:'▤',sub:[
+     {t:'Hyperscale Data Center',cls:'tpl',tpl:true,ic:'◈',desc:'30 MW · 2 halls · 22 nodes',a:()=>loadTemplate(TPL.datacenter())},
+     {t:'Municipal Water Treatment',cls:'tpl',tpl:true,ic:'◈',desc:'40 MGD surface-water · 24 nodes',a:()=>loadTemplate(TPL.water())},
+     {t:'Regional Theme Park',cls:'tpl',tpl:true,ic:'◈',desc:'85-acre · rides/show/water · 26 nodes',a:()=>loadTemplate(TPL.themepark())},
+   ]},
+   {t:'Project Intake…',ic:'◈',a:openIntake},
+   {sep:true},
+   {t:'Import Project / Template…',ic:'⤒',a:importJSON},
+   {t:'Save Project (JSON)',ic:'⤓',a:saveJSON},
+   {t:'Save as Template…',ic:'★',a:saveAsTemplate},
+   {sep:true},
+   {t:'Print / PDF…',ic:'⎙',a:()=>window.print()},
+ ]},
+ {label:'Edit',items:[
+   {t:'Undo',ic:'↶',k:'⌘Z',a:()=>$('#btnUndo').click()},
+   {t:'Redo',ic:'↷',a:()=>$('#btnRedo').click()},
+   {sep:true},
+   {t:'Delete Node',ic:'✕',k:'Del',a:()=>selNode()?deleteNode(state.sel):toast('Edit','Select a node first.')},
+   {t:'Duplicate Node',ic:'⧉',a:duplicateNode},
+   {t:'Route Link from Node',ic:'⤳',a:()=>selNode()?startLink(state.sel):toast('Edit','Select a node first.')},
+   {sep:true},
+   {t:'Clear All',ic:'␡',a:newProject},
+ ]},
+ {label:'View',items:[
+   {t:'Fit to View',ic:'⤢',a:fitView},
+   {t:'Toggle Tree Panel',ic:'▤',a:()=>document.body.classList.toggle('hidetree')},
+   {t:'Toggle Right Panel',ic:'▥',a:()=>document.body.classList.toggle('hidepanel')},
+   {t:'Collapse / Expand Dock',ic:'▦',a:()=>document.body.classList.toggle('dock-min')},
+   {t:'Maximize Dock',ic:'⛶',a:()=>document.body.classList.toggle('dock-max')},
+   {sep:true},{hd:'Systems / layers'},
+   ...Object.keys(SYS).map(s=>({t:SYS[s].label,ic:'●',check:()=>!state.sysOff.has(s),a:()=>{state.sysOff.has(s)?state.sysOff.delete(s):state.sysOff.add(s);renderCanvas();renderLegend();}})),
+ ]},
+ {label:'Insert',items:[{hd:'Add equipment'},...insertGroups(),{sep:true},
+   {t:'Route Link',ic:'⤳',a:()=>selNode()?startLink(state.sel):toast('Insert','Select a node first.')}]},
+ {label:'Schedules',items:Object.entries(DOCKS).map(([k,d])=>({t:d.label,ic:'▤',a:()=>setDock(k)}))},
+ {label:'Estimate',items:[
+   {t:'Recalculate',ic:'∑',a:()=>{renderAll();toast('Estimate','Recalculated.');}},
+   {t:'Estimation Rates…',ic:'✎',a:()=>setPv('params')},
+   {t:'View BOM & Costing',ic:'▤',a:()=>setDock('bom')},
+   {sep:true},{hd:'Vendor catalog'},
+   ...Object.entries(VENDORS).map(([k,l])=>({t:l,ic:'●',check:()=>state.vendor===k,a:()=>{state.vendor=k;renderPvVendor();setPv('vendor');}})),
+   {sep:true},{hd:'Redundancy'},
+   ...REDUN.map(r=>({t:r,ic:'●',check:()=>state.project.redundancy===r,a:()=>{state.project.redundancy=r;logAudit('Redundancy → '+r,'cfg');renderAll();}})),
+ ]},
+ {label:'Export',items:[
+   {t:'I/O List (CSV)',ic:'⤓',a:()=>{setDock('io');exportDock();}},
+   {t:'Load Schedule (CSV)',ic:'⤓',a:()=>{setDock('load');exportDock();}},
+   {t:'Panel Schedule (CSV)',ic:'⤓',a:()=>{setDock('panel');exportDock();}},
+   {t:'Cable Schedule (CSV)',ic:'⤓',a:()=>{setDock('cable');exportDock();}},
+   {t:'BOM & Costing (CSV)',ic:'⤓',a:()=>{setDock('bom');exportDock();}},
+   {sep:true},
+   {t:'All Schedules (CSV bundle)',ic:'⤓',a:exportAllSchedules},
+   {t:'Full Project (JSON)',ic:'⤓',a:saveJSON},
+   {t:'Design Sheet (PDF)',ic:'⎙',a:()=>window.print()},
+ ]},
+ {label:'Help',items:[{t:'About DCSketch',ic:'ⓘ',a:aboutModal},{t:'Keyboard Shortcuts',ic:'⌨',a:shortcutsModal}]},
+];}
+let openMenu=null;
+function renderMenus(openIdx){
+  const bar=$('#menubar');bar.querySelectorAll('.menu').forEach(m=>m.remove());
+  MENUS().forEach((m,i)=>{
+    const menu=el('div','menu'+(i===openIdx?' open':''));
+    const mt=el('div','mt',m.label);menu.appendChild(mt);
+    const drop=el('div','mdrop');m.items.forEach(it=>drop.appendChild(renderMenuItem(it)));menu.appendChild(drop);
+    mt.onclick=e=>{e.stopPropagation();renderMenus(openIdx===i?null:i);};
+    mt.onmouseenter=()=>{if(openMenu!=null&&openMenu!==i)renderMenus(i);};
+    bar.appendChild(menu);
+  });
+  openMenu=openIdx;
+}
+function renderMenuItem(it){
+  if(it.sep)return el('div','msep');
+  if(it.hd)return el('div','mhd',it.hd);
+  const row=el('div','mitem'+(it.sub?' has-sub':'')+(it.cls?' '+it.cls:''));
+  const tail=it.sub?'<span class="ar">▸</span>':it.k?`<span class="k">${it.k}</span>`:(it.check?`<span class="k">${it.check()?'✓':''}</span>`:'');
+  row.innerHTML=`<span class="mic">${it.ic||''}</span>${it.tpl?`<span class="tname"><b>${it.t}</b><span class="desc">${it.desc||''}</span></span>`:it.t}${tail}`;
+  if(it.sub){const sub=el('div','msub');it.sub.forEach(s=>sub.appendChild(renderMenuItem(s)));row.appendChild(sub);}
+  else if(it.a)row.onclick=e=>{e.stopPropagation();renderMenus(null);it.a();};
+  return row;
+}
+
+/* ═══════════ BOOT ═════════════════════════════════════════════ */
+document.addEventListener('click',()=>{if(openMenu!=null)renderMenus(null);});
+seed();renderPalette();renderMenus(null);wire();renderAll();refreshUndo();
+setTimeout(()=>toast('I/O validation complete',`${buildIO().length} points mapped · ${estimate().totalCards} cards.`),700);
+setTimeout(()=>toast('Tip','Sort/filter any schedule below; double-click a node to drill its rack.'),2800);
+</script>
+</body>
+</html>
