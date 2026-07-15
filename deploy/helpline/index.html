@@ -287,9 +287,63 @@ input[type=file] { display: none; }
   .logo-card { margin: 20px 0 0 20px; padding: 14px 22px; }
   .logo-card img { height: 48px; }
 }
+
+/* ── Consent gate (hold-harmless acknowledgment) ── */
+.consent-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(10,14,25,0.6);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; overflow-y: auto;
+}
+.consent-card {
+  background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(20,30,60,0.3);
+  max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto;
+  padding: 28px 30px 26px;
+}
+.consent-card h2 { font-size: 1.35rem; font-weight: 700; color: #1a1a2e; margin: 0 0 12px; }
+.consent-body { font-size: 0.86rem; color: #26303c; line-height: 1.5; }
+.consent-body p { margin: 0 0 10px; }
+.consent-body ul { margin: 0 0 10px; padding-left: 20px; }
+.consent-body li { margin-bottom: 6px; }
+.consent-check-row { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0 18px; }
+.consent-check-row input[type=checkbox] { margin-top: 3px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+.consent-check-row label { font-size: 0.85rem; color: #1a1a2e; font-weight: 600; line-height: 1.4; cursor: pointer; }
+.consent-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.consent-actions .call-btn { width: 100%; text-align: center; }
+.consent-actions .call-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.consent-decline { font-size: 0.8rem; color: #6b7280; text-decoration: none; }
+.consent-decline:hover { text-decoration: underline; }
+
+@media (max-width: 640px) {
+  .consent-card { padding: 22px 20px 20px; }
+}
 </style>
 </head>
 <body>
+
+<div class="consent-overlay" id="consentOverlay">
+  <div class="consent-card">
+    <h2>Before You Continue</h2>
+    <div class="consent-body">
+      <p>BlueVector Helpline provides remote, AI-assisted diagnostic guidance for control panels and industrial equipment. It is not a substitute for a licensed electrician and does not replace in-person inspection by a qualified professional.</p>
+      <p>By checking the box below and continuing, you acknowledge and agree that:</p>
+      <ul>
+        <li>You are solely responsible for following proper lock-out/tag-out procedures and de-energizing equipment before any physical inspection, testing, or repair.</li>
+        <li>The AI diagnostician's analysis, highlighted components, and any spoken or written guidance are suggestions only, may be incorrect or incomplete, and must be independently verified by a qualified person before you act on them.</li>
+        <li>You assume all risk associated with inspecting, testing, or repairing electrical equipment, and you release and hold harmless BlueVector, its officers, employees, and agents from any and all claims, damages, injuries, or losses &mdash; including death &mdash; arising from or related to your use of this service.</li>
+        <li>Calls may be recorded and per-minute billing applies as described on this page.</li>
+      </ul>
+    </div>
+    <div class="consent-check-row">
+      <input type="checkbox" id="consentCheck">
+      <label for="consentCheck">I have read, understood, and agree to the above, and I release BlueVector Helpline from liability for any damage or injury.</label>
+    </div>
+    <div class="consent-actions">
+      <button type="button" class="call-btn" id="consentContinue" disabled>Continue to Helpline</button>
+      <a class="consent-decline" href="../">I don't agree &mdash; take me back</a>
+    </div>
+  </div>
+</div>
 
 <div class="blueprint-bg">
   <svg class="bp-grid" xmlns="http://www.w3.org/2000/svg">
@@ -469,6 +523,24 @@ input[type=file] { display: none; }
 <div class="back-link"><a href="../">&larr; Back to BlueVector.com</a></div>
 
 <script>
+/* ============================================================
+   Consent gate — hold-harmless acknowledgment, must run first
+   and block interaction with the rest of the page until agreed.
+   ============================================================ */
+(function(){
+  var CONSENT_KEY = "bv_helpline_consent";
+  var overlay = document.getElementById("consentOverlay");
+  var check = document.getElementById("consentCheck");
+  var cont = document.getElementById("consentContinue");
+  if (sessionStorage.getItem(CONSENT_KEY) === "1"){ overlay.style.display = "none"; return; }
+  check.addEventListener("change", function(){ cont.disabled = !check.checked; });
+  cont.addEventListener("click", function(){
+    if (!check.checked) return;
+    sessionStorage.setItem(CONSENT_KEY, "1");
+    overlay.style.display = "none";
+  });
+})();
+
 /* ============================================================
    BlueVector Helpline — splash + Vapi wiring.
    Fill these in to go live; everything degrades gracefully.
