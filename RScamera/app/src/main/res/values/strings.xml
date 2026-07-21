@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">RScamera</string>
+    <string name="color_preview_desc">Color stream preview</string>
+    <string name="depth_preview_desc">Depth stream preview (colorized)</string>
+    <string name="status_waiting_for_device">Waiting for RealSense D415…</string>
+    <string name="status_permission_requested">USB permission requested…</string>
+    <string name="status_permission_denied">USB permission denied</string>
+    <string name="status_streaming">Streaming</string>
+    <string name="status_disconnected">Device disconnected</string>
+    <string name="status_pipeline_error">Pipeline error: %1$s</string>
+</resources>
