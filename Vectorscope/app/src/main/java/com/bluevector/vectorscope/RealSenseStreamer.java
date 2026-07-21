@@ -1,4 +1,4 @@
-package com.bluevector.rscamera;
+package com.bluevector.vectorscope;
 
 import android.graphics.Bitmap;
 import android.os.Handler;

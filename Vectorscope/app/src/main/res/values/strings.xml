@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RScamera</string>
+    <string name="app_name">Vectorscope</string>
     <string name="color_preview_desc">Color stream preview</string>
     <string name="depth_preview_desc">Depth stream preview (colorized)</string>
     <string name="status_waiting_for_device">Waiting for RealSense D415…</string>

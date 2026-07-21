@@ -1,4 +1,4 @@
-# RScamera
+# Vectorscope
 
 Minimal Android app scaffold for streaming color + depth from an Intel
 RealSense D415 over USB-OTG, using librealsense's Java/JNI wrapper. See
@@ -6,12 +6,20 @@ RealSense D415 over USB-OTG, using librealsense's Java/JNI wrapper. See
 built from.
 
 Status: buildable scaffold, not yet a working app — it needs
-`librealsense.aar` supplied locally (see below) before it will compile.
+`librealsense.aar` supplied locally (see below) before it will compile, and
+hasn't been built or run anywhere yet (see "No APK yet" below).
+
+**Naming note:** this app is named independently of Intel/RealSense — it
+doesn't use their product or trademarked names. It does depend on and
+credit librealsense (Apache License 2.0) under the hood; that attribution
+stays intact in source and belongs in an in-app "About" screen too. Renaming
+the product is normal practice for third-party hardware clients; dropping
+the license attribution would not be.
 
 ## What's here
 
 ```
-RScamera/
+Vectorscope/
 ├── ARCHITECTURE.md          architecture notes (native SDK → UI, layer by layer)
 ├── build.gradle              root Gradle config
 ├── settings.gradle           module list + repos
@@ -20,7 +28,7 @@ RScamera/
 │   ├── libs/README.md         where to put librealsense.aar
 │   └── src/main/
 │       ├── AndroidManifest.xml
-│       ├── java/com/bluevector/rscamera/
+│       ├── java/com/bluevector/vectorscope/
 │       │   ├── MainActivity.java       USB permission flow + lifecycle
 │       │   ├── RealSenseStreamer.java  background pipeline thread
 │       │   └── FrameConverter.java     Z16/RGB8 → Bitmap conversion
@@ -34,7 +42,7 @@ RScamera/
    maven repo if it still resolves, or build the AAR yourself from
    [IntelRealSense/librealsense](https://github.com/IntelRealSense/librealsense)
    (`wrappers/android/`) and drop it in `app/libs/`.
-2. **Open in Android Studio**: `File → Open` → select the `RScamera/`
+2. **Open in Android Studio**: `File → Open` → select the `Vectorscope/`
    folder. It'll generate the Gradle wrapper on first sync.
 3. **Build an APK**: `Build → Build Bundle(s)/APK(s) → Build APK(s)`, or
    from the command line:
@@ -71,6 +79,17 @@ USB-OTG/hardware app, sideloading is the intended path.
 3. Color and depth (colorized) preview side by side once the pipeline
    starts. Unplugging the camera stops the pipeline cleanly rather than
    crashing.
+
+## No APK yet
+
+There is no prebuilt `.apk` in this repo. Producing one needs an Android
+SDK/NDK toolchain plus `librealsense.aar` (or a from-source build of it),
+and validating it needs a physical D415 + Android device — none of which
+are available in an automated environment. The straightforward way to get a
+real binary is to open this in Android Studio locally (step-by-step above)
+and build it yourself, or wire up a CI workflow (e.g. GitHub Actions, which
+does have Android SDK/internet access) to build and attach the APK to a
+release — that's a separate, sizeable follow-up if wanted.
 
 ## Known gaps
 

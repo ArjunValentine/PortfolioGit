@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.bluevector.rscamera'
+    namespace 'com.bluevector.vectorscope'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.bluevector.rscamera"
+        applicationId "com.bluevector.vectorscope"
         minSdk 26
         targetSdk 34
         versionCode 1

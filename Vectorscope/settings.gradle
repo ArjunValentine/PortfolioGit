@@ -17,5 +17,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RScamera"
+rootProject.name = "Vectorscope"
 include ':app'

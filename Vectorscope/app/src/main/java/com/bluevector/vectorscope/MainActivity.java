@@ -1,4 +1,4 @@
-package com.bluevector.rscamera;
+package com.bluevector.vectorscope;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements RealSenseStreamer.FrameListener {
 
-    private static final String ACTION_USB_PERMISSION = "com.bluevector.rscamera.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "com.bluevector.vectorscope.USB_PERMISSION";
     private static final int INTEL_VENDOR_ID = 0x8086;
 
     private ImageView colorPreview;
