@@ -1,0 +1,23 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // RealSense SDK's own artifactory, hosting librealsense.aar. If this
+        // stops resolving, drop the AAR into app/libs/ instead and remove the
+        // 'implementation' line in app/build.gradle that points at it — see
+        // app/libs/README.md.
+        maven { url "https://egiintel.jfrog.io/artifactory/librealsense" }
+    }
+}
+
+rootProject.name = "Vectorscope"
+include ':app'

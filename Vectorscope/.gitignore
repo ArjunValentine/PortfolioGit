@@ -1,0 +1,16 @@
+*.iml
+.gradle/
+/local.properties
+.idea/
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Drop librealsense.aar in app/libs/ yourself; don't commit vendor binaries.
+app/libs/*.aar
+app/libs/*.jar
+!app/libs/README.md
