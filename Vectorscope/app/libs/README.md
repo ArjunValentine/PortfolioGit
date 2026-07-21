@@ -1,18 +1,28 @@
 # app/libs
 
-Drop `librealsense.aar` here before building.
+Empty on purpose — the default build pulls `librealsense.aar` straight from
+the RealSense SDK's artifactory (see `settings.gradle` + the dependency in
+`app/build.gradle`), so nothing needs to go in this folder for a normal
+build.
 
-Get it one of two ways:
+Only use this folder as a **fallback**, if that artifactory dependency ever
+stops resolving:
 
-1. **Maven** (fastest if it still resolves) — add IntelRealSense's maven repo
-   to `settings.gradle` and depend on the artifact directly instead of using
-   this folder. As of writing, the AAR's availability on maven is uncertain,
-   so treat this as "try first, fall back to option 2."
-2. **Build from source** (reliable) — clone
-   [IntelRealSense/librealsense](https://github.com/IntelRealSense/librealsense),
-   follow `wrappers/android/README.md`, and build the AAR yourself with the
-   NDK/CMake toolchain. Copy the resulting `librealsense.aar` into this
-   directory.
+1. **Build the AAR from source.** Clone
+   [realsenseai/librealsense](https://github.com/realsenseai/librealsense)
+   (this is the current org — the project moved from `IntelRealSense/` after
+   RealSense spun out of Intel as its own company; the old URL redirects).
+   Then:
+   ```
+   cd librealsense/wrappers/android
+   ./gradlew assembleRelease        # Windows: gradlew.bat assembleRelease
+   ```
+   Needs Android Studio's NDK + CMake components installed. Output lands at
+   `librealsense/wrappers/android/librealsense/build/outputs/aar/`.
+2. Copy the resulting `.aar` into this folder.
+3. In `app/build.gradle`, comment out the
+   `implementation 'com.intel.realsense:librealsense:2.+@aar'` line and
+   uncomment the `fileTree(dir: 'libs', ...)` line right below it.
 
-This folder is otherwise empty on purpose — the AAR is a vendor binary and
-isn't committed to the repo (see `.gitignore`).
+Vendor binaries aren't committed to this repo (see `.gitignore`), so
+whichever path you take, the AAR itself stays local to your machine.

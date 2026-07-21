@@ -5,9 +5,10 @@ RealSense D415 over USB-OTG, using librealsense's Java/JNI wrapper. See
 [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full layer breakdown this is
 built from.
 
-Status: buildable scaffold, not yet a working app — it needs
-`librealsense.aar` supplied locally (see below) before it will compile, and
-hasn't been built or run anywhere yet (see "No APK yet" below).
+Status: buildable scaffold, not yet a working app — it pulls
+`librealsense.aar` from the RealSense SDK's artifactory at build time (no
+manual step needed, see below), but hasn't actually been built or run
+anywhere yet (see "No APK yet" below).
 
 **Naming note:** this app is named independently of Intel/RealSense — it
 doesn't use their product or trademarked names. It does depend on and
@@ -37,14 +38,15 @@ Vectorscope/
 
 ## Get it building
 
-1. **Get `librealsense.aar`.** It isn't vendored in this repo (see
-   `app/libs/README.md`) — either point `settings.gradle` at IntelRealSense's
-   maven repo if it still resolves, or build the AAR yourself from
-   [IntelRealSense/librealsense](https://github.com/IntelRealSense/librealsense)
-   (`wrappers/android/`) and drop it in `app/libs/`.
-2. **Open in Android Studio**: `File → Open` → select the `Vectorscope/`
+`librealsense.aar` comes from the RealSense SDK's own artifactory —
+`settings.gradle` points at it and `app/build.gradle` depends on
+`com.intel.realsense:librealsense:2.+@aar`, so there's no manual download
+step for the normal path. (If that ever stops resolving, `app/libs/README.md`
+has the from-source fallback.)
+
+1. **Open in Android Studio**: `File → Open` → select the `Vectorscope/`
    folder. It'll generate the Gradle wrapper on first sync.
-3. **Build an APK**: `Build → Build Bundle(s)/APK(s) → Build APK(s)`, or
+2. **Build an APK**: `Build → Build Bundle(s)/APK(s) → Build APK(s)`, or
    from the command line:
    ```
    ./gradlew assembleDebug
@@ -83,18 +85,16 @@ USB-OTG/hardware app, sideloading is the intended path.
 ## No APK yet
 
 There is no prebuilt `.apk` in this repo. Producing one needs an Android
-SDK/NDK toolchain plus `librealsense.aar` (or a from-source build of it),
-and validating it needs a physical D415 + Android device — none of which
-are available in an automated environment. The straightforward way to get a
-real binary is to open this in Android Studio locally (step-by-step above)
-and build it yourself, or wire up a CI workflow (e.g. GitHub Actions, which
-does have Android SDK/internet access) to build and attach the APK to a
-release — that's a separate, sizeable follow-up if wanted.
+SDK/NDK toolchain and internet access to the Google/Maven/artifactory repos
+above, plus validating it needs a physical D415 + Android device — none of
+which are available in an automated environment. The straightforward way to
+get a real binary is to open this in Android Studio locally (step-by-step
+above) and build it yourself, or wire up a CI workflow (e.g. GitHub Actions,
+which does have Android SDK/internet access) to build and attach the APK to
+a release — that's a separate, sizeable follow-up if wanted.
 
 ## Known gaps
 
-- `librealsense.aar` availability from maven is unverified as of writing;
-  building it from source is the safe fallback (see step 1 above).
 - Preview path is the simple `ImageView.setImageBitmap()` per frame — caps
   out around 15–20fps. Swap in a `GLSurfaceView` + OpenGL ES texture upload
   if higher/smoother fps is needed (see `ARCHITECTURE.md` §6).

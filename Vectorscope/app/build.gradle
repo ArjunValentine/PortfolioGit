@@ -28,9 +28,17 @@ android {
 }
 
 dependencies {
-    // librealsense.aar (RsContext/Pipeline/Config/Colorizer/FrameSet) goes in
-    // app/libs/ — see app/libs/README.md for where to get it.
-    implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
+    // librealsense.aar (RsContext/Pipeline/Config/Colorizer/FrameSet).
+    // Pulled from the RealSense SDK's artifactory (repo declared in
+    // settings.gradle). "2.+" tracks latest 2.x — pin to an exact version
+    // (e.g. "2.56.3@aar") for anything beyond local testing; check
+    // https://github.com/realsenseai/librealsense/releases for the current one.
+    implementation 'com.intel.realsense:librealsense:2.+@aar'
+
+    // Fallback: if the artifactory dependency above ever stops resolving,
+    // comment it out, drop librealsense.aar into app/libs/ (see
+    // app/libs/README.md), and uncomment this instead:
+    // implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
 
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
