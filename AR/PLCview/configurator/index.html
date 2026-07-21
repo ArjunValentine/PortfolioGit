@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PLCview — Backplane Diagnostics AR Configurator</title>
+<meta name="description" content="Pick your PLC chassis, data-access method, gateway placement, and AR glasses platform — PLCview draws the information-flow diagram live and generates a downloadable, open-source (MIT) starter code package wired to your selections."/>
+<meta name="theme-color" content="#05080c"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#05080c; --panel:#0c131b; --panel2:#101a24; --line:#1d2c39;
+  --ink:#dbe9f2; --ink-dim:#7d94a3; --ink-mut:#4c5f6c;
+  --cyan:#3fe1e8; --cyan-dim:#1f7a80; --amber:#ffb84d; --red:#ff5c5c; --green:#4de08a;
+  --zone1:#e2503a; --zone2:#2e9fd6; --zone3:#8a6de0; --zone4:#4de08a;
+  --mono:'Share Tech Mono',monospace; --disp:'Rajdhani',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--disp);min-height:100vh;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 15% 0%, rgba(63,225,232,.06), transparent 45%), radial-gradient(circle at 85% 100%, rgba(138,109,224,.06), transparent 45%);}
+
+header.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.4rem;
+  border-bottom:2px solid var(--line);background:linear-gradient(180deg,#0a121a,#070c11);position:sticky;top:0;z-index:40}
+.hdr h1{font-size:1.3rem;font-weight:700;letter-spacing:.02em}
+.hdr h1 span{color:var(--cyan)}
+.hdr-sub{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin-top:.15rem}
+.backrow{display:flex;gap:.5rem;flex-shrink:0}
+a.back{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan);text-decoration:none;
+  border:1px solid var(--cyan-dim);padding:.45rem .8rem;border-radius:20px;white-space:nowrap}
+a.back:hover{background:rgba(63,225,232,.1)}
+
+.notice{margin:1rem 1.4rem 0;padding:.8rem 1rem;border:1px solid var(--line);border-left:3px solid var(--amber);
+  background:var(--panel);font-size:.86rem;line-height:1.55;color:var(--ink-dim);border-radius:4px}
+.notice b{color:var(--amber)}
+
+.layout{display:grid;grid-template-columns:380px 1fr;gap:1.2rem;padding:1.2rem 1.4rem 2.4rem;align-items:start}
+@media (max-width:980px){.layout{grid-template-columns:1fr}}
+
+/* ---- configurator panel ---- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.panel h2{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);
+  padding:.7rem 1rem;background:var(--panel2);border-bottom:1px solid var(--line)}
+.field{padding:.8rem 1rem;border-bottom:1px dashed var(--line)}
+.field:last-child{border-bottom:none}
+.field label.flabel{display:block;font-size:.78rem;font-weight:600;color:var(--ink-dim);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.03em}
+select, .modrow input[type=text]{width:100%;background:#0a1018;border:1px solid var(--line);color:var(--ink);
+  padding:.5rem .6rem;font-family:var(--disp);font-size:.92rem;border-radius:4px}
+select:focus, .modrow input:focus{outline:1px solid var(--cyan)}
+.hint{font-size:.72rem;color:var(--ink-mut);margin-top:.35rem;line-height:1.4}
+
+.radiorow{display:flex;flex-direction:column;gap:.4rem}
+.radiorow label{display:flex;align-items:flex-start;gap:.5rem;font-size:.84rem;color:var(--ink);cursor:pointer}
+.radiorow input{margin-top:.25rem;accent-color:var(--cyan)}
+.radiorow small{display:block;color:var(--ink-mut);font-size:.68rem;margin-top:.1rem}
+
+.checkrow{display:flex;flex-wrap:wrap;gap:.6rem}
+.checkrow label{display:flex;align-items:center;gap:.4rem;font-size:.82rem;background:#0a1018;border:1px solid var(--line);
+  padding:.35rem .7rem;border-radius:16px;cursor:pointer}
+.checkrow input{accent-color:var(--cyan)}
+.checkrow label.on{border-color:var(--cyan-dim);color:var(--cyan)}
+
+.modtable{width:100%;border-collapse:collapse;margin-top:.5rem}
+.modtable td{padding:.25rem 0}
+.modtable td.slotno{width:2.4rem;font-family:var(--mono);font-size:.7rem;color:var(--ink-mut);text-align:center}
+.modtable td.rm{width:1.8rem;text-align:center}
+.modtable td.rm button{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;line-height:1}
+.addslot{margin-top:.5rem;background:none;border:1px dashed var(--line);color:var(--ink-dim);font-size:.72rem;
+  padding:.4rem .7rem;border-radius:4px;cursor:pointer;width:100%;font-family:var(--mono);letter-spacing:.04em}
+.addslot:hover{border-color:var(--cyan-dim);color:var(--cyan)}
+
+.genbtn{display:block;width:100%;margin-top:1rem;background:linear-gradient(180deg,var(--cyan),var(--cyan-dim));
+  color:#031014;border:none;padding:.85rem 1rem;font-family:var(--disp);font-weight:700;font-size:.95rem;
+  letter-spacing:.02em;border-radius:6px;cursor:pointer}
+.genbtn:hover{filter:brightness(1.08)}
+.genbtn:disabled{opacity:.5;cursor:wait}
+.genstatus{font-family:var(--mono);font-size:.64rem;color:var(--ink-dim);margin-top:.5rem;text-align:center;min-height:1em}
+
+/* ---- diagram area ---- */
+.diagram-wrap{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:1.1rem}
+.diagram-title{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:.8rem}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem}
+@media (max-width:820px){.zones{grid-template-columns:1fr}}
+.zone{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#080d13;display:flex;flex-direction:column}
+.zone-head{padding:.55rem .7rem;font-family:var(--mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;
+  color:#04070a;font-weight:700}
+.z1 .zone-head{background:var(--zone1)}
+.z2 .zone-head{background:var(--zone2)}
+.z3 .zone-head{background:var(--zone3)}
+.z4 .zone-head{background:var(--zone4)}
+.zone-body{padding:.7rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.chip{border:1px solid var(--line);background:var(--panel2);border-radius:5px;padding:.4rem .55rem}
+.chip .ct{font-size:.8rem;font-weight:600;color:var(--ink)}
+.chip .cs{font-family:var(--mono);font-size:.6rem;color:var(--ink-mut);margin-top:.1rem}
+.chip.proto{border-left:3px solid var(--cyan)}
+.chip.proto .ct{color:var(--cyan)}
+.modlist{font-family:var(--mono);font-size:.64rem;color:var(--ink-dim);line-height:1.7;max-height:170px;overflow-y:auto;
+  border-top:1px dashed var(--line);padding-top:.4rem}
+.modlist div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modlist b{color:var(--ink)}
+
+.flowlbl{text-align:center;font-family:var(--mono);font-size:.55rem;letter-spacing:.06em;color:var(--ink-mut);
+  text-transform:uppercase;margin:.15rem 0}
+.arrowrow{display:flex;align-items:center;justify-content:center}
+.arrowrow svg{width:26px;height:14px}
+
+.hud-lens{margin-top:.6rem;border:1px solid var(--line);border-radius:50%/22%;background:
+  radial-gradient(circle at 30% 20%, rgba(77,224,138,.10), transparent 55%), #030507;
+  padding:.9rem .8rem;position:relative;overflow:hidden}
+.hud-lens::before{content:"";position:absolute;inset:0;border:1px solid rgba(77,224,138,.25);border-radius:50%/22%;pointer-events:none}
+.hud-line{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.62rem;color:var(--green);
+  text-shadow:0 0 6px rgba(77,224,138,.5);margin-bottom:.3rem}
+.hud-line span.v{color:#eafff2}
+.hud-title{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;color:var(--green);opacity:.75;margin-bottom:.4rem;text-transform:uppercase}
+
+.footer{padding:1.2rem 1.4rem 2.4rem;text-align:center;font-family:var(--mono);font-size:.62rem;color:var(--ink-mut);letter-spacing:.03em}
+.footer a{color:var(--cyan-dim)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <h1><span>PLCview</span> — Backplane Diagnostics AR Configurator</h1>
+    <div class="hdr-sub">Select your chassis &amp; glasses · get a live diagram · download an open-source starter package</div>
+  </div>
+  <div class="backrow">
+    <a href="../" class="back">&larr; ARPLC</a>
+    <a href="../../../" class="back">&larr; BlueVector</a>
+  </div>
+</header>
+
+<div class="notice">
+  <b>What this is.</b> Badges below are stylized, color-coded labels (name + accent color) — not vendor trademarked logo files — so the diagram stays a clean, editable, license-safe reference. The generated package is a <b>starter scaffold</b>, not a certified integration: confirm your Add-On Profile's actual class/instance/attribute codes (or DB offsets / register map) before pointing anything at a live control network, and have your OT/IT network owner sign off on gateway placement. Everything downloads under the <b>MIT license</b> — free to use, modify, and redistribute.
+</div>
+
+<div class="layout">
+  <!-- ============ CONFIGURATOR ============ -->
+  <div class="panel">
+    <h2>1 &middot; Zone 1 — PLC Chassis</h2>
+    <div class="field">
+      <label class="flabel" for="chassisSel">Chassis platform</label>
+      <select id="chassisSel"></select>
+      <div class="hint" id="chassisHint"></div>
+    </div>
+    <div class="field">
+      <label class="flabel">Slot / module list <span style="color:var(--ink-mut);font-weight:400">(editable)</span></label>
+      <table class="modtable" id="modTable"></table>
+      <button class="addslot" id="addSlotBtn" type="button">+ ADD SLOT</button>
+    </div>
+
+    <h2>2 &middot; Data Access Method</h2>
+    <div class="field">
+      <div class="radiorow" id="accessRadios"></div>
+    </div>
+
+    <h2>3 &middot; Gateway Placement</h2>
+    <div class="field">
+      <div class="radiorow">
+        <label><input type="radio" name="gw" value="ot"> OT-side <small>Gateway lives inside the control network; only pushes data out.</small></label>
+        <label><input type="radio" name="gw" value="dmz" checked> DMZ / boundary <small>Gateway <em>is</em> the OT/IT demarcation point.</small></label>
+        <label><input type="radio" name="gw" value="it"> IT-side <small>Gateway sits past the boundary and reaches into OT to poll.</small></label>
+      </div>
+    </div>
+
+    <h2>4 &middot; Network Transport</h2>
+    <div class="field">
+      <div class="checkrow" id="transportChecks">
+        <label class="on"><input type="checkbox" value="ws" checked> WebSocket</label>
+        <label class="on"><input type="checkbox" value="rest" checked> REST</label>
+        <label><input type="checkbox" value="mqtt"> MQTT</label>
+      </div>
+    </div>
+
+    <h2>5 &middot; Zone 4 — AR Glasses</h2>
+    <div class="field">
+      <label class="flabel" for="glassesSel">Glasses platform</label>
+      <select id="glassesSel"></select>
+      <div class="hint" id="glassesHint"></div>
+    </div>
+
+    <div class="field">
+      <button class="genbtn" id="genBtn">Generate Code Package (.zip)</button>
+      <div class="genstatus" id="genStatus"></div>
+    </div>
+  </div>
+
+  <!-- ============ DIAGRAM ============ -->
+  <div class="diagram-wrap">
+    <div class="diagram-title">Real-Time Backplane Diagnostics — Information Flow (live preview)</div>
+    <div class="zones">
+      <div class="zone z1">
+        <div class="zone-head">Zone 1 &middot; Control Network</div>
+        <div class="zone-body">
+          <div class="chip" id="chassisChip"><div class="ct">—</div><div class="cs">—</div></div>
+          <div class="modlist" id="modPreview"></div>
+        </div>
+      </div>
+      <div class="zone z2">
+        <div class="zone-head">Zone 2 &middot; Edge Gateway</div>
+        <div class="zone-body">
+          <div class="chip proto" id="accessChip"><div class="ct">—</div><div class="cs">—</div></div>
+          <div class="chip" id="gwChip"><div class="ct">—</div><div class="cs">—</div></div>
+          <div class="chip proto" id="protoChip"><div class="ct">EtherNet/IP + CIP</div><div class="cs">Zone 1 &rarr; Zone 2 hop protocol</div></div>
+        </div>
+      </div>
+      <div class="zone z3">
+        <div class="zone-head">Zone 3 &middot; Network / Transport</div>
+        <div class="zone-body" id="transportZone"></div>
+      </div>
+      <div class="zone z4">
+        <div class="zone-head">Zone 4 &middot; AR Glasses</div>
+        <div class="zone-body">
+          <div class="chip" id="glassesChip"><div class="ct">—</div><div class="cs">—</div></div>
+          <div class="chip proto"><div class="ct">Bluetooth LE</div><div class="cs">Companion pairing / voice-mic link</div></div>
+          <div class="hud-lens">
+            <div class="hud-title">// diagnostic_view</div>
+            <div class="hud-line"><span>RACK TEMP</span><span class="v" id="hudTemp">41.2°C</span></div>
+            <div class="hud-line"><span>CPU LOAD</span><span class="v" id="hudCpu">18%</span></div>
+            <div class="hud-line"><span>I/O FAULTS</span><span class="v" id="hudFault">0</span></div>
+            <div class="hud-line"><span>COMM HEALTH</span><span class="v" id="hudComm">OK</span></div>
+            <div class="hud-line"><span>SRC</span><span class="v" id="hudSrc">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  PLCview is a BlueVector demo. Generated packages are MIT-licensed reference scaffolding — verify against your own AOP/DB/register documentation before touching a live line.
+  <br><a href="../">&larr; ARPLC desktop</a> &middot; <a href="../../../">BlueVector</a> &middot; <a href="../docs/">Docs</a>
+</div>
+
+<script src="../vendor/jszip.min.js"></script>
+<script>
+/* ============================================================================
+   PLCview configurator — chassis/glasses presets, live SVG-ish diagram,
+   and a client-side generated MIT starter code package (gateway + HUD client).
+   ========================================================================== */
+
+const CHASSIS = {
+  ab_controllogix:{
+    label:"Allen-Bradley ControlLogix (1756)", vendor:"rockwell",
+    hint:"Studio 5000 project · EtherNet/IP + CIP",
+    slots:[
+      "1756-PA72 Power Supply",
+      "1756-L85E ControlLogix 5580 CPU",
+      "1756-EN2T EtherNet/IP Comm Module",
+      "1756-IB16 Digital Input (16pt)",
+      "1756-OB16 Digital Output (16pt)",
+      "1756-IF8 Analog Input (8ch)"
+    ],
+    npm:["ethernet-ip"], tagStyle:"Controller-scoped tags"
+  },
+  ab_compactlogix:{
+    label:"Allen-Bradley CompactLogix 5380", vendor:"rockwell",
+    hint:"Studio 5000 project · EtherNet/IP + CIP",
+    slots:[
+      "5069-L340ERM CompactLogix 5380 CPU",
+      "5069-IB16 Digital Input (16pt)",
+      "5069-OB16 Digital Output (16pt)",
+      "5069-IF8 Analog Input (8ch)"
+    ],
+    npm:["ethernet-ip"], tagStyle:"Controller-scoped tags"
+  },
+  siemens_s7_1500:{
+    label:"Siemens SIMATIC S7-1500", vendor:"siemens",
+    hint:"TIA Portal project · S7comm via ISO-on-TCP",
+    slots:[
+      "PS 25W Power Supply",
+      "CPU 1516-3 PN/DP",
+      "DI 32x24VDC HF",
+      "DQ 32x24VDC/0.5A HF",
+      "AI 8xU/I/RTD/TC ST"
+    ],
+    npm:["node-snap7"], tagStyle:"DB (data block) offsets"
+  },
+  siemens_s7_1200:{
+    label:"Siemens SIMATIC S7-1200", vendor:"siemens",
+    hint:"TIA Portal project · S7comm via ISO-on-TCP",
+    slots:[
+      "CPU 1214C DC/DC/DC",
+      "SM 1223 DI 8/DQ 8",
+      "SM 1231 AI 4"
+    ],
+    npm:["node-snap7"], tagStyle:"DB (data block) offsets"
+  },
+  beckhoff_cx:{
+    label:"Beckhoff CX9020 / EK1100 coupler", vendor:"modbus",
+    hint:"TwinCAT project · Modbus TCP or ADS",
+    slots:[
+      "CX9020 Embedded PC",
+      "EK1100 EtherCAT Coupler",
+      "EL1008 Digital Input (8ch)",
+      "EL2008 Digital Output (8ch)",
+      "EL3068 Analog Input (8ch)"
+    ],
+    npm:["modbus-serial"], tagStyle:"Holding-register map"
+  },
+  omron_nx:{
+    label:"Omron NX1P2 / NX102", vendor:"modbus",
+    hint:"Sysmac Studio project · Modbus TCP FINS bridge",
+    slots:[
+      "NX1P2-1140DT CPU",
+      "NX-ID3317 Digital Input",
+      "NX-OD3121 Digital Output",
+      "NX-AD3208 Analog Input"
+    ],
+    npm:["modbus-serial"], tagStyle:"Holding-register map"
+  },
+  generic_modbus:{
+    label:"Generic / other — Modbus TCP", vendor:"modbus",
+    hint:"Any chassis that exposes a Modbus TCP map",
+    slots:[
+      "Power Supply",
+      "CPU / Processor",
+      "Digital I/O module",
+      "Analog I/O module",
+      "Comm / gateway module"
+    ],
+    npm:["modbus-serial"], tagStyle:"Holding-register map"
+  }
+};
+
+const ACCESS_BY_VENDOR = {
+  rockwell:[
+    {v:"tags", l:"Controller tags", s:"Gateway reads user-defined/controller-scoped tags directly — simplest, no AOP needed."},
+    {v:"cip_aop", l:"CIP explicit messaging + AOP", s:"Gateway issues explicit CIP messages against an Add-On Profile for granular diagnostic data.", def:true}
+  ],
+  siemens:[
+    {v:"db_read", l:"Optimized DB read", s:"Gateway reads a data block by symbolic access (requires 'optimized block access' off, or a matching UDT)."},
+    {v:"db_explicit", l:"Non-optimized DB read (byte offsets)", s:"Gateway reads fixed byte offsets — works with any DB layout, more brittle.", def:true}
+  ],
+  modbus:[
+    {v:"holding", l:"Holding-register polling", s:"Gateway polls a fixed holding-register map at a configurable interval.", def:true}
+  ]
+};
+
+const GLASSES = {
+  hololens2:{label:"Microsoft HoloLens 2", runtime:"WebXR via Edge, or native Unity/OpenXR app", xr:true},
+  vuzix_m400:{label:"Vuzix M400 / Blade", runtime:"Android WebView browser (pinned tab)", xr:false},
+  realwear_nav:{label:"RealWear Navigator 500 / 520", runtime:"Android browser · WearHF voice navigation", xr:false},
+  webxr_generic:{label:"Generic WebXR headset / browser", runtime:"Any WebXR-capable browser (immersive-ar session)", xr:true}
+};
+
+let currentModules = [];
+
+function el(tag, cls, html){ const n=document.createElement(tag); if(cls) n.className=cls; if(html!=null) n.innerHTML=html; return n; }
+
+function populateSelects(){
+  const cs = document.getElementById("chassisSel");
+  for(const k in CHASSIS) cs.appendChild(new Option(CHASSIS[k].label, k));
+  const gs = document.getElementById("glassesSel");
+  for(const k in GLASSES) gs.appendChild(new Option(GLASSES[k].label, k));
+  cs.value = "ab_controllogix";
+  gs.value = "hololens2";
+}
+
+function renderModTable(){
+  const t = document.getElementById("modTable");
+  t.innerHTML = "";
+  currentModules.forEach((mod, i)=>{
+    const tr = document.createElement("tr");
+    const tdN = el("td","slotno", i);
+    const tdI = document.createElement("td");
+    const inp = document.createElement("input");
+    inp.type = "text"; inp.value = mod;
+    inp.oninput = e => { currentModules[i] = e.target.value; renderDiagram(); };
+    tdI.appendChild(inp);
+    const tdR = el("td","rm");
+    const rmBtn = document.createElement("button");
+    rmBtn.type = "button"; rmBtn.textContent = "×";
+    rmBtn.onclick = () => { currentModules.splice(i,1); renderModTable(); renderDiagram(); };
+    tdR.appendChild(rmBtn);
+    tr.appendChild(tdN); tr.appendChild(tdI); tr.appendChild(tdR);
+    t.appendChild(tr);
+  });
+}
+
+function loadChassisPreset(){
+  const key = document.getElementById("chassisSel").value;
+  const c = CHASSIS[key];
+  currentModules = c.slots.slice();
+  document.getElementById("chassisHint").textContent = c.hint;
+  renderModTable();
+  renderAccessOptions();
+  renderDiagram();
+}
+
+function renderAccessOptions(){
+  const key = document.getElementById("chassisSel").value;
+  const vendor = CHASSIS[key].vendor;
+  const wrap = document.getElementById("accessRadios");
+  wrap.innerHTML = "";
+  ACCESS_BY_VENDOR[vendor].forEach(opt=>{
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="radio" name="access" value="${opt.v}" ${opt.def?"checked":""}> ${opt.l}<small>${opt.s}</small>`;
+    label.querySelector("input").addEventListener("change", renderDiagram);
+    wrap.appendChild(label);
+  });
+}
+
+function getAccessLabel(){
+  const key = document.getElementById("chassisSel").value;
+  const vendor = CHASSIS[key].vendor;
+  const val = document.querySelector('input[name="access"]:checked')?.value;
+  const opt = ACCESS_BY_VENDOR[vendor].find(o=>o.v===val) || ACCESS_BY_VENDOR[vendor][0];
+  return opt;
+}
+
+function protoForVendor(vendor){
+  if(vendor==="rockwell") return {ct:"EtherNet/IP + CIP", cs:"Zone 1 → Zone 2 hop protocol"};
+  if(vendor==="siemens") return {ct:"S7comm / ISO-on-TCP", cs:"Zone 1 → Zone 2 hop protocol"};
+  return {ct:"Modbus TCP", cs:"Zone 1 → Zone 2 hop protocol"};
+}
+
+function renderDiagram(){
+  const ckey = document.getElementById("chassisSel").value;
+  const c = CHASSIS[ckey];
+  const gkey = document.getElementById("glassesSel").value;
+  const g = GLASSES[gkey];
+  const access = getAccessLabel();
+  const gw = document.querySelector('input[name="gw"]:checked').value;
+  const gwLabel = {ot:"OT-side gateway", dmz:"DMZ / boundary gateway", it:"IT-side gateway"}[gw];
+  const gwSub = {ot:"Inside the control network; pushes data out only.",
+                 dmz:"Gateway is the OT/IT demarcation point.",
+                 it:"Past the boundary; reaches into OT to poll."}[gw];
+
+  document.getElementById("chassisChip").innerHTML = `<div class="ct">${c.label}</div><div class="cs">${c.tagStyle}</div>`;
+  document.getElementById("modPreview").innerHTML = currentModules.map((m,i)=>`<div><b>[${i}]</b> ${escapeHtml(m)}</div>`).join("");
+  document.getElementById("accessChip").innerHTML = `<div class="ct">${access.l}</div><div class="cs">${access.s}</div>`;
+  document.getElementById("gwChip").innerHTML = `<div class="ct">${gwLabel}</div><div class="cs">${gwSub}</div>`;
+  const proto = protoForVendor(c.vendor);
+  document.getElementById("protoChip").innerHTML = `<div class="ct">${proto.ct}</div><div class="cs">${proto.cs}</div>`;
+  document.getElementById("glassesChip").innerHTML = `<div class="ct">${g.label}</div><div class="cs">${g.runtime}</div>`;
+
+  const transports = [...document.querySelectorAll('#transportChecks input:checked')].map(i=>i.value);
+  const tz = document.getElementById("transportZone");
+  tz.innerHTML = "";
+  const tzChip = (ct,cs)=>{ const d=el("div","chip proto"); d.innerHTML=`<div class="ct">${ct}</div><div class="cs">${cs}</div>`; return d; };
+  tz.appendChild(tzChip("WiFi / Local LAN","Zone 2 → Zone 3 transport"));
+  if(transports.includes("ws")) tz.appendChild(tzChip("WebSocket","Live push, sub-second HUD refresh"));
+  if(transports.includes("rest")) tz.appendChild(tzChip("REST / HTTP(S)","Snapshot polling, easy to firewall"));
+  if(transports.includes("mqtt")) tz.appendChild(tzChip("MQTT","Pub/sub, good for multiple viewers"));
+
+  document.querySelectorAll("#transportChecks label").forEach(l=>{
+    l.classList.toggle("on", l.querySelector("input").checked);
+  });
+
+  // sample HUD readout, labeled with the selected chassis's naming convention
+  document.getElementById("hudSrc").textContent = c.vendor==="rockwell" ? "CIP:AOP" : c.vendor==="siemens" ? "DB100" : "HR:40001";
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+
+document.getElementById("chassisSel").addEventListener("change", loadChassisPreset);
+document.getElementById("glassesSel").addEventListener("change", ()=>{
+  document.getElementById("glassesHint").textContent = GLASSES[document.getElementById("glassesSel").value].runtime;
+  renderDiagram();
+});
+document.querySelectorAll('input[name="gw"]').forEach(r=>r.addEventListener("change", renderDiagram));
+document.querySelectorAll('#transportChecks input').forEach(r=>r.addEventListener("change", renderDiagram));
+document.getElementById("addSlotBtn").addEventListener("click", ()=>{
+  currentModules.push("New module");
+  renderModTable();
+  renderDiagram();
+});
+
+populateSelects();
+loadChassisPreset();
+document.getElementById("glassesHint").textContent = GLASSES[document.getElementById("glassesSel").value].runtime;
+
+/* subtle HUD number drift so the lens preview reads as "live" */
+setInterval(()=>{
+  const t = (39 + Math.random()*6).toFixed(1);
+  const cpu = Math.round(12 + Math.random()*20);
+  document.getElementById("hudTemp").textContent = t + "°C";
+  document.getElementById("hudCpu").textContent = cpu + "%";
+}, 2200);
+
+/* ============================================================================
+   CODE GENERATION — builds a small MIT-licensed starter package tailored to
+   the current configuration and downloads it as a .zip
+   ========================================================================== */
+
+function gatewayCode(cfg){
+  if(cfg.vendor === "rockwell"){
+    return `// gateway/server.js — Allen-Bradley ${cfg.chassisLabel}
+// Data access: ${cfg.accessLabel}
+// npm: ethernet-ip, ws, express
+'use strict';
+const { Controller, TagList, CIP } = require('ethernet-ip');
+const express = require('express');
+const { WebSocketServer } = require('ws');
+const config = require('./config.json');
+
+const plc = new Controller();
+const app = express();
+const wss = new WebSocketServer({ port: config.wsPort });
+
+async function readViaControllerTags() {
+  // Simplest path — add each diagnostic value as a controller-scoped tag
+  // in Studio 5000, then read it here by name.
+  const rackTemp = await plc.readTag('Diag_RackTempF');
+  const cpuLoad  = await plc.readTag('Diag_CpuLoadPct');
+  const ioFaults = await plc.readTag('Diag_IOFaultCount');
+  return { rackTempF: rackTemp.value, cpuLoadPct: cpuLoad.value, ioFaultCount: ioFaults.value };
+}
+
+async function readViaCipExplicitAOP() {
+  // Explicit CIP messaging against your Add-On Profile instance.
+  // TODO: confirm class/instance/attribute codes against your AOP's EDS —
+  // the values below are placeholders, not guaranteed to match your module.
+  const AOP_CLASS = 0x64;      // vendor-specific class code — CONFIRM
+  const AOP_INSTANCE = 0x01;   // instance number — CONFIRM
+  const ATTR_DIAG_BLOCK = 0x03;// attribute holding the diagnostics struct — CONFIRM
+  const msg = CIP.MessageRouter.build(
+    CIP.MessageRouter.services.GET_ATTRIBUTE_SINGLE,
+    Buffer.from([0x20, AOP_CLASS, 0x24, AOP_INSTANCE, 0x30, ATTR_DIAG_BLOCK]),
+    Buffer.alloc(0)
+  );
+  const reply = await plc.sendRRData(msg);
+  // TODO: parse 'reply' per your AOP's diagnostics struct layout.
+  return { rackTempF: reply.readFloatLE(0), cpuLoadPct: reply.readUInt8(4), ioFaultCount: reply.readUInt16LE(5) };
+}
+
+const readDiagnostics = ${cfg.accessKey === 'tags' ? 'readViaControllerTags' : 'readViaCipExplicitAOP'};
+
+async function main() {
+  await plc.connect(config.plcIp, config.slot ?? 0);
+  console.log('[plcview] connected to', config.plcIp);
+
+  setInterval(async () => {
+    try {
+      const diag = await readDiagnostics();
+      const payload = JSON.stringify({ ts: Date.now(), commHealth: 'OK', ...diag });
+      wss.clients.forEach(c => c.readyState === 1 && c.send(payload));
+      global.__lastPayload = payload;
+    } catch (err) {
+      console.error('[plcview] read failed:', err.message);
+      const payload = JSON.stringify({ ts: Date.now(), commHealth: 'FAULT', error: err.message });
+      wss.clients.forEach(c => c.readyState === 1 && c.send(payload));
+      global.__lastPayload = payload;
+    }
+  }, config.pollMs ?? 500);
+}
+
+app.get('/snapshot', (req, res) => res.type('json').send(global.__lastPayload || '{}'));
+app.listen(config.restPort, () => console.log('[plcview] REST snapshot on :' + config.restPort));
+
+main().catch(err => { console.error(err); process.exit(1); });
+`;
+  }
+  if(cfg.vendor === "siemens"){
+    return `// gateway/server.js — Siemens ${cfg.chassisLabel}
+// Data access: ${cfg.accessLabel}
+// npm: node-snap7, ws, express
+'use strict';
+const snap7 = require('node-snap7');
+const express = require('express');
+const { WebSocketServer } = require('ws');
+const config = require('./config.json');
+
+const s7client = new snap7.S7Client();
+const app = express();
+const wss = new WebSocketServer({ port: config.wsPort });
+
+function readDiagnostics() {
+  return new Promise((resolve, reject) => {
+    // TODO: confirm DB number and byte offsets against your TIA Portal DB layout.
+    const DB_NUMBER = config.dbNumber ?? 100;
+    const START = 0, SIZE = 16; // bytes — adjust to match your diagnostics struct
+    s7client.DBRead(DB_NUMBER, START, SIZE, (err, data) => {
+      if (err) return reject(new Error(s7client.ErrorText(err)));
+      resolve({
+        rackTempF: data.readFloatBE(0),
+        cpuLoadPct: data.readUInt8(4),
+        ioFaultCount: data.readUInt16BE(6)
+      });
+    });
+  });
+}
+
+s7client.ConnectTo(config.plcIp, config.rack ?? 0, config.slot ?? 1, (err) => {
+  if (err) { console.error('[plcview] connect failed:', s7client.ErrorText(err)); process.exit(1); }
+  console.log('[plcview] connected to', config.plcIp);
+
+  setInterval(async () => {
+    try {
+      const diag = await readDiagnostics();
+      const payload = JSON.stringify({ ts: Date.now(), commHealth: 'OK', ...diag });
+      wss.clients.forEach(c => c.readyState === 1 && c.send(payload));
+      global.__lastPayload = payload;
+    } catch (e) {
+      const payload = JSON.stringify({ ts: Date.now(), commHealth: 'FAULT', error: e.message });
+      wss.clients.forEach(c => c.readyState === 1 && c.send(payload));
+      global.__lastPayload = payload;
+    }
+  }, config.pollMs ?? 500);
+});
+
+app.get('/snapshot', (req, res) => res.type('json').send(global.__lastPayload || '{}'));
+app.listen(config.restPort, () => console.log('[plcview] REST snapshot on :' + config.restPort));
+`;
+  }
+  return `// gateway/server.js — ${cfg.chassisLabel}
+// Data access: ${cfg.accessLabel}
+// npm: modbus-serial, ws, express
+'use strict';
+const ModbusRTU = require('modbus-serial');
+const express = require('express');
+const { WebSocketServer } = require('ws');
+const config = require('./config.json');
+
+const client = new ModbusRTU();
+const app = express();
+const wss = new WebSocketServer({ port: config.wsPort });
+
+async function readDiagnostics() {
+  // TODO: confirm the holding-register map against your controller's documentation.
+  const START = config.regStart ?? 0;
+  const { data } = await client.readHoldingRegisters(START, 4);
+  return { rackTempF: data[0] / 10, cpuLoadPct: data[1], ioFaultCount: data[2] };
+}
+
+async function main() {
+  await client.connectTCP(config.plcIp, { port: config.modbusPort ?? 502 });
+  client.setID(config.unitId ?? 1);
+  console.log('[plcview] connected to', config.plcIp);
+
+  setInterval(async () => {
+    try {
+      const diag = await readDiagnostics();
+      const payload = JSON.stringify({ ts: Date.now(), commHealth: 'OK', ...diag });
+      wss.clients.forEach(c => c.readyState === 1 && c.send(payload));
+      global.__lastPayload = payload;
+    } catch (err) {
+      const payload = JSON.stringify({ ts: Date.now(), commHealth: 'FAULT', error: err.message });
+      wss.clients.forEach(c => c.readyState === 1 && c.send(payload));
+      global.__lastPayload = payload;
+    }
+  }, config.pollMs ?? 500);
+}
+
+app.get('/snapshot', (req, res) => res.type('json').send(global.__lastPayload || '{}'));
+app.listen(config.restPort, () => console.log('[plcview] REST snapshot on :' + config.restPort));
+
+main().catch(err => { console.error(err); process.exit(1); });
+`;
+}
+
+function hudClientCode(cfg){
+  return `<!doctype html>
+<!--
+  glasses-client/hud.html — ${cfg.glassesLabel}
+  Runtime: ${cfg.glassesRuntime}
+  Connects to the gateway's WebSocket feed and renders a translucent HUD panel.
+  Falls back to a fixed on-screen overlay if immersive WebXR isn't available —
+  true on most glasses browsers today, so this degrades gracefully by design.
+-->
+<html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>PLCview HUD</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden}
+  #hud{position:fixed;top:6vh;left:6vw;padding:14px 18px;border:1px solid rgba(77,224,138,.5);
+    border-radius:8px;background:rgba(4,10,8,.55);backdrop-filter:blur(2px);
+    font-family:'Share Tech Mono',monospace;color:#4de08a;text-shadow:0 0 6px rgba(77,224,138,.6);
+    font-size:16px;line-height:1.8;min-width:220px}
+  #hud .row{display:flex;justify-content:space-between;gap:18px}
+  #hud .row span.v{color:#eafff2}
+  #hud .title{font-size:12px;letter-spacing:.1em;opacity:.7;text-transform:uppercase;margin-bottom:6px}
+  #xrBtn{position:fixed;bottom:6vh;left:6vw;font-family:sans-serif;font-size:13px;padding:8px 14px;
+    background:rgba(4,10,8,.7);color:#4de08a;border:1px solid rgba(77,224,138,.5);border-radius:20px;cursor:pointer}
+  #status{position:fixed;bottom:2vh;left:6vw;font-family:'Share Tech Mono',monospace;font-size:11px;color:#7d94a3}
+</style></head>
+<body>
+<div id="hud">
+  <div class="title">// diagnostic_view</div>
+  <div class="row"><span>RACK TEMP</span><span class="v" id="t">--</span></div>
+  <div class="row"><span>CPU LOAD</span><span class="v" id="c">--</span></div>
+  <div class="row"><span>I/O FAULTS</span><span class="v" id="f">--</span></div>
+  <div class="row"><span>COMM</span><span class="v" id="h">--</span></div>
+</div>
+${cfg.xr ? '<button id="xrBtn">Enter Immersive AR</button>' : ''}
+<div id="status">connecting…</div>
+<${''}script>
+  const GATEWAY_WS = 'ws://' + (location.hostname || '127.0.0.1') + ':${cfg.wsPort}';
+  const st = document.getElementById('status');
+  function connect(){
+    const ws = new WebSocket(GATEWAY_WS);
+    ws.onopen = () => st.textContent = 'live · ' + GATEWAY_WS;
+    ws.onclose = () => { st.textContent = 'disconnected — retrying…'; setTimeout(connect, 2000); };
+    ws.onerror = () => ws.close();
+    ws.onmessage = (ev) => {
+      const d = JSON.parse(ev.data);
+      document.getElementById('t').textContent = d.rackTempF!=null ? d.rackTempF.toFixed(1)+'°C' : '--';
+      document.getElementById('c').textContent = d.cpuLoadPct!=null ? d.cpuLoadPct+'%' : '--';
+      document.getElementById('f').textContent = d.ioFaultCount!=null ? d.ioFaultCount : '--';
+      document.getElementById('h').textContent = d.commHealth || '--';
+    };
+  }
+  connect();
+  ${cfg.xr ? `
+  document.getElementById('xrBtn').onclick = async () => {
+    if(!navigator.xr){ alert('WebXR not available in this browser — HUD stays as a fixed overlay.'); return; }
+    try {
+      const supported = await navigator.xr.isSessionSupported('immersive-ar');
+      if(!supported){ alert('immersive-ar not supported here — HUD stays as a fixed overlay.'); return; }
+      await navigator.xr.requestSession('immersive-ar');
+      // TODO: wire the HUD panel into an XR overlay layer (DOM Overlay or a
+      // WebGL layer) per your target runtime — this is a starting point.
+    } catch(e){ alert('Could not start immersive-ar: ' + e.message); }
+  };` : ''}
+<${''}/script>
+</body></html>
+`;
+}
+
+function readmeCode(cfg){
+  return `# PLCview starter package — ${cfg.chassisLabel} → ${cfg.glassesLabel}
+
+Generated by BlueVector PLCview. MIT licensed — use, modify, redistribute freely.
+This is a **reference scaffold**, not a certified integration.
+
+## What's in here
+
+- \`gateway/server.js\` — polls your PLC (${cfg.protoLabel}, ${cfg.accessLabel}) and
+  re-broadcasts diagnostics over WebSocket${cfg.transports.includes('rest') ? ' + a REST snapshot endpoint' : ''}.
+- \`gateway/config.json\` — PLC IP, poll interval, and connection parameters. Edit before running.
+- \`glasses-client/hud.html\` — a self-contained HUD page for **${cfg.glassesLabel}**
+  (${cfg.glassesRuntime}). Open it in the glasses' browser and pin the tab.
+- \`LICENSE\` — MIT.
+
+## Zone 1 — your chassis
+
+**${cfg.chassisLabel}**
+
+${cfg.modules.map((m,i)=>`- Slot ${i}: ${m}`).join('\n')}
+
+## Data access
+
+${cfg.accessLabel} — ${cfg.accessSub}
+
+${cfg.accessKey.includes('cip') || cfg.accessKey.includes('db') ? '**Before you run this against a live controller**, open your Add-On Profile / DB definition and confirm the class/instance/attribute codes (or byte offsets) in `gateway/server.js` match your actual module — the values shipped here are placeholders.' : ''}
+
+## Gateway placement
+
+**${cfg.gwLabel}** — ${cfg.gwSub}
+Route this through your OT/IT network owner before deploying; the DMZ pattern is a starting recommendation, not a network design.
+
+## Network transport
+
+${cfg.transports.map(t=>({ws:'WebSocket (live push)',rest:'REST (snapshot polling)',mqtt:'MQTT (pub/sub — not wired into server.js by default; add an mqtt.js publish call alongside the WebSocket broadcast)'}[t])).join('\n')}
+
+## Run it
+
+\`\`\`
+cd gateway
+npm install
+node server.js
+\`\`\`
+
+Then open \`glasses-client/hud.html\` on the glasses (or point a browser at it over your LAN) —
+it connects to \`ws://<gateway-host>:${cfg.wsPort}\`.
+
+## Trademark note
+
+Any brand names in this package (chassis vendors, protocol names) are used descriptively to identify
+real products/standards you're integrating with. No vendor logos are included — swap in real ones if
+you need them for an internal deck.
+`;
+}
+
+function packageJsonCode(cfg){
+  const deps = { ws: "^8.18.0", express: "^4.19.2" };
+  cfg.npm.forEach(p => { deps[p] = "latest"; });
+  return JSON.stringify({
+    name: "plcview-gateway",
+    version: "1.0.0",
+    private: true,
+    license: "MIT",
+    description: `PLCview gateway starter — ${cfg.chassisLabel} → ${cfg.glassesLabel}`,
+    main: "server.js",
+    scripts: { start: "node server.js" },
+    dependencies: deps
+  }, null, 2) + "\n";
+}
+
+function configJsonCode(cfg){
+  const base = {
+    plcIp: "192.168.1.10",
+    pollMs: 500,
+    wsPort: cfg.wsPort,
+    restPort: cfg.restPort
+  };
+  if(cfg.vendor === "rockwell") base.slot = 0;
+  if(cfg.vendor === "siemens") { base.rack = 0; base.slot = 1; base.dbNumber = 100; }
+  if(cfg.vendor === "modbus") { base.modbusPort = 502; base.unitId = 1; base.regStart = 0; }
+  return JSON.stringify(base, null, 2) + "\n";
+}
+
+const MIT_LICENSE = (year, holder) => `MIT License
+
+Copyright (c) ${year} ${holder}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+`;
+
+function buildConfig(){
+  const ckey = document.getElementById("chassisSel").value;
+  const c = CHASSIS[ckey];
+  const gkey = document.getElementById("glassesSel").value;
+  const g = GLASSES[gkey];
+  const access = getAccessLabel();
+  const gw = document.querySelector('input[name="gw"]:checked').value;
+  const gwLabel = {ot:"OT-side gateway", dmz:"DMZ / boundary gateway", it:"IT-side gateway"}[gw];
+  const gwSub = {ot:"Inside the control network; pushes data out only.",
+                 dmz:"Gateway is the OT/IT demarcation point.",
+                 it:"Past the boundary; reaches into OT to poll."}[gw];
+  const transports = [...document.querySelectorAll('#transportChecks input:checked')].map(i=>i.value);
+  const proto = protoForVendor(c.vendor);
+  return {
+    chassisKey: ckey, chassisLabel: c.label, vendor: c.vendor, modules: currentModules.slice(),
+    npm: c.npm, accessKey: access.v, accessLabel: access.l, accessSub: access.s,
+    gwKey: gw, gwLabel, gwSub, transports, protoLabel: proto.ct,
+    glassesKey: gkey, glassesLabel: g.label, glassesRuntime: g.runtime, xr: g.xr,
+    wsPort: 8080, restPort: 8081
+  };
+}
+
+document.getElementById("genBtn").addEventListener("click", async ()=>{
+  const btn = document.getElementById("genBtn");
+  const status = document.getElementById("genStatus");
+  btn.disabled = true; status.textContent = "Building package…";
+  try{
+    const cfg = buildConfig();
+    const zip = new JSZip();
+    zip.file("README.md", readmeCode(cfg));
+    zip.file("LICENSE", MIT_LICENSE(new Date().getFullYear(), "BlueVector / PLCview demo user"));
+    const gw = zip.folder("gateway");
+    gw.file("server.js", gatewayCode(cfg));
+    gw.file("config.json", configJsonCode(cfg));
+    gw.file("package.json", packageJsonCode(cfg));
+    zip.folder("glasses-client").file("hud.html", hudClientCode(cfg));
+
+    const blob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `plcview-${cfg.chassisKey}-${cfg.glassesKey}.zip`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    status.textContent = "Downloaded " + a.download;
+  }catch(err){
+    console.error(err);
+    status.textContent = "Failed to build package — see console.";
+  }finally{
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
