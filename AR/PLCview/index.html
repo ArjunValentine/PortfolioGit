@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ARPLC — BlueVector Labs</title>
+<meta name="description" content="ARPLC: a PLC-to-AR backplane diagnostics lab. Configure your chassis and glasses, read the docs, or get lost in something useless."/>
+<meta name="theme-color" content="#c8c8c8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{ --pix:'Silkscreen',monospace; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#c8c8c8;min-height:100vh;font-family:var(--pix);color:#000}
+
+/* ================= SPLASH ================= */
+.splash{position:relative;width:100%;overflow:hidden;background:#000}
+.splash img{width:100%;display:block;max-height:56vh;object-fit:cover;object-position:center 30%}
+.splash-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding:1.6rem 1rem;background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,.78) 100%);text-align:center}
+.splash-title{font-size:2.4rem;letter-spacing:.08em;color:#fff;text-shadow:0 2px 0 #000}
+.splash-sub{font-size:.85rem;letter-spacing:.03em;color:#dfe9ea;margin-top:.5rem;max-width:640px}
+
+/* ================= DESKTOP ================= */
+.desktop{
+  background:
+    radial-gradient(#a8a8a8 1px, transparent 1px);
+  background-size:4px 4px;
+  background-color:#c8c8c8;
+  min-height:44vh;
+  padding-bottom:2.5rem;
+}
+.menubar{display:flex;align-items:center;gap:1.4rem;background:#fff;border-bottom:2px solid #000;
+  padding:.5rem 1rem;position:sticky;top:0;z-index:20}
+.mb-logo{font-size:1.1rem;line-height:1}
+.mb-item{font-size:.72rem;letter-spacing:.02em}
+.mb-spacer{flex:1}
+.mb-clock{font-size:.72rem;letter-spacing:.02em;border:1px solid #000;padding:.15rem .5rem}
+
+.desk-wrap{max-width:900px;margin:0 auto;padding:2.4rem 1.4rem 1rem}
+.desk-title{text-align:center;font-size:.95rem;letter-spacing:.04em;margin-bottom:2rem}
+.desk-title .win{display:inline-block;background:#fff;border:2px solid #000;box-shadow:3px 3px 0 #000;padding:.5rem 1.1rem}
+
+.icons{display:flex;flex-wrap:wrap;justify-content:center;gap:2.6rem}
+.dicon{display:flex;flex-direction:column;align-items:center;gap:.6rem;text-decoration:none;color:#000;
+  background:none;border:none;cursor:pointer;font-family:var(--pix);width:120px}
+.dicon .box{width:76px;height:76px;background:#fff;border:2px solid #000;box-shadow:3px 3px 0 #000;
+  display:flex;align-items:center;justify-content:center}
+.dicon svg{width:44px;height:44px}
+.dicon .lbl{font-size:.68rem;letter-spacing:.02em;background:#c8c8c8;padding:.15rem .4rem;text-align:center;line-height:1.4}
+.dicon:hover .box, .dicon:focus-visible .box{background:#000}
+.dicon:hover svg, .dicon:focus-visible svg{filter:invert(1)}
+.dicon:hover .lbl, .dicon:focus-visible .lbl{background:#000;color:#fff}
+.dicon:active .box{transform:translate(1px,1px);box-shadow:2px 2px 0 #000}
+
+.desk-back{display:block;text-align:center;margin-top:2.6rem;font-size:.66rem;letter-spacing:.03em;color:#000;text-decoration:none;
+  border:2px solid #000;background:#fff;box-shadow:2px 2px 0 #000;padding:.5rem 1rem;width:max-content;margin-left:auto;margin-right:auto}
+.desk-back:hover{background:#000;color:#fff}
+
+/* ================= SCREENSAVER (easter egg) ================= */
+.screensaver{position:fixed;inset:0;background:#000;z-index:100;overflow:hidden;cursor:pointer}
+.toaster{position:absolute;width:56px;height:42px}
+.toaster svg{width:100%;height:100%;overflow:visible}
+.wing{transform-origin:50% 50%;animation:flap .22s ease-in-out infinite alternate}
+.wing.right{animation-delay:.05s}
+@keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-28deg)}}
+.wing.right{transform-origin:50% 50%}
+@keyframes flapR{from{transform:rotate(0deg)}to{transform:rotate(28deg)}}
+.wing.right{animation-name:flapR}
+.toast{position:absolute;width:34px;height:26px}
+.ss-hint{position:absolute;bottom:1.2rem;left:0;right:0;text-align:center;color:#4de08a;font-size:.62rem;
+  letter-spacing:.05em;font-family:var(--pix);opacity:.8}
+</style>
+</head>
+<body>
+
+<div class="splash">
+  <img src="assets/splash.jpg" alt="AR glasses view of a factory floor with pinned diagnostic HUD callouts on the injection-molding line"/>
+  <div class="splash-overlay">
+    <div class="splash-title">ARPLC</div>
+    <div class="splash-sub">PLC &harr; AR backplane diagnostics &mdash; a BlueVector lab. Pick an icon below.</div>
+  </div>
+</div>
+
+<div class="desktop">
+  <div class="menubar">
+    <span class="mb-logo">&#9670;</span>
+    <span class="mb-item">File</span>
+    <span class="mb-item">Edit</span>
+    <span class="mb-item">View</span>
+    <span class="mb-item">Special</span>
+    <span class="mb-spacer"></span>
+    <span class="mb-clock" id="clock">--:--</span>
+  </div>
+
+  <div class="desk-wrap">
+    <div class="desk-title"><span class="win">ARPLC — 3 items</span></div>
+
+    <div class="icons">
+      <a class="dicon" href="configurator/">
+        <span class="box">
+          <svg viewBox="0 0 48 48" fill="none" stroke="#000" stroke-width="2.4" stroke-linejoin="round">
+            <rect x="6" y="8" width="36" height="24" rx="1"/>
+            <path d="M6 16 L42 16"/>
+            <circle cx="14" cy="24" r="3"/>
+            <path d="M22 21 L34 21 M22 27 L30 27"/>
+            <path d="M18 32 L18 38 M30 32 L30 38 M12 40 L36 40"/>
+          </svg>
+        </span>
+        <span class="lbl">Configurator</span>
+      </a>
+
+      <a class="dicon" href="docs/">
+        <span class="box">
+          <svg viewBox="0 0 48 48" fill="none" stroke="#000" stroke-width="2.4" stroke-linejoin="round">
+            <path d="M12 4 L30 4 L38 12 L38 44 L12 44 Z"/>
+            <path d="M30 4 L30 12 L38 12"/>
+            <path d="M17 20 L33 20 M17 26 L33 26 M17 32 L27 32"/>
+          </svg>
+        </span>
+        <span class="lbl">Docs</span>
+      </a>
+
+      <button class="dicon" id="toasterIcon" type="button">
+        <span class="box">
+          <svg viewBox="0 0 48 48" fill="none" stroke="#000" stroke-width="2.4" stroke-linejoin="round">
+            <rect x="8" y="18" width="32" height="20" rx="4"/>
+            <path d="M16 18 C16 10 20 6 20 6 M32 18 C32 10 28 6 28 6"/>
+            <path d="M8 26 L2 22 M8 30 L2 32 M40 26 L46 22 M40 30 L46 32"/>
+            <circle cx="24" cy="29" r="2" fill="#000"/>
+          </svg>
+        </span>
+        <span class="lbl">Toasters</span>
+      </button>
+    </div>
+
+    <a class="desk-back" href="../../">&larr; Back to BlueVector</a>
+  </div>
+</div>
+
+<div class="screensaver" id="screensaver" hidden>
+  <div class="ss-hint">click, tap, or press any key to return</div>
+</div>
+
+<script>
+function pad(n){ return n<10 ? "0"+n : ""+n; }
+function tickClock(){
+  const d = new Date();
+  document.getElementById("clock").textContent = pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+tickClock();
+setInterval(tickClock, 15000);
+
+/* ---- flying toasters, original art, tribute-not-trace ---- */
+const TOASTER_SVG = `
+<svg viewBox="0 0 56 42" xmlns="http://www.w3.org/2000/svg">
+  <ellipse class="wing left" cx="10" cy="21" rx="9" ry="5" fill="#dcdcdc" stroke="#fff" stroke-width="1"/>
+  <ellipse class="wing right" cx="46" cy="21" rx="9" ry="5" fill="#dcdcdc" stroke="#fff" stroke-width="1"/>
+  <rect x="14" y="10" width="28" height="24" rx="5" fill="#c9c9c9" stroke="#fff" stroke-width="1.4"/>
+  <rect x="18" y="2" width="7" height="12" rx="1.5" fill="#e7c37a" stroke="#fff" stroke-width="1"/>
+  <rect x="27" y="2" width="7" height="12" rx="1.5" fill="#e7c37a" stroke="#fff" stroke-width="1"/>
+  <circle cx="20" cy="24" r="1.6" fill="#8a8a8a"/>
+</svg>`;
+
+let ssTimer = null;
+function launchScreensaver(){
+  const ss = document.getElementById("screensaver");
+  ss.innerHTML = '<div class="ss-hint">click, tap, or press any key to return</div>';
+  ss.hidden = false;
+  const n = 9;
+  for(let i=0;i<n;i++){
+    const t = document.createElement("div");
+    t.className = "toaster";
+    t.innerHTML = TOASTER_SVG;
+    const top = Math.random()*90;
+    const dur = 4 + Math.random()*5;
+    const delay = -Math.random()*dur;
+    const scale = 0.7 + Math.random()*0.9;
+    t.style.top = top + "vh";
+    t.style.left = "-80px";
+    t.style.setProperty("--s", scale.toFixed(2));
+    t.style.animation = "flyacross " + dur.toFixed(2) + "s linear " + delay.toFixed(2) + "s infinite";
+    ss.appendChild(t);
+  }
+  const style = document.createElement("style");
+  style.textContent = "@keyframes flyacross{from{transform:translateX(0) scale(var(--s,1));}to{transform:translateX(calc(100vw + 160px)) scale(var(--s,1));}}";
+  ss.appendChild(style);
+}
+function closeScreensaver(){
+  document.getElementById("screensaver").hidden = true;
+}
+
+document.getElementById("toasterIcon").addEventListener("click", launchScreensaver);
+document.getElementById("screensaver").addEventListener("click", closeScreensaver);
+document.addEventListener("keydown", (e)=>{
+  if(!document.getElementById("screensaver").hidden) closeScreensaver();
+});
+</script>
+
+</body>
+</html>

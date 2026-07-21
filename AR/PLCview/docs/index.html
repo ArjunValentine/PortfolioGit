@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PLCview — Docs</title>
+<meta name="description" content="Reference information-flow diagram and source for PLCview, BlueVector's PLC-to-AR backplane diagnostics configurator."/>
+<meta name="theme-color" content="#05080c"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#05080c; --panel:#0c131b; --panel2:#101a24; --line:#1d2c39;
+  --ink:#dbe9f2; --ink-dim:#7d94a3; --ink-mut:#4c5f6c;
+  --cyan:#3fe1e8; --cyan-dim:#1f7a80; --amber:#ffb84d; --red:#ff5c5c; --green:#4de08a;
+  --zone1:#e2503a; --zone2:#2e9fd6; --zone3:#8a6de0; --zone4:#4de08a;
+  --mono:'Share Tech Mono',monospace; --disp:'Rajdhani',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--disp);min-height:100vh;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 15% 0%, rgba(63,225,232,.06), transparent 45%), radial-gradient(circle at 85% 100%, rgba(138,109,224,.06), transparent 45%);}
+
+header.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.4rem;
+  border-bottom:2px solid var(--line);background:linear-gradient(180deg,#0a121a,#070c11);position:sticky;top:0;z-index:40}
+.hdr h1{font-size:1.3rem;font-weight:700;letter-spacing:.02em}
+.hdr h1 span{color:var(--cyan)}
+.hdr-sub{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin-top:.15rem}
+.backrow{display:flex;gap:.5rem;flex-shrink:0}
+a.back{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan);text-decoration:none;
+  border:1px solid var(--cyan-dim);padding:.45rem .8rem;border-radius:20px;white-space:nowrap}
+a.back:hover{background:rgba(63,225,232,.1)}
+
+main{max-width:1100px;margin:0 auto;padding:1.4rem}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:1.1rem;margin-bottom:1.2rem}
+.panel h2{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:.7rem}
+.panel p{font-size:.9rem;line-height:1.6;color:var(--ink-dim);margin-bottom:.6rem}
+.panel p:last-child{margin-bottom:0}
+.panel a{color:var(--cyan)}
+
+/* ---- reference diagram (static — same visual language as the live configurator) ---- */
+.diagram-title{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:.3rem}
+.diagram-sub{font-size:.78rem;color:var(--ink-mut);margin-bottom:.9rem}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem}
+@media (max-width:820px){.zones{grid-template-columns:1fr}}
+.zone{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#080d13;display:flex;flex-direction:column}
+.zone-head{padding:.55rem .7rem;font-family:var(--mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;
+  color:#04070a;font-weight:700}
+.z1 .zone-head{background:var(--zone1)}
+.z2 .zone-head{background:var(--zone2)}
+.z3 .zone-head{background:var(--zone3)}
+.z4 .zone-head{background:var(--zone4)}
+.zone-body{padding:.7rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.chip{border:1px solid var(--line);background:var(--panel2);border-radius:5px;padding:.4rem .55rem}
+.chip .ct{font-size:.8rem;font-weight:600;color:var(--ink)}
+.chip .cs{font-family:var(--mono);font-size:.6rem;color:var(--ink-mut);margin-top:.1rem}
+.chip.proto{border-left:3px solid var(--cyan)}
+.chip.proto .ct{color:var(--cyan)}
+.modlist{font-family:var(--mono);font-size:.64rem;color:var(--ink-dim);line-height:1.7;
+  border-top:1px dashed var(--line);padding-top:.4rem}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.4rem}
+a.cta{display:inline-block;font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;
+  color:#031014;background:linear-gradient(180deg,var(--cyan),var(--cyan-dim));padding:.6rem 1rem;border-radius:6px;text-decoration:none;font-weight:700}
+a.cta:hover{filter:brightness(1.08)}
+a.cta.secondary{background:none;color:var(--cyan);border:1px solid var(--cyan-dim)}
+
+.footer{padding:1.2rem 1.4rem 2.4rem;text-align:center;font-family:var(--mono);font-size:.62rem;color:var(--ink-mut);letter-spacing:.03em}
+.footer a{color:var(--cyan-dim)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <h1><span>PLCview</span> — Docs</h1>
+    <div class="hdr-sub">Reference diagram &amp; source</div>
+  </div>
+  <div class="backrow">
+    <a href="../" class="back">&larr; ARPLC</a>
+    <a href="../../../" class="back">&larr; BlueVector</a>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>What PLCview is</h2>
+    <p>PLCview is a small BlueVector demo that turns a PLC-to-AR-glasses backplane diagnostics architecture into something concrete: pick a chassis, a data-access method, a gateway placement, and a glasses platform in the <a href="../configurator/">Configurator</a>, and it draws the information-flow diagram live and generates a downloadable MIT-licensed starter code package wired to those choices.</p>
+    <p>This page holds a static reference copy of that diagram — useful for a deck or a doc — plus the project's source.</p>
+  </div>
+
+  <div class="panel">
+    <div class="diagram-title">Real-Time Backplane Diagnostics — Information Flow (reference example)</div>
+    <div class="diagram-sub">Allen-Bradley ControlLogix (1756) &middot; CIP explicit messaging + AOP &middot; DMZ gateway &middot; HoloLens 2 &mdash; build your own combination in the <a href="../configurator/" style="color:var(--cyan)">Configurator</a>.</div>
+    <div class="zones">
+      <div class="zone z1">
+        <div class="zone-head">Zone 1 &middot; Control Network</div>
+        <div class="zone-body">
+          <div class="chip"><div class="ct">Allen-Bradley ControlLogix (1756)</div><div class="cs">Controller-scoped tags</div></div>
+          <div class="modlist">
+            [0] 1756-PA72 Power Supply<br>
+            [1] 1756-L85E ControlLogix 5580 CPU<br>
+            [2] 1756-EN2T EtherNet/IP Comm Module<br>
+            [3] 1756-IB16 Digital Input (16pt)<br>
+            [4] 1756-OB16 Digital Output (16pt)<br>
+            [5] 1756-IF8 Analog Input (8ch)
+          </div>
+        </div>
+      </div>
+      <div class="zone z2">
+        <div class="zone-head">Zone 2 &middot; Edge Gateway</div>
+        <div class="zone-body">
+          <div class="chip proto"><div class="ct">CIP explicit messaging + AOP</div><div class="cs">Explicit CIP messages against an Add-On Profile for granular diagnostic data</div></div>
+          <div class="chip"><div class="ct">DMZ / boundary gateway</div><div class="cs">Gateway is the OT/IT demarcation point</div></div>
+          <div class="chip proto"><div class="ct">EtherNet/IP + CIP</div><div class="cs">Zone 1 &rarr; Zone 2 hop protocol</div></div>
+        </div>
+      </div>
+      <div class="zone z3">
+        <div class="zone-head">Zone 3 &middot; Network / Transport</div>
+        <div class="zone-body">
+          <div class="chip proto"><div class="ct">WiFi / Local LAN</div><div class="cs">Zone 2 &rarr; Zone 3 transport</div></div>
+          <div class="chip proto"><div class="ct">WebSocket</div><div class="cs">Live push, sub-second HUD refresh</div></div>
+          <div class="chip proto"><div class="ct">REST / HTTP(S)</div><div class="cs">Snapshot polling, easy to firewall</div></div>
+        </div>
+      </div>
+      <div class="zone z4">
+        <div class="zone-head">Zone 4 &middot; AR Glasses</div>
+        <div class="zone-body">
+          <div class="chip"><div class="ct">Microsoft HoloLens 2</div><div class="cs">WebXR via Edge, or native Unity/OpenXR app</div></div>
+          <div class="chip proto"><div class="ct">Bluetooth LE</div><div class="cs">Companion pairing / voice-mic link</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Source &amp; License</h2>
+    <p>PLCview lives in BlueVector's portfolio repository under <code>/AR/PLCview</code>. The page, the diagram, and every file the Configurator generates for you are MIT licensed — use, modify, and redistribute freely. Badges throughout are stylized color-coded labels, not vendor trademarked logo files.</p>
+    <div class="cta-row">
+      <a class="cta" href="https://github.com/PeterJamesVilla/PortfolioGit/tree/main/AR/PLCview" target="_blank" rel="noopener">View Source on GitHub</a>
+      <a class="cta secondary" href="../configurator/">Open Configurator &rarr;</a>
+    </div>
+  </div>
+</main>
+
+<div class="footer">
+  PLCview is a BlueVector demo.
+  <br><a href="../">&larr; ARPLC desktop</a> &middot; <a href="../../../">BlueVector</a>
+</div>
+
+</body>
+</html>

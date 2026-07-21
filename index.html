@@ -59,6 +59,18 @@ td.rounded svg { width: 170px; height: 140px; }
 td.rounded p { font-size: 17px; text-align: center; color: #333; margin-top: 8px; }
 td.spacer { width: 3%; }
 
+/* ── App selector (numbered launcher) ── */
+.applauncher{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin:6px auto 4px;max-width:980px;padding:0 2%}
+.apptile{position:relative;display:flex;flex-direction:column;align-items:center;width:160px;
+  border:2px solid rgb(0,0,128);background:#fff;padding:18px 10px 12px;text-decoration:none;color:rgb(0,0,128)}
+.apptile:hover{background:rgb(240,240,255)}
+.apptile svg{width:88px;height:72px;margin-bottom:8px}
+.apptile h3{font-size:17px;margin:0;text-align:center}
+.numbadge{position:absolute;top:-12px;left:-12px;width:28px;height:28px;border-radius:50%;background:rgb(0,0,128);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  font-family:"Courier New",Courier,monospace;border:2px solid #fff;box-shadow:0 0 0 2px rgb(0,0,128)}
+@media (max-width:800px){.apptile{width:42%}}
+
 /* ── Buttons / CTA ── */
 .btnrow { text-align: center; margin: 8px 0 14px; }
 a.button { display: inline-block; background: rgb(0, 0, 128); color: #fff; padding: 12px 30px; margin: 8px; font-size: 20px; font-weight: bold; text-decoration: none; border-top: 3px solid rgb(120, 120, 220); border-left: 3px solid rgb(120, 120, 220); border-bottom: 3px solid rgb(0, 0, 60); border-right: 3px solid rgb(0, 0, 60); }
@@ -165,6 +177,7 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
         <li><a href="dcsketch/">DCSketch</a></li>
         <li><a href="traffic-oracle/">Traffic Oracle</a></li>
         <li><a href="combined-cycle-sim/">Combined-Cycle Sim</a></li>
+        <li><a href="AR/PLCview/">PLCview</a></li>
       </ul>
     </li>
     <li><a href="helpline/">Helpline</a></li>
@@ -176,6 +189,64 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
 <div class="caution-bar"></div>
 <div class="ticker">
   <marquee scrollamount="6" behavior="scroll" direction="left">&#9733;&nbsp; WELCOME TO BLUEVECTOR &nbsp;&#9733;&nbsp; NOW BOOKING Q3 2026 CAD, DRAFTING &amp; GD&amp;T PROJECTS &nbsp;&#9733;&nbsp; SITE LAST UPDATED 07/15/2026 &nbsp;&#9733;&nbsp; ALL WORK UNDER NDA &nbsp;&#9733;&nbsp; BEST VIEWED IN NETSCAPE NAVIGATOR AT 800&times;600 &nbsp;&#9733;&nbsp; HAND-CODED IN NOTEPAD, NO ROBOTS &nbsp;&#9733;</marquee>
+</div>
+<div class="caution-bar"></div>
+
+<!-- Live Systems — app selector -->
+<div class="section" id="live-systems" style="padding-top:14px;padding-bottom:10px">
+  <h2 style="text-align:center">Live Systems</h2>
+  <div class="applauncher">
+    <a class="apptile" href="scada/">
+      <span class="numbadge">1</span>
+      <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+        <path d="M14 60 Q30 44 46 60 T78 60 T110 60" stroke-linecap="round"/>
+        <path d="M14 76 Q30 60 46 76 T78 76 T110 76" stroke-linecap="round" opacity="0.55"/>
+        <circle cx="60" cy="30" r="10"/>
+        <path d="M60 40 L60 52" stroke-dasharray="4 4"/>
+      </svg>
+      <h3>Hydro SCADA</h3>
+    </a>
+    <a class="apptile" href="dcsketch/">
+      <span class="numbadge">2</span>
+      <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+        <rect x="18" y="16" width="84" height="68"/>
+        <path d="M18 34 L102 34"/>
+        <circle cx="40" cy="55" r="7"/>
+        <path d="M40 62 L40 78 M60 34 L60 84 M80 46 L96 46"/>
+      </svg>
+      <h3>DCSketch</h3>
+    </a>
+    <a class="apptile" href="traffic-oracle/">
+      <span class="numbadge">3</span>
+      <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+        <path d="M20 84 L48 16 L72 16 L100 84" />
+        <path d="M32 56 L88 56" stroke-dasharray="6 6"/>
+        <circle cx="48" cy="70" r="5" fill="#000080"/>
+        <circle cx="72" cy="70" r="5" fill="#000080"/>
+      </svg>
+      <h3>Traffic Oracle</h3>
+    </a>
+    <a class="apptile" href="combined-cycle-sim/">
+      <span class="numbadge">4</span>
+      <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+        <polygon points="24,50 54,58 54,78 24,86"/>
+        <circle cx="66" cy="64" r="8"/>
+        <rect x="80" y="30" width="26" height="50"/>
+        <rect x="88" y="14" width="10" height="18"/>
+      </svg>
+      <h3>Combined-Cycle Sim</h3>
+    </a>
+    <a class="apptile" href="AR/PLCview/">
+      <span class="numbadge">5</span>
+      <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
+        <rect x="14" y="20" width="34" height="60"/>
+        <path d="M48 34 L74 34 M48 50 L74 50 M48 66 L74 66"/>
+        <path d="M80 50 L104 50" stroke-dasharray="4 4"/>
+        <path d="M92 30 L108 42 L108 58 L92 70 Z"/>
+      </svg>
+      <h3>PLCview</h3>
+    </a>
+  </div>
 </div>
 <div class="caution-bar"></div>
 
@@ -259,70 +330,6 @@ a.download .meta { font-size: 14px; color: #333; font-weight: normal; text-decor
   <p><b>Obsolete Part, Reverse Engineered.</b> A worn sample, no drawing, became a fully parametric model the client can re-source from any shop.</p>
   <p><b>Sheet-Metal Enclosure to Production.</b> A rough concept became a manufacturable design, handed straight to fab for a clean first article.</p>
   <p style="font-size:16px; color:#555;">Details generalized for confidentiality. More on request under NDA.</p>
-</div>
-
-<!-- Live Systems -->
-<div class="section" id="live-systems">
-  <h2>Live Systems</h2>
-  <p>Working demos of the controls, SCADA, and simulation engineering behind BlueVector &mdash; live data, not screenshots.</p>
-  <table class="cards" align="center" width="94%" cellpadding="5px">
-    <tbody>
-      <tr>
-        <td class="rounded" width="31%">
-          <h3>Hydro SCADA</h3>
-          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
-            <path d="M14 60 Q30 44 46 60 T78 60 T110 60" stroke-linecap="round"/>
-            <path d="M14 76 Q30 60 46 76 T78 76 T110 76" stroke-linecap="round" opacity="0.55"/>
-            <circle cx="60" cy="30" r="10"/>
-            <path d="M60 40 L60 52" stroke-dasharray="4 4"/>
-          </svg>
-          <p>Live USGS gauge passability map for the Winter Haven Chain of Lakes</p>
-          <div class="btnrow" style="margin:6px 0 0"><a href="scada/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
-        </td>
-        <td class="spacer"></td>
-        <td class="rounded" width="31%">
-          <h3>DCSketch</h3>
-          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
-            <rect x="18" y="16" width="84" height="68"/>
-            <path d="M18 34 L102 34"/>
-            <circle cx="40" cy="55" r="7"/>
-            <path d="M40 62 L40 78 M60 34 L60 84 M80 46 L96 46"/>
-          </svg>
-          <p>SCADA/DCS architecture &amp; estimation workbench &mdash; I/O, panels, and line-item costing</p>
-          <div class="btnrow" style="margin:6px 0 0"><a href="dcsketch/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
-        </td>
-        <td class="spacer"></td>
-        <td class="rounded" width="31%">
-          <h3>Traffic Oracle</h3>
-          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
-            <path d="M20 84 L48 16 L72 16 L100 84" />
-            <path d="M32 56 L88 56" stroke-dasharray="6 6"/>
-            <circle cx="48" cy="70" r="5" fill="#000080"/>
-            <circle cx="72" cy="70" r="5" fill="#000080"/>
-          </svg>
-          <p>Live corridor-speed modelling for Pinellas County, St. Petersburg FL</p>
-          <div class="btnrow" style="margin:6px 0 0"><a href="traffic-oracle/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="rounded" width="31%">
-          <h3>Combined-Cycle Sim</h3>
-          <svg viewBox="0 0 120 100" fill="none" stroke="#000080" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square">
-            <polygon points="24,50 54,58 54,78 24,86"/>
-            <circle cx="66" cy="64" r="8"/>
-            <rect x="80" y="30" width="26" height="50"/>
-            <rect x="88" y="14" width="10" height="18"/>
-          </svg>
-          <p>Voltage Falls Power &mdash; an operator simulator for a gas + steam combined-cycle plant</p>
-          <div class="btnrow" style="margin:6px 0 0"><a href="combined-cycle-sim/" class="button" style="padding:8px 20px;font-size:15px;margin:0">Open &rarr;</a></div>
-        </td>
-        <td class="spacer"></td>
-        <td width="31%"></td>
-        <td class="spacer"></td>
-        <td width="31%"></td>
-      </tr>
-    </tbody>
-  </table>
 </div>
 
 <!-- Resources -->
