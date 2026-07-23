@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>L5X Studio — Ladder Logic Generator</title>
+<meta name="description" content="Describe your machine in plain language and get a Studio 5000 (RSLogix 5000) .L5X ladder-logic file. Chat-driven, live ladder preview, hand-drawn diagram import." />
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --line:#2a3446;
+    --ink:#e6edf3; --dim:#8b98a9; --accent:#4aa8ff; --accent2:#38d39f;
+    --warn:#ffb454; --danger:#ff6b6b; --rail:#586a86; --wire:#9fb3d1;
+    --box:#223049; --boxln:#3f5578; --coil:#38d39f; --contact:#7fc4ff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:14px;
+    display:flex; flex-direction:column; height:100vh; overflow:hidden;
+  }
+  header{
+    display:flex; align-items:center; gap:14px; padding:10px 16px;
+    background:linear-gradient(180deg,#161b22,#12161d); border-bottom:1px solid var(--line);
+    flex:0 0 auto;
+  }
+  header .logo{font-weight:700; letter-spacing:.5px; font-size:16px; display:flex; align-items:center; gap:9px}
+  header .logo b{color:var(--accent)}
+  header .logo .rung{width:22px;height:22px}
+  .spacer{flex:1}
+  .field{display:flex; flex-direction:column; gap:2px}
+  .field label{font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--dim)}
+  input,select,button{font-family:inherit}
+  input[type=text], select{
+    background:var(--panel2); border:1px solid var(--line); color:var(--ink);
+    border-radius:6px; padding:6px 9px; font-size:13px; outline:none;
+  }
+  input[type=text]:focus, select:focus{border-color:var(--accent)}
+  .btn{
+    background:var(--panel2); border:1px solid var(--line); color:var(--ink);
+    border-radius:6px; padding:7px 13px; font-size:13px; cursor:pointer; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn:hover{border-color:var(--accent); color:#fff}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#04121f; font-weight:600}
+  .btn.primary:hover{background:#69b7ff}
+  .btn.good{background:var(--accent2); border-color:var(--accent2); color:#04231a; font-weight:600}
+  .btn.good:hover{background:#54e2b1}
+
+  main{display:flex; flex:1; min-height:0}
+  /* left: ladder preview */
+  .preview{flex:1; display:flex; flex-direction:column; min-width:0; border-right:1px solid var(--line)}
+  .tabs{
+    display:flex; align-items:center; gap:2px; padding:6px 8px 0; background:var(--panel);
+    border-bottom:1px solid var(--line); overflow-x:auto; flex:0 0 auto;
+  }
+  .tab{
+    padding:7px 14px; border:1px solid var(--line); border-bottom:none; background:var(--panel2);
+    color:var(--dim); border-radius:7px 7px 0 0; cursor:pointer; font-size:13px; white-space:nowrap;
+    display:flex; align-items:center; gap:8px;
+  }
+  .tab.active{background:var(--bg); color:var(--ink); border-color:var(--accent); position:relative; top:1px}
+  .tab .x{opacity:.5; font-size:14px; line-height:1}
+  .tab .x:hover{opacity:1; color:var(--danger)}
+  .tab.add{color:var(--accent); border-style:dashed}
+  .canvas-wrap{flex:1; overflow:auto; background:
+      radial-gradient(circle at 1px 1px, #1b222d 1px, transparent 0) 0 0/22px 22px, var(--bg);
+    position:relative;}
+  #ladder{display:block}
+  .empty-hint{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--dim); text-align:center; pointer-events:none; padding:30px;
+  }
+  .empty-hint div{max-width:420px; line-height:1.6}
+
+  /* right: chat */
+  .chat{width:400px; max-width:44vw; display:flex; flex-direction:column; background:var(--panel); flex:0 0 auto}
+  .chat .head{padding:10px 14px; border-bottom:1px solid var(--line); font-weight:600; display:flex; align-items:center; gap:8px}
+  .chat .head .dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+  .chat .head .dot.on{background:var(--accent2); box-shadow:0 0 8px var(--accent2)}
+  .msgs{flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:12px}
+  .msg{padding:10px 12px; border-radius:10px; line-height:1.5; max-width:92%; white-space:pre-wrap; word-wrap:break-word}
+  .msg.user{align-self:flex-end; background:var(--accent); color:#04121f}
+  .msg.bot{align-self:flex-start; background:var(--panel2); border:1px solid var(--line)}
+  .msg.sys{align-self:center; background:transparent; color:var(--dim); font-size:12px; text-align:center; font-style:italic}
+  .msg .ops-note{margin-top:7px; font-size:11px; color:var(--accent2)}
+  .typing{align-self:flex-start; color:var(--dim); font-size:13px; padding:4px 8px}
+  .composer{border-top:1px solid var(--line); padding:10px; display:flex; flex-direction:column; gap:8px}
+  .composer .row{display:flex; gap:8px; align-items:flex-end}
+  .composer textarea{
+    flex:1; resize:none; background:var(--panel2); border:1px solid var(--line); color:var(--ink);
+    border-radius:8px; padding:9px 11px; font-size:13px; font-family:inherit; max-height:130px; min-height:42px;
+  }
+  .composer textarea:focus{outline:none; border-color:var(--accent)}
+  .quick{display:flex; gap:6px; flex-wrap:wrap}
+  .chip{font-size:11px; padding:4px 9px; border:1px solid var(--line); border-radius:20px; color:var(--dim); cursor:pointer; background:var(--panel2)}
+  .chip:hover{border-color:var(--accent); color:var(--ink)}
+
+  /* rung editor modal */
+  .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:50}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--panel); border:1px solid var(--line); border-radius:12px; width:min(680px,92vw); max-height:88vh; overflow:auto; padding:18px}
+  .modal h3{margin:0 0 12px}
+  .modal textarea{width:100%; min-height:60px; background:var(--panel2); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:10px; font-family:"Consolas",monospace; font-size:13px}
+  .palette{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0}
+  .palette .pi{font-size:11px; padding:5px 9px; border:1px solid var(--boxln); background:var(--box); color:var(--contact); border-radius:6px; cursor:pointer; font-family:monospace}
+  .palette .pi:hover{border-color:var(--accent); color:#fff}
+  .modal .actions{display:flex; gap:8px; justify-content:flex-end; margin-top:14px}
+  .modal small{color:var(--dim)}
+
+  .xml-pre{background:#0a0e14; border:1px solid var(--line); border-radius:8px; padding:12px; font-family:"Consolas",monospace; font-size:11.5px; color:#b9c7db; white-space:pre; overflow:auto; max-height:52vh}
+  .toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--panel2); border:1px solid var(--accent); color:var(--ink); padding:10px 16px; border-radius:8px; z-index:80; opacity:0; transition:opacity .25s; pointer-events:none}
+  .toast.on{opacity:1}
+  a{color:var(--accent)}
+  .hidden{display:none !important}
+  @media (max-width:820px){
+    .chat{width:100%; max-width:100%}
+    main{flex-direction:column}
+    .preview{border-right:none; border-bottom:1px solid var(--line)}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg class="rung" viewBox="0 0 24 24"><g stroke="#4aa8ff" stroke-width="1.6" fill="none">
+      <line x1="3" y1="3" x2="3" y2="21"/><line x1="21" y1="3" x2="21" y2="21"/>
+      <line x1="3" y1="8" x2="9" y2="8"/><line x1="11" y1="8" x2="15" y2="8"/><line x1="17" y1="8" x2="21" y2="8"/>
+      <line x1="9" y1="5.5" x2="9" y2="10.5"/><line x1="11" y1="5.5" x2="11" y2="10.5"/>
+      <circle cx="18" cy="8" r="2.4" stroke="#38d39f"/>
+      <line x1="3" y1="16" x2="15" y2="16"/><line x1="17" y1="16" x2="21" y2="16"/>
+      <line x1="9" y1="13.5" x2="9" y2="18.5"/><line x1="11" y1="13.5" x2="11" y2="18.5"/>
+      <circle cx="18" cy="16" r="2.4" stroke="#38d39f"/>
+    </g></svg>
+    <span>L5X&nbsp;<b>Studio</b></span>
+  </div>
+
+  <div class="field">
+    <label for="ctrlName">Controller</label>
+    <input type="text" id="ctrlName" value="MyController" size="14" spellcheck="false"/>
+  </div>
+  <div class="field">
+    <label for="verSel">Studio 5000 version</label>
+    <select id="verSel"></select>
+  </div>
+  <div class="field">
+    <label for="procSel">Processor</label>
+    <input type="text" id="procSel" value="1756-L83E" size="10" spellcheck="false"/>
+  </div>
+
+  <div class="spacer"></div>
+
+  <input type="file" id="importFile" accept="image/*,application/pdf" class="hidden"/>
+  <button class="btn" id="importBtn" title="Import a photo/scan/PDF of a hand-drawn ladder">📷 Import drawing</button>
+  <button class="btn" id="tagsBtn" title="View auto-generated tags">🏷 Tags</button>
+  <button class="btn good" id="exportBtn">⤓ Export .L5X</button>
+</header>
+
+<main>
+  <section class="preview">
+    <div class="tabs" id="tabs"></div>
+    <div class="canvas-wrap" id="canvasWrap">
+      <svg id="ladder" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="empty-hint" id="emptyHint"><div>
+        <b>This sheet is empty.</b><br/>
+        Describe what your machine should do in the chat on the right —
+        e.g. <i>“Start/stop a motor with a seal-in, and stop on the E-stop or overload.”</i><br/><br/>
+        Click any rung to edit it by hand, or import a hand-drawn ladder.
+      </div></div>
+    </div>
+  </section>
+
+  <aside class="chat">
+    <div class="head"><span class="dot" id="apiDot"></span> Design assistant</div>
+    <div class="msgs" id="msgs"></div>
+    <div class="composer">
+      <div class="quick" id="quick"></div>
+      <div class="row">
+        <textarea id="input" placeholder="Describe the logic you need… (Enter to send, Shift+Enter for newline)" rows="1"></textarea>
+        <button class="btn primary" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- rung editor -->
+<div class="modal-bg" id="rungModal">
+  <div class="modal">
+    <h3 id="rungModalTitle">Edit rung</h3>
+    <small>Neutral text — series is left-to-right, use <code>[a,b]</code> for a parallel branch. Ends with a coil/box.</small>
+    <textarea id="rungText" spellcheck="false"></textarea>
+    <div class="palette" id="palette"></div>
+    <input type="text" id="rungComment" placeholder="Rung comment (optional)" style="width:100%"/>
+    <div class="actions">
+      <button class="btn" id="rungDelete" style="margin-right:auto; color:var(--danger); border-color:var(--danger)">Delete rung</button>
+      <button class="btn" id="rungCancel">Cancel</button>
+      <button class="btn primary" id="rungSave">Save rung</button>
+    </div>
+  </div>
+</div>
+
+<!-- export / tags modal -->
+<div class="modal-bg" id="infoModal">
+  <div class="modal">
+    <h3 id="infoTitle">Export</h3>
+    <div id="infoBody"></div>
+    <div class="actions">
+      <button class="btn" id="infoClose">Close</button>
+      <button class="btn good" id="infoDownload">⤓ Download .L5X</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   L5X Studio — client app
+   Program model -> SVG ladder + Studio 5000 .L5X export.
+   Neutral-text grammar shared with netlify/functions/l5x-chat.mjs.
+   ===================================================================== */
+
+const FN_URL = "/.netlify/functions/l5x-chat";
+
+/* ---- Studio 5000 version table (SoftwareRevision + default processor) ---- */
+const VERSIONS = [
+  { v: "20", sr: "20.01", rev: "20", proc: "1756-L73" },
+  { v: "21", sr: "21.00", rev: "21", proc: "1756-L73" },
+  { v: "24", sr: "24.00", rev: "24", proc: "1756-L75" },
+  { v: "28", sr: "28.00", rev: "28", proc: "1756-L83E" },
+  { v: "30", sr: "30.00", rev: "30", proc: "1756-L83E" },
+  { v: "31", sr: "31.00", rev: "31", proc: "1756-L83E" },
+  { v: "32", sr: "32.00", rev: "32", proc: "1756-L83E" },
+  { v: "33", sr: "33.00", rev: "33", proc: "1756-L83E" },
+  { v: "34", sr: "34.00", rev: "34", proc: "1756-L85E" },
+  { v: "35", sr: "35.00", rev: "35", proc: "1756-L85E" },
+  { v: "36", sr: "36.00", rev: "36", proc: "1756-L85E" },
+];
+
+/* ---- program state ---- */
+const program = {
+  controller: { name: "MyController" },
+  sheets: [{ name: "Main_Logic", rungs: [] }],
+};
+let activeSheet = 0;
+
+/* =====================================================================
+   Neutral-text parser  ->  element tree
+   element: {kind:'instr', name, args:[...]}  |  {kind:'branch', paths:[[el...]...]}
+   ===================================================================== */
+function tokenize(s) {
+  const toks = [];
+  let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (c === "[" || c === "]" || c === ",") { toks.push({ t: c }); i++; continue; }
+    if (c === ";" || /\s/.test(c)) { i++; continue; }
+    const m = /^([A-Za-z_][A-Za-z0-9_]*)\s*\(/.exec(s.slice(i));
+    if (m) {
+      const name = m[1];
+      let j = i + m[0].length, depth = 1, args = "";
+      while (j < s.length && depth > 0) {
+        if (s[j] === "(") depth++;
+        else if (s[j] === ")") { depth--; if (depth === 0) break; }
+        args += s[j]; j++;
+      }
+      toks.push({ t: "instr", name, args: args.trim() });
+      i = j + 1; continue;
+    }
+    const b = /^([A-Za-z_][A-Za-z0-9_]*)/.exec(s.slice(i));
+    if (b) { toks.push({ t: "instr", name: b[1], args: "" }); i += b[0].length; continue; }
+    i++;
+  }
+  return toks;
+}
+function splitArgs(a) {
+  if (!a) return [];
+  const out = []; let depth = 0, cur = "";
+  for (const ch of a) {
+    if (ch === "(" || ch === "[") depth++;
+    if (ch === ")" || ch === "]") depth--;
+    if (ch === "," && depth === 0) { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  if (cur.trim() !== "") out.push(cur.trim());
+  return out;
+}
+function parseSeries(toks, pos) {
+  const elements = [];
+  while (pos < toks.length) {
+    const tk = toks[pos];
+    if (tk.t === "instr") { elements.push({ kind: "instr", name: tk.name.toUpperCase(), args: splitArgs(tk.args) }); pos++; }
+    else if (tk.t === "[") { const b = parseBranch(toks, pos + 1); elements.push(b.node); pos = b.pos; }
+    else break; // ] or ,
+  }
+  return { elements, pos };
+}
+function parseBranch(toks, pos) {
+  const paths = [];
+  while (true) {
+    const s = parseSeries(toks, pos);
+    paths.push(s.elements); pos = s.pos;
+    if (toks[pos] && toks[pos].t === ",") { pos++; continue; }
+    if (toks[pos] && toks[pos].t === "]") { pos++; break; }
+    break;
+  }
+  return { node: { kind: "branch", paths }, pos };
+}
+function parseRung(text) {
+  const toks = tokenize(text || "");
+  return parseSeries(toks, 0).elements;
+}
+function elementsToText(elements) {
+  return elements.map((el) => {
+    if (el.kind === "instr") return el.args.length ? `${el.name}(${el.args.join(",")})` : el.name;
+    return "[" + el.paths.map((p) => elementsToText(p)).join(",") + "]";
+  }).join("");
+}
+
+/* =====================================================================
+   Instruction classification + rendering
+   ===================================================================== */
+const CONTACTS = { XIC: 1, XIO: 1 };
+const COILS = { OTE: "( )", OTL: "(L)", OTU: "(U)" };
+const OUTPUT_NAMES = { OTE:1,OTL:1,OTU:1,TON:1,TOF:1,RTO:1,CTU:1,CTD:1,RES:1,MOV:1,ADD:1,SUB:1,MUL:1,DIV:1,CLR:1,JSR:1,ONS:1 };
+
+function isContact(el){ return el.kind==="instr" && CONTACTS[el.name]; }
+function isCoil(el){ return el.kind==="instr" && COILS[el.name]; }
+
+/* layout: returns {w,h,node} in px. CW cell width, CH cell height. */
+const CW = 128, CH = 74, BOX_W = 150, BOX_H = 92, RAIL_PAD = 16;
+function layoutElem(el){
+  if (el.kind === "instr"){
+    const box = !isContact(el) && !isCoil(el);
+    return { kind:"instr", el, w: box?BOX_W:CW, h: box?BOX_H:CH, box };
+  }
+  // branch
+  const paths = el.paths.map(layoutSeries);
+  const w = Math.max(CW, ...paths.map(p=>p.w)) + RAIL_PAD*2;
+  const h = paths.reduce((a,p)=>a+p.h,0);
+  return { kind:"branch", paths, w, h };
+}
+function layoutSeries(elements){
+  const parts = (elements.length?elements:[{kind:"instr",name:"",args:[]}]).map(layoutElem);
+  const w = parts.reduce((a,p)=>a+p.w,0);
+  const h = Math.max(CH, ...parts.map(p=>p.h));
+  return { kind:"series", parts, w, h };
+}
+
+const NS = "http://www.w3.org/2000/svg";
+function svg(tag, attrs){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+function svgText(x,y,str,cls,size){
+  const t=svg("text",{x,y,"text-anchor":"middle","font-size":size||12,fill:cls||"#cdd9ea","font-family":"Consolas,monospace"});
+  t.textContent=str; return t;
+}
+
+/* draw a series into group g, along horizontal midline yMid, starting at x. returns end x */
+function drawSeries(g, layout, x, yMid){
+  for (const part of layout.parts){
+    x = drawElem(g, part, x, yMid);
+  }
+  return x;
+}
+function drawElem(g, part, x, yMid){
+  if (part.kind === "instr"){
+    if (part.box) return drawBox(g, part.el, x, yMid);
+    return drawContactOrCoil(g, part.el, x, yMid);
+  }
+  // branch
+  const bw = part.w, x0 = x, x1 = x + bw;
+  // vertical rails
+  let yTop=yMid, yBot=yMid;
+  // compute each path's midline
+  let cy = yMid - part.h/2;
+  const mids=[];
+  for (const p of part.paths){ const m = cy + p.h/2; mids.push(m); cy += p.h; }
+  yTop = Math.min(...mids); yBot = Math.max(...mids);
+  g.appendChild(svg("line",{x1:x0,y1:yTop,x2:x0,y2:yBot,stroke:"var(--wire)","stroke-width":2}));
+  g.appendChild(svg("line",{x1:x1,y1:yTop,x2:x1,y2:yBot,stroke:"var(--wire)","stroke-width":2}));
+  part.paths.forEach((p, idx)=>{
+    const my = mids[idx];
+    // left stub
+    g.appendChild(svg("line",{x1:x0,y1:my,x2:x0+RAIL_PAD,y2:my,stroke:"var(--wire)","stroke-width":2}));
+    let ex = drawSeries(g, p, x0+RAIL_PAD, my);
+    // right stub to closing rail
+    g.appendChild(svg("line",{x1:ex,y1:my,x2:x1,y2:my,stroke:"var(--wire)","stroke-width":2}));
+  });
+  return x1;
+}
+function drawContactOrCoil(g, el, x, yMid){
+  const w=CW, cx=x+w/2;
+  // wire through
+  g.appendChild(svg("line",{x1:x,y1:yMid,x2:x+w,y2:yMid,stroke:"var(--wire)","stroke-width":2}));
+  if (isContact(el)){
+    const gap=13, bh=22;
+    g.appendChild(svg("rect",{x:cx-gap,y:yMid-bh,width:0.1,height:0}));
+    g.appendChild(svg("line",{x1:cx-gap,y1:yMid-bh,x2:cx-gap,y2:yMid+bh,stroke:"var(--contact)","stroke-width":2.4}));
+    g.appendChild(svg("line",{x1:cx+gap,y1:yMid-bh,x2:cx+gap,y2:yMid+bh,stroke:"var(--contact)","stroke-width":2.4}));
+    // cover the wire between bars
+    g.appendChild(svg("line",{x1:cx-gap,y1:yMid,x2:cx+gap,y2:yMid,stroke:"var(--bg)","stroke-width":3}));
+    if (el.name==="XIO") g.appendChild(svg("line",{x1:cx-gap,y1:yMid+bh,x2:cx+gap,y2:yMid-bh,stroke:"var(--contact)","stroke-width":2.4}));
+    g.appendChild(svgText(cx, yMid-bh-6, el.args[0]||"?", "#dfe9f6", 12));
+    g.appendChild(svgText(cx, yMid+bh+15, el.name, "#6d7f96", 10));
+  } else {
+    // coil
+    const r=15;
+    g.appendChild(svg("line",{x1:cx-r,y1:yMid,x2:cx+r,y2:yMid,stroke:"var(--bg)","stroke-width":3}));
+    g.appendChild(svg("path",{d:`M ${cx-r} ${yMid-r} Q ${cx-r-9} ${yMid} ${cx-r} ${yMid+r}`,stroke:"var(--coil)","stroke-width":2.4,fill:"none"}));
+    g.appendChild(svg("path",{d:`M ${cx+r} ${yMid-r} Q ${cx+r+9} ${yMid} ${cx+r} ${yMid+r}`,stroke:"var(--coil)","stroke-width":2.4,fill:"none"}));
+    const glyph = COILS[el.name];
+    if (glyph!=="( )") g.appendChild(svgText(cx, yMid+4, glyph.replace(/[()]/g,""), "var(--coil)", 12));
+    g.appendChild(svgText(cx, yMid-r-6, el.args[0]||"?", "#dfe9f6", 12));
+    g.appendChild(svgText(cx, yMid+r+15, el.name, "#6d7f96", 10));
+  }
+  return x+w;
+}
+function drawBox(g, el, x, yMid){
+  const w=BOX_W, h=BOX_H, x0=x+8, y0=yMid-h/2;
+  // wires in/out
+  g.appendChild(svg("line",{x1:x,y1:yMid,x2:x0,y2:yMid,stroke:"var(--wire)","stroke-width":2}));
+  g.appendChild(svg("line",{x1:x0+w-16,y1:yMid,x2:x+w,y2:yMid,stroke:"var(--wire)","stroke-width":2}));
+  g.appendChild(svg("rect",{x:x0,y:y0,width:w-16,height:h,rx:6,fill:"var(--box)",stroke:"var(--boxln)","stroke-width":1.6}));
+  const cxb=x0+(w-16)/2;
+  g.appendChild(svg("line",{x1:x0,y1:y0+22,x2:x0+w-16,y2:y0+22,stroke:"var(--boxln)","stroke-width":1}));
+  const title=svgText(cxb, y0+15, el.name, "#8fd6ff", 12.5); g.appendChild(title);
+  // args, up to 4 lines
+  const labels = argLabels(el);
+  labels.slice(0,4).forEach((ln,i)=>{
+    g.appendChild(svgText(cxb, y0+38+i*15, ln, "#c6d2e2", 10.5));
+  });
+  return x+w;
+}
+function argLabels(el){
+  const a=el.args;
+  const named={
+    TON:["Timer","","Preset","Accum"], TOF:["Timer","","Preset","Accum"], RTO:["Timer","","Preset","Accum"],
+    CTU:["Counter","","Preset","Accum"], CTD:["Counter","","Preset","Accum"], RES:["Reset"],
+    MOV:["Src","Dest"], CLR:["Dest"],
+    ADD:["A","B","Dest"], SUB:["A","B","Dest"], MUL:["A","B","Dest"], DIV:["A","B","Dest"],
+    EQU:["A","B"], NEQ:["A","B"], LES:["A","B"], GRT:["A","B"], LEQ:["A","B"], GEQ:["A","B"],
+    LIM:["Low","Test","High"], JSR:["Routine"], ONS:["Bit"],
+  }[el.name];
+  return a.map((v,i)=>{
+    if (v==="?"||v==="") return null;
+    const nm = named && named[i];
+    return (nm? nm+": ":"") + v;
+  }).filter(Boolean);
+}
+
+/* =====================================================================
+   Render the active sheet
+   ===================================================================== */
+function render(){
+  buildTabs();
+  const sheet = program.sheets[activeSheet];
+  const S = document.getElementById("ladder");
+  while (S.firstChild) S.removeChild(S.firstChild);
+  const hint = document.getElementById("emptyHint");
+
+  const rungs = sheet.rungs;
+  hint.style.display = rungs.length ? "none" : "flex";
+
+  const LEFT = 46, RIGHT_MIN = 900, TOP = 30, GAP = 26;
+  let y = TOP, maxW = RIGHT_MIN;
+  const layouts = rungs.map(r => layoutSeries(parseRung(r.text)));
+  layouts.forEach(l => { maxW = Math.max(maxW, LEFT + 40 + l.w + 120); });
+  const rightRail = maxW - 40;
+
+  let totalH = TOP;
+  const g = svg("g",{});
+  layouts.forEach((l, idx)=>{
+    const r = rungs[idx];
+    const rungH = l.h;
+    const yMid = y + Math.max(rungH, CH)/2 + 12;
+    // rung number + comment
+    g.appendChild(svgText(22, yMid, String(idx), "#5a6b82", 12));
+    if (r.comment){
+      const c = svg("text",{x:LEFT, y:y+8, "font-size":11, fill:"#7c8ba0", "font-family":"Segoe UI"});
+      c.textContent = r.comment.length>110? r.comment.slice(0,110)+"…" : r.comment;
+      g.appendChild(c);
+    }
+    const rowTop = y + (r.comment? 16:2);
+    const my = rowTop + Math.max(rungH,CH)/2;
+    // left rail stub
+    g.appendChild(svg("line",{x1:LEFT,y1:my,x2:LEFT+30,y2:my,stroke:"var(--wire)","stroke-width":2}));
+    const endX = drawSeries(g, l, LEFT+30, my);
+    // wire to right rail
+    g.appendChild(svg("line",{x1:endX,y1:my,x2:rightRail,y2:my,stroke:"var(--wire)","stroke-width":2}));
+    // clickable hitbox
+    const hit = svg("rect",{x:0,y:rowTop-6,width:maxW,height:Math.max(rungH,CH)+12,fill:"transparent",style:"cursor:pointer"});
+    hit.addEventListener("click",()=>openRungEditor(idx));
+    g.appendChild(hit);
+    y = rowTop + Math.max(rungH,CH) + GAP;
+    totalH = y;
+  });
+
+  // end rung (visual)
+  totalH += 10;
+  // power rails
+  const railTop = TOP-6, railBot = Math.max(totalH, TOP+40);
+  g.insertBefore(svg("line",{x1:LEFT,y1:railTop,x2:LEFT,y2:railBot,stroke:"var(--rail)","stroke-width":3}), g.firstChild);
+  g.insertBefore(svg("line",{x1:rightRail,y1:railTop,x2:rightRail,y2:railBot,stroke:"var(--rail)","stroke-width":3}), g.firstChild);
+
+  S.setAttribute("width", maxW);
+  S.setAttribute("height", railBot + 30);
+  S.appendChild(g);
+}
+
+function buildTabs(){
+  const t = document.getElementById("tabs");
+  t.innerHTML = "";
+  program.sheets.forEach((s, i)=>{
+    const el = document.createElement("div");
+    el.className = "tab" + (i===activeSheet?" active":"");
+    const name = document.createElement("span");
+    name.textContent = s.name + (s.rungs.length? ` (${s.rungs.length})`:"");
+    name.addEventListener("click", ()=>{ activeSheet=i; render(); });
+    name.addEventListener("dblclick", ()=>renameSheet(i));
+    el.appendChild(name);
+    if (program.sheets.length>1){
+      const x = document.createElement("span");
+      x.className="x"; x.textContent="×"; x.title="Delete sheet";
+      x.addEventListener("click",(e)=>{ e.stopPropagation(); deleteSheet(i); });
+      el.appendChild(x);
+    }
+    t.appendChild(el);
+  });
+  const add = document.createElement("div");
+  add.className="tab add"; add.textContent="+ Sheet";
+  add.addEventListener("click", addSheet);
+  t.appendChild(add);
+}
+function addSheet(){
+  const name = uniqueSheetName("Process_"+(program.sheets.length+1));
+  program.sheets.push({name, rungs:[]});
+  activeSheet = program.sheets.length-1;
+  render();
+}
+function renameSheet(i){
+  const nm = prompt("Sheet name (Logix routine name):", program.sheets[i].name);
+  if (!nm) return;
+  program.sheets[i].name = sanitizeId(nm) || program.sheets[i].name;
+  render();
+}
+function deleteSheet(i){
+  if (!confirm(`Delete sheet "${program.sheets[i].name}" and its ${program.sheets[i].rungs.length} rung(s)?`)) return;
+  program.sheets.splice(i,1);
+  if (activeSheet>=program.sheets.length) activeSheet=program.sheets.length-1;
+  render();
+}
+function sanitizeId(s){ return String(s).trim().replace(/[^A-Za-z0-9_]/g,"_").replace(/^([0-9])/,"_$1").slice(0,40); }
+function uniqueSheetName(base){
+  let n=sanitizeId(base)||"Sheet", nm=n, k=2;
+  while (program.sheets.some(s=>s.name===nm)) nm=n+"_"+(k++);
+  return nm;
+}
+function ensureSheet(name){
+  const nm = sanitizeId(name)||"Sheet";
+  let s = program.sheets.find(x=>x.name===nm);
+  if (!s){ s={name:nm, rungs:[]}; program.sheets.push(s); }
+  return s;
+}
+
+/* =====================================================================
+   Apply ops (from chat / OCR)
+   ===================================================================== */
+function applyOps(ops){
+  if (!ops || typeof ops!=="object") return 0;
+  let changed=0;
+  if (ops.controller && ops.controller.name){
+    program.controller.name = sanitizeId(ops.controller.name) || program.controller.name;
+    document.getElementById("ctrlName").value = program.controller.name;
+    changed++;
+  }
+  (ops.sheets||[]).forEach(n=>{ ensureSheet(n); changed++; });
+  (ops.replaceSheets||[]).forEach(n=>{ const s=ensureSheet(n); s.rungs=[]; changed++; });
+  // removals first (by descending index within each sheet)
+  const rem = (ops.removeRungs||[]).slice().sort((a,b)=>b.index-a.index);
+  rem.forEach(r=>{ const s=program.sheets.find(x=>x.name===sanitizeId(r.sheet)); if(s&&s.rungs[r.index]){ s.rungs.splice(r.index,1); changed++; } });
+  (ops.rungs||[]).forEach(rg=>{
+    const s = ensureSheet(rg.sheet || program.sheets[activeSheet].name);
+    const text = normalizeRungText(rg.text||"");
+    if (!text) return;
+    if (typeof rg.replaceIndex==="number" && s.rungs[rg.replaceIndex]){
+      s.rungs[rg.replaceIndex] = { text, comment: rg.comment||s.rungs[rg.replaceIndex].comment||"" };
+    } else {
+      s.rungs.push({ text, comment: rg.comment||"" });
+    }
+    changed++;
+  });
+  // focus a sheet that just received rungs
+  if ((ops.rungs||[]).length){
+    const first = sanitizeId((ops.rungs[0].sheet)|| "");
+    const idx = program.sheets.findIndex(s=>s.name===first);
+    if (idx>=0) activeSheet=idx;
+  }
+  render();
+  return changed;
+}
+function normalizeRungText(t){
+  t = String(t||"").trim().replace(/;+\s*$/,"");
+  if (!t) return "";
+  // validate it parses to at least one element
+  try { const els=parseRung(t); if(!els.length) return ""; return elementsToText(els); }
+  catch { return ""; }
+}
+
+/* =====================================================================
+   Tag inference
+   ===================================================================== */
+const TIMER_MEMBERS=["DN","TT","EN","ACC","PRE"], COUNTER_MEMBERS=["DN","CU","CD","OV","UN","ACC","PRE"];
+function inferTags(){
+  const map = new Map(); // name -> type
+  const meta = new Map(); // name -> {pre, acc}  (timer/counter presets hoisted into the tag)
+  const rank = { BOOL:1, DINT:2, REAL:2, TIMER:3, COUNTER:3 };
+  function recPreset(name, pre, acc){
+    if (!name || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) return;
+    const cur = meta.get(name) || {};
+    if (pre!=null && /^-?\d+$/.test(pre)) cur.pre = parseInt(pre,10);
+    if (acc!=null && /^-?\d+$/.test(acc)) cur.acc = parseInt(acc,10);
+    meta.set(name, cur);
+  }
+  function set(name, type){
+    if (!name) return;
+    name = name.trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) return; // skip literals/expressions/members handled elsewhere
+    const cur = map.get(name);
+    if (!cur || (rank[type]||0) > (rank[cur]||0)) map.set(name, type);
+  }
+  function isNum(v){ return /^-?\d+(\.\d+)?$/.test(v); }
+  function operandBase(v){
+    if (isNum(v) || v==="?" || v==="") return null;
+    return v.split(".")[0];
+  }
+  function noteMemberRef(v){
+    // e.g. T_Fill.DN -> T_Fill is TIMER/COUNTER
+    const dot = v.indexOf(".");
+    if (dot<0) return;
+    const base=v.slice(0,dot), mem=v.slice(dot+1).toUpperCase();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(base)) return;
+    if (TIMER_MEMBERS.includes(mem)) set(base,"TIMER");
+    else if (COUNTER_MEMBERS.includes(mem)) set(base,"COUNTER");
+  }
+  for (const sheet of program.sheets){
+    for (const r of sheet.rungs){
+      walk(parseRung(r.text));
+    }
+  }
+  function walk(elements){
+    for (const el of elements){
+      if (el.kind==="branch"){ el.paths.forEach(walk); continue; }
+      const n=el.name, a=el.args;
+      if (n==="XIC"||n==="XIO"){ noteMemberRef(a[0]||""); const b=operandBase(a[0]||""); if(b && (a[0]||"").indexOf(".")<0) set(b,"BOOL"); }
+      else if (n==="OTE"||n==="OTL"||n==="OTU"||n==="ONS"){ const b=operandBase(a[0]||""); if(b) set(b,"BOOL"); }
+      else if (n==="TON"||n==="TOF"||n==="RTO"){ const b=operandBase(a[0]||""); set(b,"TIMER"); recPreset(b,a[2],a[3]); }
+      else if (n==="CTU"||n==="CTD"){ const b=operandBase(a[0]||""); set(b,"COUNTER"); recPreset(b,a[2],a[3]); }
+      else if (n==="MOV"){ numOr(a[0],"DINT"); typeDest(a[1]); }
+      else if (n==="CLR"){ typeDest(a[0]); }
+      else if (n==="ADD"||n==="SUB"||n==="MUL"||n==="DIV"){ numOr(a[0],"DINT"); numOr(a[1],"DINT"); typeDest(a[2]); }
+      else if (["EQU","NEQ","LES","GRT","LEQ","GEQ"].includes(n)){ numOr(a[0],"DINT"); numOr(a[1],"DINT"); }
+      else if (n==="LIM"){ numOr(a[0],"DINT"); numOr(a[1],"DINT"); numOr(a[2],"DINT"); }
+      // RES/JSR: operand is an existing tag/routine — don't force a type
+    }
+  }
+  function numOr(v,type){ if(v==null) return; if(!isNum(v)){ noteMemberRef(v); const b=operandBase(v); if(b && v.indexOf(".")<0) set(b,type); } }
+  function typeDest(v){ if(v==null) return; const isReal=/\./.test(v)&&isNum(v); noteMemberRef(v); const b=operandBase(v); if(b && v.indexOf(".")<0) set(b, isReal?"REAL":"DINT"); }
+  return { map, meta };
+}
+
+/* Rewrite model neutral-text into valid Studio 5000 rung text: timer/counter
+   presets move out of the rung and into the tag, so TON(T,?,5000,0) -> TON(T,?,?). */
+function serializeL5X(elements){
+  return elements.map(el=>{
+    if (el.kind==="branch") return "["+el.paths.map(serializeL5X).join(",")+"]";
+    const n=el.name, a=el.args;
+    if (n==="TON"||n==="TOF"||n==="RTO") return `${n}(${a[0]||"Timer"},?,?)`;
+    if (n==="CTU"||n==="CTD") return `${n}(${a[0]||"Counter"},?,?)`;
+    return a.length? `${n}(${a.join(",")})` : n;
+  }).join("");
+}
+function toL5XText(text){ try { return serializeL5X(parseRung(text)); } catch { return normalizeRungText(text); } }
+
+/* =====================================================================
+   L5X export
+   ===================================================================== */
+function pad(n){ return n<10?"0"+n:""+n; }
+function logixDate(d){
+  const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${days[d.getDay()]} ${mon[d.getMonth()]} ${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${d.getFullYear()}`;
+}
+function cdata(s){ return `<![CDATA[${String(s).replace(/]]>/g,"]]]]><![CDATA[>")}]]>`; }
+
+function tagXml(name, type, meta){
+  const ext = 'ExternalAccess="Read/Write"';
+  const pre = (meta && Number.isFinite(meta.pre))? meta.pre : 0;
+  const acc = (meta && Number.isFinite(meta.acc))? meta.acc : 0;
+  if (type==="BOOL"){
+    return `        <Tag Name="${name}" TagType="Base" DataType="BOOL" Radix="Decimal" Constant="false" ${ext}>
+          <Data Format="L5K">${cdata("0")}</Data>
+          <Data Format="Decorated"><DataValue DataType="BOOL" Radix="Decimal" Value="0"/></Data>
+        </Tag>`;
+  }
+  if (type==="DINT"){
+    return `        <Tag Name="${name}" TagType="Base" DataType="DINT" Radix="Decimal" Constant="false" ${ext}>
+          <Data Format="L5K">${cdata("0")}</Data>
+          <Data Format="Decorated"><DataValue DataType="DINT" Radix="Decimal" Value="0"/></Data>
+        </Tag>`;
+  }
+  if (type==="REAL"){
+    return `        <Tag Name="${name}" TagType="Base" DataType="REAL" Radix="Float" Constant="false" ${ext}>
+          <Data Format="L5K">${cdata("0.0")}</Data>
+          <Data Format="Decorated"><DataValue DataType="REAL" Radix="Float" Value="0.0"/></Data>
+        </Tag>`;
+  }
+  if (type==="TIMER"){
+    return `        <Tag Name="${name}" TagType="Base" DataType="TIMER" Constant="false" ${ext}>
+          <Data Format="L5K">${cdata(`[0,${pre},${acc}]`)}</Data>
+          <Data Format="Decorated">
+            <Structure DataType="TIMER">
+              <DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="${pre}"/>
+              <DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="${acc}"/>
+              <DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+              <DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+              <DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+            </Structure>
+          </Data>
+        </Tag>`;
+  }
+  if (type==="COUNTER"){
+    return `        <Tag Name="${name}" TagType="Base" DataType="COUNTER" Constant="false" ${ext}>
+          <Data Format="L5K">${cdata(`[0,${pre},${acc}]`)}</Data>
+          <Data Format="Decorated">
+            <Structure DataType="COUNTER">
+              <DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="${pre}"/>
+              <DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="${acc}"/>
+              <DataValueMember Name="CU" DataType="BOOL" Value="0"/>
+              <DataValueMember Name="CD" DataType="BOOL" Value="0"/>
+              <DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+              <DataValueMember Name="OV" DataType="BOOL" Value="0"/>
+              <DataValueMember Name="UN" DataType="BOOL" Value="0"/>
+            </Structure>
+          </Data>
+        </Tag>`;
+  }
+  return `        <Tag Name="${name}" TagType="Base" DataType="DINT" Radix="Decimal" ${ext}><Data Format="L5K">${cdata("0")}</Data></Tag>`;
+}
+
+function buildL5X(){
+  const ver = VERSIONS.find(v=>v.v===document.getElementById("verSel").value) || VERSIONS[6];
+  const proc = (document.getElementById("procSel").value||ver.proc).trim();
+  const ctrl = sanitizeId(document.getElementById("ctrlName").value)||"MyController";
+  program.controller.name = ctrl;
+  const now = new Date();
+  const date = logixDate(now);
+
+  // routines: a coordinator "MainRoutine" JSRs to every non-empty sheet.
+  const sheets = program.sheets.filter(s=>s.name);
+  let mainName = "MainRoutine";
+  while (sheets.some(s=>s.name===mainName)) mainName+="_";
+
+  // tags
+  const { map: tagMap, meta: tagMeta } = inferTags();
+  const tagXmlList = [...tagMap.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([n,t])=>tagXml(n,t,tagMeta.get(n))).join("\n");
+
+  // per-sheet routines
+  const routineXml = sheets.map(s=>{
+    const rungs = s.rungs.map((r,i)=>{
+      const text = toL5XText(r.text)+";";
+      const cmt = r.comment? `\n            <Comment>${cdata(r.comment)}</Comment>`:"";
+      return `          <Rung Number="${i}" Type="N">${cmt}\n            <Text>${cdata(text)}</Text>\n          </Rung>`;
+    }).join("\n");
+    return `        <Routine Name="${s.name}" Type="RLL">\n          <RLLContent>\n${rungs||`          <Rung Number="0" Type="N"><Text>${cdata("NOP();")}</Text></Rung>`}\n          </RLLContent>\n        </Routine>`;
+  }).join("\n");
+
+  // coordinator routine
+  const jsrRungs = sheets.map((s,i)=>`          <Rung Number="${i}" Type="N">\n            <Text>${cdata(`JSR(${s.name},0);`)}</Text>\n          </Rung>`).join("\n");
+  const mainRoutineXml = `        <Routine Name="${mainName}" Type="RLL">\n          <RLLContent>\n${jsrRungs||`          <Rung Number="0" Type="N"><Text>${cdata("NOP();")}</Text></Rung>`}\n          </RLLContent>\n        </Routine>`;
+
+  const xml =
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="${ver.sr}" TargetName="${ctrl}" TargetType="Controller" ContainsContext="false" ExportDate="${date}" ExportOptions="References NoRawData L5KData DecoratedData ForceProtectedEncoding AllProjDocTrans">
+  <Controller Use="Target" Name="${ctrl}" ProcessorType="${proc}" MajorRev="${ver.rev}" MinorRev="11" TimeSlice="20" ShareUnusedTimeSlice="1" ProjectCreationDate="${date}" LastModifiedDate="${date}" SFCExecutionControl="CurrentActive" SFCRestartPosition="MostRecent" SFCLastScan="DontScan" ProjectSN="16#0000_0000" MatchProjectToController="false" CanUseRPIFromProducer="false" InhibitAutomaticFirmwareUpdate="0">
+    <RedundancyInfo Enabled="false" KeepTestEditsOnSwitchOver="false" IOMemoryPadPercentage="90" DataTablePadPercentage="50"/>
+    <Security Code="0" ChangesToDetect="16#ffff_ffff_ffff_ffff"/>
+    <SafetyInfo/>
+    <DataTypes/>
+    <Modules/>
+    <AddOnInstructionDefinitions/>
+    <Tags>
+${tagXmlList}
+    </Tags>
+    <Programs>
+      <Program Name="MainProgram" TestEdits="false" MainRoutineName="${mainName}" Disabled="false" UseAsFolder="false">
+        <Tags/>
+        <Routines>
+${mainRoutineXml}
+${routineXml}
+        </Routines>
+      </Program>
+    </Programs>
+    <Tasks>
+      <Task Name="MainTask" Type="CONTINUOUS" Priority="10" Watchdog="500" DisableUpdateOutputs="false" InhibitTask="false">
+        <ScheduledPrograms>
+          <ScheduledProgram Name="MainProgram"/>
+        </ScheduledPrograms>
+      </Task>
+    </Tasks>
+  </Controller>
+</RSLogix5000Content>`;
+  return { xml, tagMap };
+}
+
+function downloadL5X(){
+  const { xml } = buildL5X();
+  const ctrl = sanitizeId(document.getElementById("ctrlName").value)||"MyController";
+  const blob = new Blob([xml], { type:"application/xml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = ctrl + ".L5X";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast("Exported " + ctrl + ".L5X");
+}
+
+/* =====================================================================
+   Chat
+   ===================================================================== */
+const chatHistory = []; // {role, content}
+let apiAvailable = null;
+
+function addMsg(role, text, note){
+  const m = document.createElement("div");
+  m.className = "msg " + (role==="user"?"user":role==="system"?"sys":"bot");
+  m.textContent = text;
+  if (note){ const n=document.createElement("div"); n.className="ops-note"; n.textContent=note; m.appendChild(n); }
+  document.getElementById("msgs").appendChild(m);
+  const box=document.getElementById("msgs"); box.scrollTop=box.scrollHeight;
+  return m;
+}
+function setTyping(on){
+  let t=document.getElementById("typingRow");
+  if(on){ if(!t){ t=document.createElement("div"); t.id="typingRow"; t.className="typing"; t.textContent="assistant is thinking…"; document.getElementById("msgs").appendChild(t);} }
+  else if(t) t.remove();
+  const box=document.getElementById("msgs"); box.scrollTop=box.scrollHeight;
+}
+
+async function sendChat(text){
+  text = text.trim();
+  if (!text) return;
+  addMsg("user", text);
+  chatHistory.push({ role:"user", content:text });
+  setTyping(true);
+  try{
+    const res = await fetch(FN_URL, {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ mode:"chat", messages:chatHistory, program })
+    });
+    apiAvailable = res.ok; setApiDot();
+    if (!res.ok){
+      const e = await res.json().catch(()=>({error:res.statusText}));
+      throw new Error(e.error || ("server "+res.status));
+    }
+    const data = await res.json();
+    setTyping(false);
+    const n = applyOps(data.ops);
+    chatHistory.push({ role:"assistant", content:data.reply });
+    addMsg("assistant", data.reply, n? `✓ ladder updated (${n} change${n>1?"s":""})` : "");
+  }catch(err){
+    setTyping(false);
+    apiAvailable = false; setApiDot();
+    // offline fallback: local heuristic parser
+    const ops = localHeuristic(text);
+    if (ops && (ops.rungs||[]).length){
+      const n = applyOps(ops);
+      addMsg("assistant",
+        "The AI backend isn’t reachable (deploy with ANTHROPIC_API_KEY to enable full chat). "+
+        "I parsed your request with the built-in offline rule-parser instead:", `✓ ladder updated (${n} change${n>1?"s":""})`);
+    } else {
+      addMsg("system", "AI backend unavailable ("+err.message+"). You can still build rungs by clicking them, using the block palette, importing a drawing, and exporting. Full conversational design needs the deployed function with ANTHROPIC_API_KEY.");
+    }
+  }
+}
+
+/* Small offline NL parser so the page is useful without the backend. */
+function localHeuristic(text){
+  const t = text.toLowerCase();
+  const parts = t.split(/\bthen\b|➜|->|=>/);
+  if (parts.length<2) return null;
+  const cond = parts[0], act = parts.slice(1).join(" then ");
+  const conds = cond.replace(/^\s*(if|when)\b/,"").split(/\band\b/);
+  const series = [];
+  conds.forEach(c=>{
+    c=c.trim(); if(!c) return;
+    const neg = /\b(not|without|no|isn'?t|de-?energized|off)\b/.test(c);
+    const name = tagFrom(c);
+    if (name) series.push(`${neg?"XIO":"XIC"}(${name})`);
+  });
+  const acts = act.split(/\band\b/);
+  const outs = [];
+  acts.forEach(a=>{
+    a=a.trim(); const name=tagFrom(a); if(!name) return;
+    if (/\b(latch|hold|seal)\b/.test(a)) outs.push(`OTL(${name})`);
+    else if (/\b(unlatch|reset|clear)\b/.test(a)) outs.push(`OTU(${name})`);
+    else outs.push(`OTE(${name})`);
+  });
+  if (!series.length || !outs.length) return null;
+  const sheet = program.sheets[activeSheet].name;
+  return { rungs: outs.map(o=>({ sheet, comment:text, text: series.join("")+o })) };
+}
+function tagFrom(s){
+  const stop = new Set(["the","a","an","is","are","to","of","for","on","off","turn","energize","start","stop","motor","light","valve","pump","and","then","if","when","not","without","no","output","input","set","activate","run"]);
+  const words = s.replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w && !stop.has(w));
+  const keep = s.replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w);
+  let base = (words.length?words:keep).slice(0,3).join("_");
+  // include a domain noun if present
+  const noun = (s.match(/\b(motor|light|valve|pump|conveyor|fan|solenoid|alarm|horn|lamp|door|gate|heater|compressor)\b/)||[])[0];
+  if (noun && !base.includes(noun)) base = (base? base+"_":"")+noun;
+  base = base || "Signal";
+  return base.replace(/(^|_)([a-z])/g,(m,p,c)=>p+c.toUpperCase());
+}
+
+function setApiDot(){
+  const d=document.getElementById("apiDot");
+  d.classList.toggle("on", apiAvailable===true);
+  d.title = apiAvailable===true? "AI backend connected" : apiAvailable===false? "AI backend offline — offline parser active" : "AI backend status unknown";
+}
+
+/* =====================================================================
+   OCR import
+   ===================================================================== */
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>{ const s=r.result; resolve(s.slice(s.indexOf(",")+1)); };
+    r.onerror=reject; r.readAsDataURL(file);
+  });
+}
+async function importDrawing(file){
+  addMsg("system", `Reading “${file.name}” …`);
+  setTyping(true);
+  try{
+    const b64 = await fileToBase64(file);
+    const res = await fetch(FN_URL, {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ mode:"ocr", mediaType:file.type||"image/jpeg", imageBase64:b64 })
+    });
+    apiAvailable=res.ok; setApiDot();
+    if(!res.ok){ const e=await res.json().catch(()=>({error:res.statusText})); throw new Error(e.error||("server "+res.status)); }
+    const data = await res.json();
+    setTyping(false);
+    const n = applyOps(data.ops);
+    addMsg("assistant", data.reply || "Imported the drawing.", n? `✓ ${n} rung(s)/sheet(s) added`:"");
+  }catch(err){
+    setTyping(false); apiAvailable=false; setApiDot();
+    addMsg("system", "Couldn’t read the drawing ("+err.message+"). OCR import needs the deployed function with ANTHROPIC_API_KEY.");
+  }
+}
+
+/* =====================================================================
+   Rung editor
+   ===================================================================== */
+let editingRung = -1;
+const PALETTE = ["XIC(Tag)","XIO(Tag)","OTE(Out)","OTL(Out)","OTU(Out)","ONS(OneShot)",
+  "TON(T1,?,5000,0)","TOF(T1,?,5000,0)","RTO(T1,?,5000,0)","CTU(C1,?,10)","CTD(C1,?,10)","RES(T1)",
+  "[ , ]","EQU(A,B)","NEQ(A,B)","GRT(A,B)","LES(A,B)","GEQ(A,B)","LEQ(A,B)","LIM(Lo,Test,Hi)",
+  "MOV(Src,Dest)","ADD(A,B,Dest)","SUB(A,B,Dest)","MUL(A,B,Dest)","DIV(A,B,Dest)","CLR(Dest)","JSR(Routine,0)"];
+function buildPalette(){
+  const p=document.getElementById("palette"); p.innerHTML="";
+  PALETTE.forEach(s=>{
+    const b=document.createElement("span"); b.className="pi"; b.textContent=s;
+    b.addEventListener("click",()=>insertAtCursor(document.getElementById("rungText"), s));
+    p.appendChild(b);
+  });
+}
+function insertAtCursor(ta, str){
+  const s=ta.selectionStart, e=ta.selectionEnd, v=ta.value;
+  ta.value = v.slice(0,s)+str+v.slice(e);
+  ta.focus(); ta.selectionStart=ta.selectionEnd=s+str.length;
+}
+function openRungEditor(idx){
+  editingRung = idx;
+  const isNew = idx<0;
+  const sheet = program.sheets[activeSheet];
+  document.getElementById("rungModalTitle").textContent = isNew? `Add rung to ${sheet.name}` : `Edit rung ${idx} — ${sheet.name}`;
+  document.getElementById("rungText").value = isNew? "" : sheet.rungs[idx].text;
+  document.getElementById("rungComment").value = isNew? "" : (sheet.rungs[idx].comment||"");
+  document.getElementById("rungDelete").style.display = isNew? "none":"inline-flex";
+  document.getElementById("rungModal").classList.add("on");
+  setTimeout(()=>document.getElementById("rungText").focus(),30);
+}
+function closeRungEditor(){ document.getElementById("rungModal").classList.remove("on"); editingRung=-1; }
+function saveRung(){
+  const text = normalizeRungText(document.getElementById("rungText").value);
+  const comment = document.getElementById("rungComment").value.trim();
+  if (!text){ toast("Rung text didn’t parse — check brackets/parens."); return; }
+  const sheet = program.sheets[activeSheet];
+  if (editingRung<0) sheet.rungs.push({ text, comment });
+  else sheet.rungs[editingRung] = { text, comment };
+  closeRungEditor(); render();
+}
+function deleteRung(){
+  if (editingRung>=0){ program.sheets[activeSheet].rungs.splice(editingRung,1); }
+  closeRungEditor(); render();
+}
+
+/* =====================================================================
+   Tags / export modals
+   ===================================================================== */
+function showExport(){
+  const { xml, tagMap } = buildL5X();
+  document.getElementById("infoTitle").textContent = "Export .L5X";
+  const rungCount = program.sheets.reduce((a,s)=>a+s.rungs.length,0);
+  document.getElementById("infoBody").innerHTML =
+    `<p style="color:var(--dim);margin:0 0 10px">
+      ${program.sheets.length} routine(s) · ${rungCount} rung(s) · ${tagMap.size} auto-tag(s) ·
+      target <b>${document.getElementById("procSel").value}</b> @ Studio 5000 v${document.getElementById("verSel").value}.
+      Import into Studio 5000 via <i>File ▸ Open</i> (choose the .L5X) or right-click a Program ▸ <i>Import Routine</i>.
+    </p>
+    <pre class="xml-pre">${escapeHtml(xml)}</pre>`;
+  document.getElementById("infoModal").classList.add("on");
+}
+function showTags(){
+  const { map: tagMap, meta } = inferTags();
+  document.getElementById("infoTitle").textContent = "Auto-generated tags";
+  let rows = [...tagMap.entries()].sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([n,t])=>{ const m=meta.get(n); const pre=(m&&Number.isFinite(m.pre))?` <span style="color:#7c8ba0">PRE=${m.pre}</span>`:"";
+      return `<tr><td style="padding:3px 14px 3px 0;color:#cfe0f5">${n}</td><td style="color:var(--accent2)">${t}${pre}</td></tr>`; }).join("");
+  if (!rows) rows = `<tr><td style="color:var(--dim)">No tags yet — add some logic first.</td></tr>`;
+  document.getElementById("infoBody").innerHTML =
+    `<p style="color:var(--dim);margin:0 0 8px">Tags are inferred from your rungs and emitted as controller-scoped tags in the L5X.</p>
+     <table style="border-collapse:collapse;font-family:Consolas,monospace;font-size:13px">${rows}</table>`;
+  document.getElementById("infoModal").classList.add("on");
+  document.getElementById("infoDownload").style.display="none";
+}
+function escapeHtml(s){ return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+/* =====================================================================
+   Wiring
+   ===================================================================== */
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2200);
+}
+function initVersions(){
+  const sel=document.getElementById("verSel");
+  VERSIONS.forEach(v=>{ const o=document.createElement("option"); o.value=v.v; o.textContent="v"+v.v; sel.appendChild(o); });
+  sel.value="32";
+  sel.addEventListener("change",()=>{
+    const v=VERSIONS.find(x=>x.v===sel.value);
+    if (v) document.getElementById("procSel").value=v.proc;
+  });
+}
+function initQuick(){
+  const chips=[
+    "Start/stop a motor with seal-in and an E-stop",
+    "Add a 5-second on-delay before the pump runs",
+    "Count 10 parts then set Batch_Done",
+    "Traffic light sequence on one sheet",
+    "Tank fill: pump on at low level, off at high level",
+  ];
+  const q=document.getElementById("quick");
+  chips.forEach(c=>{ const b=document.createElement("span"); b.className="chip"; b.textContent=c;
+    b.addEventListener("click",()=>{ document.getElementById("input").value=c; sendChat(c); }); q.appendChild(b); });
+}
+document.addEventListener("DOMContentLoaded", ()=>{
+  initVersions(); initQuick(); buildPalette(); render(); setApiDot();
+
+  const input=document.getElementById("input");
+  input.addEventListener("input",()=>{ input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,130)+"px"; });
+  input.addEventListener("keydown",(e)=>{
+    if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); const v=input.value; input.value=""; input.style.height="auto"; sendChat(v); }
+  });
+  document.getElementById("sendBtn").addEventListener("click",()=>{ const v=input.value; input.value=""; input.style.height="auto"; sendChat(v); });
+
+  document.getElementById("ctrlName").addEventListener("change",(e)=>{ program.controller.name=sanitizeId(e.target.value)||"MyController"; e.target.value=program.controller.name; });
+
+  document.getElementById("exportBtn").addEventListener("click",()=>{ document.getElementById("infoDownload").style.display="inline-flex"; showExport(); });
+  document.getElementById("tagsBtn").addEventListener("click", showTags);
+  document.getElementById("infoClose").addEventListener("click",()=>document.getElementById("infoModal").classList.remove("on"));
+  document.getElementById("infoDownload").addEventListener("click",()=>{ downloadL5X(); });
+
+  document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("importFile").click());
+  document.getElementById("importFile").addEventListener("change",(e)=>{ const f=e.target.files[0]; if(f) importDrawing(f); e.target.value=""; });
+
+  document.getElementById("rungCancel").addEventListener("click", closeRungEditor);
+  document.getElementById("rungSave").addEventListener("click", saveRung);
+  document.getElementById("rungDelete").addEventListener("click", deleteRung);
+  document.getElementById("rungModal").addEventListener("click",(e)=>{ if(e.target.id==="rungModal") closeRungEditor(); });
+
+  // double-click empty canvas to add a rung
+  document.getElementById("canvasWrap").addEventListener("dblclick",(e)=>{ if(e.target.id==="ladder"||e.target.id==="canvasWrap"||e.target.classList.contains("empty-hint")) openRungEditor(-1); });
+
+  addMsg("assistant", "Hi! Tell me what your machine or process should do and I’ll build the ladder logic, then you can export it as a Studio 5000 .L5X. Try one of the suggestions below, describe your own sequence, or import a photo of a hand-drawn ladder.");
+});
+</script>
+</body>
+</html>
