@@ -1,0 +1,37 @@
+name: RSCamera APK build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "RScamera/**"
+      - ".github/workflows/rscamera-build.yml"
+  pull_request:
+    paths:
+      - "RScamera/**"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: RScamera
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rscamera-debug-apk
+          path: RScamera/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
