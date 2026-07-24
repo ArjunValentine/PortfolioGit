@@ -23,6 +23,14 @@ env:
   # wrappers/android/librealsense/build.gradle.
   NDK_VERSION: "28.0.13004108"
   CMAKE_VERSION: "3.22.1"
+  # librealsense's own wrappers/android/.gitignore accidentally excludes
+  # its committed Gradle wrapper jar (a bare `gradle` line at the end
+  # shadows the `!gradle-wrapper.jar` negation above it) — the jar and
+  # gradle-wrapper.properties both 404 on GitHub. So that clone's
+  # ./gradlew has nothing to run; a provisioned Gradle is used for that
+  # one step instead. Their wrappers/android/build.gradle pins AGP
+  # 8.9.1, whose documented minimum is Gradle 8.11.
+  GRADLE_FOR_LIBREALSENSE: "8.11.1"
 
 jobs:
   build:
@@ -48,11 +56,15 @@ jobs:
             https://github.com/IntelRealSense/librealsense.git \
             "$RUNNER_TEMP/librealsense-src"
 
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_FOR_LIBREALSENSE }}
+
       - name: Build librealsense AAR from source
         working-directory: ${{ runner.temp }}/librealsense-src/wrappers/android
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleRelease --stacktrace
+        # Using the provisioned `gradle`, not `./gradlew` — see the
+        # GRADLE_FOR_LIBREALSENSE comment above for why.
+        run: gradle assembleRelease --stacktrace
 
       - name: Drop the built AAR into RScamera/app/libs
         run: |
