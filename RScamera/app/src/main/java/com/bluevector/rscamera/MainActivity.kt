@@ -166,8 +166,13 @@ class MainActivity : AppCompatActivity() {
                     // RGBA8 (not RGB8) on purpose: its 4-bytes-per-pixel layout
                     // maps straight onto Bitmap.Config.ARGB_8888 with no
                     // per-pixel expansion needed.
-                    enableStream(StreamType.COLOR, STREAM_WIDTH, STREAM_HEIGHT, StreamFormat.RGBA8, STREAM_FPS)
-                    enableStream(StreamType.DEPTH, STREAM_WIDTH, STREAM_HEIGHT, StreamFormat.Z16, STREAM_FPS)
+                    //
+                    // The 6-arg overload takes a stream `index` before
+                    // width/height (index -1 = "any" — the D415 doesn't
+                    // expose multiple streams of the same type, so this
+                    // just picks whichever one matches width/height/format).
+                    enableStream(StreamType.COLOR, -1, STREAM_WIDTH, STREAM_HEIGHT, StreamFormat.RGBA8, STREAM_FPS)
+                    enableStream(StreamType.DEPTH, -1, STREAM_WIDTH, STREAM_HEIGHT, StreamFormat.Z16, STREAM_FPS)
                 }
                 val pipe = Pipeline()
                 pipe.start(cfg)
