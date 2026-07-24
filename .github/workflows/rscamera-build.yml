@@ -56,6 +56,20 @@ jobs:
             https://github.com/IntelRealSense/librealsense.git \
             "$RUNNER_TEMP/librealsense-src"
 
+      - name: Patch upstream Option.java enum bug (tag ${{ env.LIBREALSENSE_TAG }})
+        # Genuine bug in Intel's committed source at this tag, not ours:
+        # OPTION_SAFETY_MODE(96) ends with a semicolon, which in Java
+        # terminates the enum constant list — but OPTION_RGB_TNR_ENABLED(97)
+        # is meant to be one more constant, not a class member, and javac
+        # correctly rejects it ("enum constant not expected here"). Fix is
+        # a one-character comma-for-semicolon swap. Worth re-checking (and
+        # dropping this step) next time LIBREALSENSE_TAG is bumped, in case
+        # upstream has fixed it by then.
+        run: |
+          f="$RUNNER_TEMP/librealsense-src/wrappers/android/librealsense/src/main/java/com/intel/realsense/librealsense/Option.java"
+          sed -i 's/OPTION_SAFETY_MODE(96);/OPTION_SAFETY_MODE(96),/' "$f"
+          grep -n "OPTION_SAFETY_MODE\|OPTION_RGB_TNR_ENABLED" "$f"
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: ${{ env.GRADLE_FOR_LIBREALSENSE }}
