@@ -42,13 +42,12 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
 
-    // Pinning to a specific version (tried 2.58.3, the latest SDK tag at
-    // the time this was written) failed CI: that version was never
-    // published to this AAR-specific Maven repo, which lags the main SDK
-    // release cadence and doesn't mirror it 1:1. Falling back to the
-    // floating range Intel's own docs use, which resolves to whatever the
-    // highest published AAR version actually is. See the CI job's
-    // "List available librealsense AAR versions" step for what's really
-    // there — worth pinning to a real version once known.
-    implementation("com.intel.realsense:librealsense:2.+@aar")
+    // Intel's documented Maven host for the prebuilt AAR
+    // (egiintel.jfrog.io) no longer serves the artifact repo — it resolves
+    // to JFrog's own generic landing page now, not Intel's Artifactory
+    // instance. So instead of a remote coordinate, CI builds librealsense
+    // from source (wrappers/android, ./gradlew assembleRelease) and drops
+    // the resulting AAR here before this file gets evaluated. See
+    // .github/workflows/rscamera-build.yml and RScamera/README.md.
+    implementation(files("libs/librealsense.aar"))
 }

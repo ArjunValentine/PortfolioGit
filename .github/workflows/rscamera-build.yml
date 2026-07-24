@@ -9,14 +9,24 @@ on:
   pull_request:
     paths:
       - "RScamera/**"
+      - ".github/workflows/rscamera-build.yml"
   workflow_dispatch: {}
+
+env:
+  # Intel's Maven host for the prebuilt AAR (egiintel.jfrog.io) is dead —
+  # see RScamera/README.md — so this builds librealsense from source
+  # instead. Pinned to the latest SDK release tag at the time this was
+  # written; bump alongside app/build.gradle.kts's own version notes if
+  # you deliberately move to a newer one.
+  LIBREALSENSE_TAG: v2.58.3
+  # Must match the ndkVersion pinned in librealsense's
+  # wrappers/android/librealsense/build.gradle.
+  NDK_VERSION: "28.0.13004108"
+  CMAKE_VERSION: "3.22.1"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: RScamera
     steps:
       - uses: actions/checkout@v4
 
@@ -27,13 +37,35 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: List available librealsense AAR versions
-        continue-on-error: true
+      - name: Install NDK + CMake
         run: |
-          curl -fsSL "https://egiintel.jfrog.io/artifactory/librealsense/com/intel/realsense/librealsense/maven-metadata.xml" \
-            || echo "metadata fetch failed — repo layout may differ from what the build.gradle.kts comment assumes"
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager "ndk;${NDK_VERSION}" "cmake;${CMAKE_VERSION}"
 
-      - name: Build debug APK
+      - name: Clone librealsense (${{ env.LIBREALSENSE_TAG }})
+        run: |
+          git clone --depth 1 --branch "$LIBREALSENSE_TAG" \
+            https://github.com/IntelRealSense/librealsense.git \
+            "$RUNNER_TEMP/librealsense-src"
+
+      - name: Build librealsense AAR from source
+        working-directory: ${{ runner.temp }}/librealsense-src/wrappers/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --stacktrace
+
+      - name: Drop the built AAR into RScamera/app/libs
+        run: |
+          mkdir -p RScamera/app/libs
+          aar=$(find "$RUNNER_TEMP/librealsense-src/wrappers/android/librealsense/build/outputs/aar" -name "*.aar" | head -n1)
+          if [ -z "$aar" ]; then
+            echo "No AAR found under wrappers/android/librealsense/build/outputs/aar — build likely failed silently."
+            exit 1
+          fi
+          cp "$aar" RScamera/app/libs/librealsense.aar
+
+      - name: Build RScamera debug APK
+        working-directory: RScamera
         run: ./gradlew assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4

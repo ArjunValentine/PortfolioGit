@@ -11,10 +11,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // Intel's own Maven host for the librealsense Android AAR.
-        // Not reachable from every sandboxed/CI network by default — see
-        // RScamera/README.md if this repo fails to resolve.
-        maven { url = uri("https://egiintel.jfrog.io/artifactory/librealsense") }
+        // No longer pulling librealsense from Intel's Maven host
+        // (egiintel.jfrog.io) — it's dead, see RScamera/README.md. CI
+        // builds the AAR from source instead and app/build.gradle.kts
+        // depends on the local file directly.
     }
 }
 
