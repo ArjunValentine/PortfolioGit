@@ -27,6 +27,12 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
+      - name: List available librealsense AAR versions
+        continue-on-error: true
+        run: |
+          curl -fsSL "https://egiintel.jfrog.io/artifactory/librealsense/com/intel/realsense/librealsense/maven-metadata.xml" \
+            || echo "metadata fetch failed — repo layout may differ from what the build.gradle.kts comment assumes"
+
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
