@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.RSCamera" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#000080</item>
+        <item name="colorPrimaryDark">#000060</item>
+        <item name="colorAccent">#7878DC</item>
+        <item name="android:windowBackground">#000000</item>
+    </style>
+</resources>

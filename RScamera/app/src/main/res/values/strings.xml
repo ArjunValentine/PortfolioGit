@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RS Camera</string>
+    <string name="status_waiting">Waiting for RealSense D415…\nConnect over USB-C OTG.</string>
+    <string name="status_permission">Requesting USB permission…</string>
+    <string name="status_streaming">Streaming</string>
+    <string name="status_disconnected">Disconnected</string>
+</resources>

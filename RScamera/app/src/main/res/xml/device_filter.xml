@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Matches any USB device with Intel's vendor ID (0x8086 = 32902 decimal),
+  which covers the D415 and the rest of the D400 family. Loose on purpose:
+  narrowing to a specific product ID would need the D415's exact PID
+  confirmed against real hardware, which wasn't available while writing
+  this scaffold.
+-->
+<resources>
+    <usb-device vendor-id="32902" />
+</resources>

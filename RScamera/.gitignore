@@ -1,0 +1,15 @@
+*.iml
+.gradle/
+/local.properties
+.idea/
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# librealsense AAR built from source by CI (rscamera-build.yml) — not
+# committed, since it's a multi-hundred-MB native build artifact.
+/app/libs/*.aar

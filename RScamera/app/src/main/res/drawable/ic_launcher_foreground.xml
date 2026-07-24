@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stylized stereo-camera glyph: body bar with a depth lens on each end,
+     nodding to the D415's dual color+depth optics. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,46 h48 v16 h-48 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,54 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68,54 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <path
+        android:fillColor="#000080"
+        android:pathData="M40,54 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+    <path
+        android:fillColor="#000080"
+        android:pathData="M68,54 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+</vector>

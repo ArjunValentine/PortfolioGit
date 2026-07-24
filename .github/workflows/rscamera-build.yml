@@ -1,0 +1,101 @@
+name: RSCamera APK build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "RScamera/**"
+      - ".github/workflows/rscamera-build.yml"
+  pull_request:
+    paths:
+      - "RScamera/**"
+      - ".github/workflows/rscamera-build.yml"
+  workflow_dispatch: {}
+
+env:
+  # Intel's Maven host for the prebuilt AAR (egiintel.jfrog.io) is dead —
+  # see RScamera/README.md — so this builds librealsense from source
+  # instead. Pinned to the latest SDK release tag at the time this was
+  # written; bump alongside app/build.gradle.kts's own version notes if
+  # you deliberately move to a newer one.
+  LIBREALSENSE_TAG: v2.58.3
+  # Must match the ndkVersion pinned in librealsense's
+  # wrappers/android/librealsense/build.gradle.
+  NDK_VERSION: "28.0.13004108"
+  CMAKE_VERSION: "3.22.1"
+  # librealsense's own wrappers/android/.gitignore accidentally excludes
+  # its committed Gradle wrapper jar (a bare `gradle` line at the end
+  # shadows the `!gradle-wrapper.jar` negation above it) — the jar and
+  # gradle-wrapper.properties both 404 on GitHub. So that clone's
+  # ./gradlew has nothing to run; a provisioned Gradle is used for that
+  # one step instead. Their wrappers/android/build.gradle pins AGP
+  # 8.9.1, whose documented minimum is Gradle 8.11.
+  GRADLE_FOR_LIBREALSENSE: "8.11.1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install NDK + CMake
+        run: |
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager "ndk;${NDK_VERSION}" "cmake;${CMAKE_VERSION}"
+
+      - name: Clone librealsense (${{ env.LIBREALSENSE_TAG }})
+        run: |
+          git clone --depth 1 --branch "$LIBREALSENSE_TAG" \
+            https://github.com/IntelRealSense/librealsense.git \
+            "$RUNNER_TEMP/librealsense-src"
+
+      - name: Patch upstream Option.java enum bug (tag ${{ env.LIBREALSENSE_TAG }})
+        # Genuine bug in Intel's committed source at this tag, not ours:
+        # OPTION_SAFETY_MODE(96) ends with a semicolon, which in Java
+        # terminates the enum constant list — but OPTION_RGB_TNR_ENABLED(97)
+        # is meant to be one more constant, not a class member, and javac
+        # correctly rejects it ("enum constant not expected here"). Fix is
+        # a one-character comma-for-semicolon swap. Worth re-checking (and
+        # dropping this step) next time LIBREALSENSE_TAG is bumped, in case
+        # upstream has fixed it by then.
+        run: |
+          f="$RUNNER_TEMP/librealsense-src/wrappers/android/librealsense/src/main/java/com/intel/realsense/librealsense/Option.java"
+          sed -i 's/OPTION_SAFETY_MODE(96);/OPTION_SAFETY_MODE(96),/' "$f"
+          grep -n "OPTION_SAFETY_MODE\|OPTION_RGB_TNR_ENABLED" "$f"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_FOR_LIBREALSENSE }}
+
+      - name: Build librealsense AAR from source
+        working-directory: ${{ runner.temp }}/librealsense-src/wrappers/android
+        # Using the provisioned `gradle`, not `./gradlew` — see the
+        # GRADLE_FOR_LIBREALSENSE comment above for why.
+        run: gradle assembleRelease --stacktrace
+
+      - name: Drop the built AAR into RScamera/app/libs
+        run: |
+          mkdir -p RScamera/app/libs
+          aar=$(find "$RUNNER_TEMP/librealsense-src/wrappers/android/librealsense/build/outputs/aar" -name "*.aar" | head -n1)
+          if [ -z "$aar" ]; then
+            echo "No AAR found under wrappers/android/librealsense/build/outputs/aar — build likely failed silently."
+            exit 1
+          fi
+          cp "$aar" RScamera/app/libs/librealsense.aar
+
+      - name: Build RScamera debug APK
+        working-directory: RScamera
+        run: ./gradlew assembleDebug --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rscamera-debug-apk
+          path: RScamera/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
